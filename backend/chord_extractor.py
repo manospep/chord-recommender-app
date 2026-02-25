@@ -7,11 +7,15 @@ TAG_PATTERN = re.compile(r"<[^>]+>")
 SLASH_PATTERN = re.compile(r"([A-G](?:#|b)?)/([A-G](?:#|b)?)")
 
 # Chord names
+# Trailing (?![#\w]) instead of \b so that D# is not mis-extracted as D:
+# \b fails after '#' (non-word char), causing the regex to backtrack and match
+# just 'D' from 'D#'. The negative lookahead correctly rejects any following
+# '#' or word character, keeping D# intact.
 CHORD_PATTERN = re.compile(
     r"\b("
     r"[A-G](?:#|b)?"
-    r"(?:maj7|maj|min7|min|m7|m|dim7|dim|aug|sus2|sus4|add9|add11|add13|add|6|7|9|11|13)?"
-    r")\b"
+    r"(?:maj7|maj|min7|min|m7|m|dim7|dim|aug|sus2|sus4|sus|add9|add11|add13|add|6|7|9|11|13|5)?"
+    r")(?![#\w])"
 )
 
 def extract_chords(text):

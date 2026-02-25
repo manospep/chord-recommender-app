@@ -1,316 +1,793 @@
-/* ---- Background gradient ---- */
+/* ============================================================
+   LAYOUT & BASE
+   ============================================================ */
+
 .page {
   min-height: 100vh;
   background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+  padding-top: 64px; /* fixed navbar height */
+  padding-left: 20px;
+  padding-right: 20px;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* ============================================================
+   NAVBAR
+   ============================================================ */
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  height: 64px;
+  background: rgba(10, 10, 26, 0.88);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 60px 20px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", sans-serif;
+  align-items: center;
+  padding: 0 36px;
 }
 
-/* ---- Glass container ---- */
-.glass-card {
-  width: 900px;
-  max-width: 95vw;
-  background: rgba(255, 255, 255, 0.08);
-  padding: 50px;
-  border-radius: 24px;
-  backdrop-filter: blur(30px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-}
-
-/* ---- Title ---- */
-.title {
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  text-decoration: none;
   color: white;
-  text-align: center;
-  font-size: 42px;
-  margin-bottom: 40px;
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  transition: opacity 0.2s;
+}
+
+.navbar-brand:hover {
+  opacity: 0.85;
+}
+
+.guitar-icon {
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.25));
+  transition: filter 0.2s ease;
+}
+
+.navbar-brand:hover .guitar-icon {
+  filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.55));
+}
+
+.navbar-cq {
+  margin-left: auto;
+  font-size: 18px;
+  font-weight: 800;
   letter-spacing: -0.5px;
 }
 
-/* ---- Logo ---- */
-.image-logo {
-  width: 200px;
-  display: block;
-  margin: 0 auto 20px auto;
+.brand-name {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.6px;
 }
 
-/* ---- Input Grid ---- */
+.brand-chord {
+  color: #ffffff;
+}
+
+.brand-quest {
+  color: #00d4ff;
+}
+
+/* ============================================================
+   HOME PAGE CONTAINER
+   ============================================================ */
+
+.container {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 36px 0 80px;
+}
+
+/* ============================================================
+   SEARCH PANEL
+   ============================================================ */
+
+.search-panel {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 24px 28px 28px;
+  margin-bottom: 24px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.search-label {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+  margin: 0 0 14px 2px;
+}
+
+/* ============================================================
+   INPUT GRID
+   ============================================================ */
+
 .input-grid {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 35px;
+  gap: 10px;
 }
 
-/* ---- Unified Input Styles ---- */
-.chord-input,
+.genre-select {
+  grid-column: 1 / -1;
+  padding: 13px 18px;
+  font-size: 14px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  outline: none;
+  background: rgba(255, 255, 255, 0.92);
+  font-weight: 500;
+  transition: all 0.25s ease;
+  cursor: pointer;
+  color: #333;
+  font-family: "Inter", sans-serif;
+}
+
+.genre-select:focus {
+  border-color: #00d4ff;
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.15);
+}
+
+/* ============================================================
+   CHORD TAG INPUT
+   ============================================================ */
+
+.tag-input-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  cursor: text;
+  min-height: 48px;
+  transition: all 0.25s ease;
+  font-family: "Inter", sans-serif;
+}
+
+.tag-input-wrapper:focus-within {
+  background: white;
+  border-color: #00d4ff;
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.15);
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #00d4ff, #0099cc);
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 4px 10px 4px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+  letter-spacing: 0.2px;
+}
+
+.tag-remove {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0;
+  opacity: 0.65;
+  transition: opacity 0.15s;
+  font-family: inherit;
+}
+
+.tag-remove:hover {
+  opacity: 1;
+}
+
+.tag-input {
+  flex: 1;
+  min-width: 90px;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  font-family: "Inter", sans-serif;
+}
+
+.tag-input::placeholder {
+  color: #aaa;
+}
+
+/* ============================================================
+   OTHER INPUTS
+   ============================================================ */
+
 .artist-input,
 .song-input {
-  padding: 16px 20px;
-  font-size: 16px;
-  border-radius: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  padding: 13px 18px;
+  font-size: 14px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
   outline: none;
   background: rgba(255, 255, 255, 0.95);
   font-weight: 500;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.25s ease;
+  font-family: "Inter", sans-serif;
+  color: #333;
 }
 
-.chord-input:focus,
 .artist-input:focus,
 .song-input:focus {
   background: white;
   border-color: #00d4ff;
-  box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.15);
-  transform: translateY(-2px);
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.15);
 }
 
-.chord-input::placeholder,
 .artist-input::placeholder,
 .song-input::placeholder {
-  color: #999;
+  color: #aaa;
 }
+
+/* ============================================================
+   SEARCH BUTTON
+   ============================================================ */
 
 .search-btn {
   grid-column: 1 / -1;
   background: linear-gradient(135deg, #00d4ff, #0099cc);
-  padding: 16px 32px;
+  padding: 15px 32px;
   border: none;
-  border-radius: 16px;
+  border-radius: 14px;
   cursor: pointer;
-  font-size: 17px;
+  font-size: 15px;
   color: white;
   font-weight: 700;
-  transition: all 0.3s ease;
-  box-shadow: 0 8px 20px rgba(0, 212, 255, 0.3);
+  transition: all 0.25s ease;
+  box-shadow: 0 6px 18px rgba(0, 212, 255, 0.28);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
+  font-family: "Inter", sans-serif;
 }
 
 .search-btn:hover {
-  background: linear-gradient(135deg, #00f2ff, #00b8e6);
+  background: linear-gradient(135deg, #1ad9ff, #00b0d8);
   transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(0, 212, 255, 0.4);
+  box-shadow: 0 10px 24px rgba(0, 212, 255, 0.38);
 }
 
 .search-btn:active {
-  transform: translateY(0px);
+  transform: translateY(0);
 }
 
-/* ---- Loading ---- */
+.search-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ============================================================
+   RESULT COUNT
+   ============================================================ */
+
+.result-count {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  margin-bottom: 10px;
+  padding-left: 2px;
+}
+
+/* ============================================================
+   RESULTS LIST
+   ============================================================ */
+
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ============================================================
+   CARD ENTRANCE ANIMATION
+   ============================================================ */
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================
+   SONG CARD
+   ============================================================ */
+
+.song-card {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 16px 20px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: white;
+  text-decoration: none;
+  display: block;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  animation: fadeSlideIn 0.35s ease both;
+}
+
+.song-card:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(0, 212, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.song-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.song-card-title {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.song-card-stats {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* ============================================================
+   BADGES
+   ============================================================ */
+
+.badge {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+
+.badge-green {
+  background: rgba(0, 230, 118, 0.13);
+  color: #00e676;
+  border: 1px solid rgba(0, 230, 118, 0.28);
+}
+
+.badge-red {
+  background: rgba(255, 82, 82, 0.13);
+  color: #ff6b6b;
+  border: 1px solid rgba(255, 82, 82, 0.28);
+}
+
+.badge-grey {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.genre-badge {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 20px;
+  background: rgba(150, 100, 255, 0.13);
+  color: #b388ff;
+  border: 1px solid rgba(150, 100, 255, 0.28);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.card-rating {
+  font-size: 11px;
+  color: #ffd700;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* ============================================================
+   CHORD CHIPS
+   ============================================================ */
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.chip {
+  padding: 4px 11px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.chip-known {
+  background: rgba(0, 230, 118, 0.15);
+  color: #00e676;
+  border: 1px solid rgba(0, 230, 118, 0.3);
+}
+
+.chip-missing {
+  background: rgba(255, 82, 82, 0.15);
+  color: #ff6b6b;
+  border: 1px solid rgba(255, 82, 82, 0.3);
+}
+
+/* ============================================================
+   LOADING
+   ============================================================ */
+
 .loader {
   color: #00d4ff;
   text-align: center;
   margin-top: 20px;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   animation: pulse 1.5s ease-in-out infinite;
 }
 
 @keyframes pulse {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  50%       { opacity: 0.45; }
 }
 
-/* ---- Result count ---- */
-.result-count {
-  margin-top: 20px;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 0.3px;
+/* ============================================================
+   SKELETON LOADER
+   ============================================================ */
+
+@keyframes shimmer {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 0.85; }
 }
 
-/* ---- Results ---- */
-.results {
-  margin-top: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+.song-card.skeleton {
+  pointer-events: none;
+  animation: fadeSlideIn 0.35s ease both;
 }
 
-/* ---- Song card ---- */
-.song-card {
+.skeleton-line {
+  height: 12px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.1);
-  padding: 24px;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: white;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  animation: shimmer 1.4s ease-in-out infinite;
+  margin-bottom: 9px;
 }
 
-.song-card:hover {
-  transform: translateY(-4px);
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(0, 212, 255, 0.5);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
-}
+.skeleton-line.wide   { width: 62%; }
+.skeleton-line.narrow { width: 35%; }
 
-/* ---- Song card header ---- */
-.song-card-header {
+.skeleton-chips {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 4px;
+  gap: 6px;
+  margin-top: 10px;
 }
 
-.song-card-title {
-  font-size: 18px;
-  font-weight: 700;
-}
-
-.badge {
-  flex-shrink: 0;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 5px 12px;
+.skeleton-chip {
+  width: 40px;
+  height: 24px;
   border-radius: 20px;
-  letter-spacing: 0.3px;
+  background: rgba(255, 255, 255, 0.07);
+  animation: shimmer 1.4s ease-in-out infinite;
 }
 
-.badge-green {
-  background: rgba(0, 230, 118, 0.2);
-  color: #00e676;
-  border: 1px solid rgba(0, 230, 118, 0.4);
+/* ============================================================
+   GLASS CARD  (song detail page)
+   ============================================================ */
+
+.glass-card {
+  max-width: 880px;
+  width: 100%;
+  margin: 36px auto 60px;
+  background: rgba(255, 255, 255, 0.07);
+  padding: 44px 50px;
+  border-radius: 22px;
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
 }
 
-.badge-red {
-  background: rgba(255, 82, 82, 0.2);
-  color: #ff5252;
-  border: 1px solid rgba(255, 82, 82, 0.4);
-}
-
-/* ---- Chord chips ---- */
-.chip-row {
-  margin-top: 12px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.chip {
-  padding: 8px 16px;
-  border-radius: 24px;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-.chip-known {
-  background: linear-gradient(135deg, #00e676, #00c853);
-  color: white;
-}
-
-.chip-missing {
-  background: linear-gradient(135deg, #ff5252, #d32f2f);
-  color: white;
-}
-
-/* missing count text */
-.missing-text {
-  margin-top: 8px;
-  font-size: 13px;
-  opacity: 0.8;
-}
-
-/* ---------------- SONG PAGE UI UPGRADES ---------------- */
+/* ============================================================
+   SONG PAGE — NAVIGATION
+   ============================================================ */
 
 .back-btn {
   display: inline-flex;
   align-items: center;
   text-decoration: none;
   color: #00d4ff;
-  font-weight: 700;
-  font-size: 16px;
-  transition: all 0.3s ease;
-  padding: 8px 16px;
-  border-radius: 12px;
-  margin-bottom: 20px;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all 0.2s ease;
+  padding: 6px 14px;
+  border-radius: 10px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  background: rgba(0, 212, 255, 0.06);
+  letter-spacing: 0.1px;
 }
 
 .back-btn:hover {
   color: #00f2ff;
-  background: rgba(0, 212, 255, 0.1);
-  transform: translateX(-4px);
+  background: rgba(0, 212, 255, 0.12);
+  border-color: rgba(0, 212, 255, 0.4);
+  transform: translateX(-3px);
 }
 
+/* ============================================================
+   SONG PAGE — HEADER
+   ============================================================ */
+
 .song-title {
-  font-size: 48px;
+  font-size: 42px;
   font-weight: 800;
   color: white;
   text-align: center;
   margin-bottom: 8px;
   letter-spacing: -1px;
-  line-height: 1.2;
+  line-height: 1.15;
 }
 
 .song-artist {
-  font-size: 24px;
+  font-size: 19px;
   text-align: center;
-  color: rgba(255, 255, 255, 0.8);
-  margin-bottom: 30px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 24px;
   font-weight: 500;
 }
 
 .section-header {
-  font-size: 20px;
+  font-size: 15px;
   font-weight: 700;
   color: white;
-  margin-bottom: 16px;
-  letter-spacing: -0.3px;
+  margin-bottom: 12px;
+  letter-spacing: -0.1px;
 }
 
 .divider {
   border: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-  margin: 30px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 26px 0;
 }
 
-/* EXACT same text layout as before */
+/* ============================================================
+   SONG PAGE — STAR RATING
+   ============================================================ */
+
+.rating-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 14px 0 6px;
+}
+
+.stars-row {
+  display: flex;
+  gap: 5px;
+}
+
+.star {
+  font-size: 32px;
+  line-height: 1;
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.star-filled  { color: #ffd700; }
+.star-empty   { color: rgba(255, 255, 255, 0.18); }
+
+.star-interactive       { cursor: pointer; }
+.star-interactive:hover { transform: scale(1.2); }
+.star-locked            { cursor: default; }
+
+.rating-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 13px;
+}
+
+.rating-prompt    { color: rgba(255, 255, 255, 0.38); }
+.rating-submitted { color: #00e676; font-weight: 600; }
+.rating-average   { color: rgba(255, 255, 255, 0.55); font-weight: 500; }
+
+/* ============================================================
+   SONG PAGE — LYRICS & CHORDS
+   ============================================================ */
+
 .lyrics-pre {
-  white-space: pre;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 28px;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(15px);
-  font-size: 15px;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.95);
+  white-space: pre-wrap;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 22px 26px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  font-size: 14px;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.88);
   max-height: 65vh;
   overflow-y: auto;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   font-family: "SF Mono", "Monaco", "Courier New", monospace;
 }
 
-/* Smooth custom scrollbar */
-.lyrics-pre::-webkit-scrollbar {
-  width: 12px;
+.chord-line {
+  display: block;
+  white-space: pre;
+  margin: 0;
 }
 
-.lyrics-pre::-webkit-scrollbar-track {
+.lyric-line {
+  display: block;
+  white-space: pre;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+}
+
+.inline-chord-known   { color: #00e676; font-weight: 700; }
+.inline-chord-missing { color: #ff6b6b; font-weight: 700; }
+
+.no-lyrics {
+  color: rgba(255, 255, 255, 0.3);
+  font-style: italic;
+  text-align: center;
+  padding: 40px;
+}
+
+/* ============================================================
+   EXPLORE SECTION
+   ============================================================ */
+
+.explore-section {
+  animation: fadeSlideIn 0.4s ease both;
+  animation-delay: 0.08s;
+}
+
+.explore-label {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+  margin: 0 0 14px 2px;
+}
+
+.genre-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.genre-tile {
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 16px 10px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  color: white;
+  font-family: "Inter", sans-serif;
 }
 
-.lyrics-pre::-webkit-scrollbar-thumb {
-  background: rgba(0, 212, 255, 0.5);
-  border-radius: 10px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
+.genre-tile:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(0, 212, 255, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
 }
 
-.lyrics-pre::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 212, 255, 0.7);
-  background-clip: padding-box;
+.genre-tile-icon {
+  font-size: 22px;
+  line-height: 1;
 }
+
+.genre-tile-name {
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 0.1px;
+}
+
+.prog-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.prog-item {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 13px 18px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  text-align: left;
+  font-family: "Inter", sans-serif;
+  width: 100%;
+}
+
+.prog-item:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(0, 212, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+.prog-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  min-width: 95px;
+}
+
+.prog-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.38);
+  font-weight: 500;
+  min-width: 110px;
+}
+
+.prog-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-left: auto;
+}
+
+.prog-chip {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(0, 212, 255, 0.1);
+  color: #00d4ff;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  letter-spacing: 0.2px;
+}
+
+/* Scrollbar */
+.lyrics-pre::-webkit-scrollbar       { width: 8px; }
+.lyrics-pre::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); border-radius: 8px; }
+.lyrics-pre::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.35); border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+.lyrics-pre::-webkit-scrollbar-thumb:hover { background: rgba(0,212,255,0.6); background-clip: padding-box; }
