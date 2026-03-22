@@ -22,9 +22,9 @@ app.add_middleware(
 )
 
 # ---- Ratings DB ----
-# On Railway use the persistent volume (/data/); fall back to local server dir
-_data_dir = os.path.dirname(os.getenv("DATA_PATH", os.path.join(os.path.dirname(__file__), "ratings.db")))
-DB_PATH = os.path.join(_data_dir, "ratings.db")
+# /tmp is always writable (on Railway and locally).
+# Override with DB_PATH env var if you have a persistent volume.
+DB_PATH = os.getenv("DB_PATH", os.path.join("/tmp", "ratings.db"))
 
 def get_db():
     conn = sqlite3.connect(DB_PATH)
