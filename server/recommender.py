@@ -45,23 +45,27 @@ def _resolve_csv_path() -> str:
         csv_path = os.path.join(base_dir, "..", "data", "chords_and_lyrics.csv")
 
     if not os.path.exists(csv_path):
-        hf_repo  = os.getenv("HF_REPO_ID")   # e.g. "yourname/chordquest-data"
-        hf_token = os.getenv("HF_TOKEN")      # HuggingFace read token
+        hf_repo  = os.getenv("HF_REPO_ID")
+        hf_token = os.getenv("HF_TOKEN")
         if not hf_repo:
             raise FileNotFoundError(
                 f"Dataset not found at {csv_path}. "
                 "Set DATA_PATH or HF_REPO_ID + HF_TOKEN env vars."
             )
         print(f"Dataset missing — downloading from HuggingFace ({hf_repo})…")
-        from huggingface_hub import hf_hub_download
-        os.makedirs(os.path.dirname(csv_path), exist_ok=True)
-        hf_hub_download(
-            repo_id=hf_repo,
-            filename="chords_and_lyrics.csv",
-            repo_type="dataset",
-            token=hf_token,
-            local_dir=os.path.dirname(csv_path),
-        )
+        import urllib.request
+        url = f"https://huggingface.co/datasets/{hf_repo}/resolve/main/chords_and_lyrics.csv"
+        headers = {"Authorization": f"Bearer {hf_token}"} if hf_token else {}
+        os.makedirs(os.path.dirname(csv_path) or ".", exist_ok=True)
+        req = urllib.request.Request(url, headers=headers)
+        with urllib.request.urlopen(req) as resp, open(csv_path, "wb") as f:
+            total = int(resp.headers.get("Content-Length", 0))
+            done = 0
+            while chunk := resp.read(4 * 1024 * 1024):
+                f.write(chunk)
+                done += len(chunk)
+                if total:
+                    print(f"  {done/1e6:.0f} / {total/1e6:.0f} MB", flush=True)
         print("Download complete.")
 
     return csv_path
