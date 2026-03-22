@@ -22,9 +22,26 @@ app.add_middleware(
 )
 
 # ---- Ratings DB ----
-# /tmp is always writable (on Railway and locally).
-# Override with DB_PATH env var if you have a persistent volume.
-DB_PATH = os.getenv("DB_PATH", os.path.join("/tmp", "ratings.db"))
+def _resolve_db_path() -> str:
+    if custom := os.getenv("DB_PATH"):
+        os.makedirs(os.path.dirname(custom) or ".", exist_ok=True)
+        return custom
+    candidates = [
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "ratings.db"),
+        "/tmp/ratings.db",
+        os.path.join(os.path.expanduser("~"), "ratings.db"),
+    ]
+    for path in candidates:
+        try:
+            os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+            open(path, "a").close()
+            return path
+        except OSError:
+            continue
+    return candidates[-1]
+
+DB_PATH = _resolve_db_path()
+print(f"Using DB: {DB_PATH}")
 
 def get_db():
     conn = sqlite3.connect(DB_PATH)
