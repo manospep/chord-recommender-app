@@ -57,8 +57,14 @@ def fetch_rating(song_id: int):
         "count": row["count"],
     }
 
-# ---- Load recommender ----
-rec = SongRecommender()
+# ---- Lazy-load recommender ----
+_rec: SongRecommender | None = None
+
+def get_rec() -> SongRecommender:
+    global _rec
+    if _rec is None:
+        _rec = SongRecommender()
+    return _rec
 
 # ---- Endpoints ----
 
@@ -80,7 +86,7 @@ def one_chord_away(chords: str = "", genre: str = ""):
         return []
 
     user_set = frozenset(chord_list)
-    df = rec.df
+    df = get_rec().df
 
     if genre:
         df = df[df["genre"] == genre]
@@ -112,7 +118,7 @@ def one_chord_away(chords: str = "", genre: str = ""):
 @app.get("/recommend")
 def recommend(chords: str = "", artist: str = "", title: str = "", genre: str = ""):
     chord_list = [c.strip() for c in chords.split(",") if c.strip()]
-    results = rec.recommend(chord_list, artist_filter=artist, title_filter=title, genre_filter=genre)
+    results = get_rec().recommend(chord_list, artist_filter=artist, title_filter=title, genre_filter=genre)
 
     # Attach rating summary to each result
     conn = get_db()
@@ -130,7 +136,7 @@ def recommend(chords: str = "", artist: str = "", title: str = "", genre: str = 
 
 @app.get("/song/{song_id}")
 def get_song(song_id: int):
-    df = rec.df
+    df = get_rec().df
 
     if song_id not in df.index:
         raise HTTPException(status_code=404, detail="Song not found")
