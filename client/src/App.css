@@ -1,0 +1,1056 @@
+/* ============================================================
+   BASE
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: #0d0f1a;
+  color: #fff;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page {
+  min-height: 100vh;
+  background: #0d0f1a;
+  padding-top: 64px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+/* ============================================================
+   NAVBAR
+   ============================================================ */
+
+.navbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  height: 64px;
+  background: rgba(13, 15, 26, 0.96);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  align-items: center;
+  padding: 0 36px;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  text-decoration: none;
+  color: white;
+  transition: opacity 0.2s;
+}
+
+.navbar-brand:hover { opacity: 0.8; }
+
+.guitar-icon {
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 5px rgba(255,255,255,0.2));
+  transition: filter 0.2s;
+}
+
+.navbar-brand:hover .guitar-icon {
+  filter: drop-shadow(0 0 8px rgba(0,212,255,0.5));
+}
+
+.navbar-cq {
+  margin-left: auto;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.brand-name {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.6px;
+}
+
+.brand-chord { color: #fff; }
+.brand-quest  { color: #00d4ff; }
+
+/* ============================================================
+   CONTAINER
+   ============================================================ */
+
+.container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 48px 0 100px;
+}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+
+.hero {
+  text-align: center;
+  padding: 48px 0 40px;
+  animation: fadeSlideIn 0.5s ease both;
+}
+
+.hero-title {
+  font-size: 52px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -1.5px;
+  color: #fff;
+  margin: 0 0 16px;
+}
+
+.hero-title .accent { color: #00d4ff; }
+
+.hero-sub {
+  font-size: 17px;
+  color: rgba(255,255,255,0.45);
+  font-weight: 400;
+  margin: 0;
+  line-height: 1.55;
+}
+
+/* ============================================================
+   SEARCH PANEL
+   ============================================================ */
+
+.search-panel {
+  background: #141824;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  padding: 20px 20px 22px;
+  margin-bottom: 32px;
+}
+
+.search-label {
+  color: rgba(255,255,255,0.35);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+  margin: 0 0 14px 2px;
+}
+
+/* ============================================================
+   INPUT GRID
+   ============================================================ */
+
+.input-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 8px;
+}
+
+/* ============================================================
+   CHORD TAG INPUT
+   ============================================================ */
+
+.tag-input-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: #1c2030;
+  border: 1.5px solid rgba(255,255,255,0.09);
+  border-radius: 12px;
+  cursor: text;
+  min-height: 48px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: "Inter", sans-serif;
+  grid-column: 1 / -1;
+}
+
+.tag-input-wrapper:focus-within {
+  border-color: #00d4ff;
+  box-shadow: 0 0 0 3px rgba(0,212,255,0.12);
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(0,212,255,0.15);
+  border: 1px solid rgba(0,212,255,0.35);
+  color: #00d4ff;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 3px 10px 3px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+  letter-spacing: 0.2px;
+}
+
+.tag-remove {
+  background: none;
+  border: none;
+  color: rgba(0,212,255,0.7);
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+  padding: 0;
+  transition: color 0.15s;
+  font-family: inherit;
+}
+
+.tag-remove:hover { color: #00d4ff; }
+
+.tag-input {
+  flex: 1;
+  min-width: 90px;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+  font-family: "Inter", sans-serif;
+}
+
+.tag-input::placeholder { color: rgba(255,255,255,0.3); }
+
+/* ============================================================
+   OTHER INPUTS
+   ============================================================ */
+
+.artist-input,
+.song-input {
+  padding: 13px 16px;
+  font-size: 14px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(255,255,255,0.09);
+  outline: none;
+  background: #1c2030;
+  font-weight: 500;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: "Inter", sans-serif;
+  color: #fff;
+}
+
+.artist-input:focus,
+.song-input:focus {
+  border-color: #00d4ff;
+  box-shadow: 0 0 0 3px rgba(0,212,255,0.12);
+}
+
+.artist-input::placeholder,
+.song-input::placeholder { color: rgba(255,255,255,0.3); }
+
+.genre-select {
+  grid-column: 1 / -1;
+  padding: 13px 16px;
+  font-size: 14px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(255,255,255,0.09);
+  outline: none;
+  background: #1c2030;
+  font-weight: 500;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  color: #fff;
+  font-family: "Inter", sans-serif;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='rgba(255,255,255,0.4)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+
+.genre-select:focus {
+  border-color: #00d4ff;
+  box-shadow: 0 0 0 3px rgba(0,212,255,0.12);
+}
+
+.genre-select option { background: #1c2030; color: #fff; }
+
+/* ============================================================
+   SEARCH BUTTON
+   ============================================================ */
+
+.search-btn {
+  grid-column: 1 / -1;
+  background: #00d4ff;
+  color: #0d0f1a;
+  padding: 14px 32px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 800;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-family: "Inter", sans-serif;
+}
+
+.search-btn:hover {
+  background: #33ddff;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(0,212,255,0.3);
+}
+
+.search-btn:active { transform: translateY(0); }
+
+.search-btn:disabled {
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.25);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ============================================================
+   RESULT COUNT
+   ============================================================ */
+
+.result-count {
+  color: rgba(255,255,255,0.35);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  margin-bottom: 12px;
+  padding-left: 2px;
+}
+
+/* ============================================================
+   RESULTS
+   ============================================================ */
+
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ============================================================
+   CARD ANIMATIONS
+   ============================================================ */
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   SONG CARD
+   ============================================================ */
+
+.song-card {
+  background: #141824;
+  padding: 15px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.06);
+  color: white;
+  text-decoration: none;
+  display: block;
+  transition: background 0.18s, border-color 0.18s, transform 0.18s, box-shadow 0.18s;
+  animation: fadeSlideIn 0.35s ease both;
+}
+
+.song-card:hover {
+  background: #1a2038;
+  border-color: rgba(0,212,255,0.28);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.35), 0 0 0 1px rgba(0,212,255,0.1);
+}
+
+.song-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.song-card-title {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: rgba(255,255,255,0.92);
+}
+
+.song-card-stats {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* ============================================================
+   BADGES
+   ============================================================ */
+
+.badge {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+
+.badge-green {
+  background: rgba(30,215,96,0.12);
+  color: #1ed760;
+  border: 1px solid rgba(30,215,96,0.25);
+}
+
+.badge-red {
+  background: rgba(241,94,108,0.12);
+  color: #f15e6c;
+  border: 1px solid rgba(241,94,108,0.25);
+}
+
+.badge-grey {
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.3);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.genre-badge {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 20px;
+  background: rgba(150,100,255,0.12);
+  color: #b388ff;
+  border: 1px solid rgba(150,100,255,0.25);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.card-rating {
+  font-size: 11px;
+  color: #ffd700;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* ============================================================
+   CHORD CHIPS
+   ============================================================ */
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.chip {
+  padding: 4px 11px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.chip-known {
+  background: rgba(30,215,96,0.12);
+  color: #1ed760;
+  border: 1px solid rgba(30,215,96,0.28);
+}
+
+.chip-missing {
+  background: rgba(241,94,108,0.12);
+  color: #f15e6c;
+  border: 1px solid rgba(241,94,108,0.28);
+}
+
+/* ============================================================
+   LOADING
+   ============================================================ */
+
+.loader {
+  color: #00d4ff;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+/* ============================================================
+   SKELETON
+   ============================================================ */
+
+@keyframes shimmer {
+  0%, 100% { opacity: 0.3; }
+  50%       { opacity: 0.7; }
+}
+
+.song-card.skeleton { pointer-events: none; }
+
+.skeleton-line {
+  height: 12px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.08);
+  animation: shimmer 1.4s ease-in-out infinite;
+  margin-bottom: 9px;
+}
+
+.skeleton-line.wide   { width: 60%; }
+.skeleton-line.narrow { width: 32%; }
+
+.skeleton-chips { display: flex; gap: 6px; margin-top: 10px; }
+
+.skeleton-chip {
+  width: 40px;
+  height: 22px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.06);
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+/* ============================================================
+   GLASS CARD  (song detail page)
+   ============================================================ */
+
+.glass-card {
+  max-width: 860px;
+  width: 100%;
+  margin: 36px auto 60px;
+  background: #141824;
+  padding: 44px 50px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+}
+
+/* ============================================================
+   SONG PAGE — NAV
+   ============================================================ */
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  color: rgba(255,255,255,0.55);
+  font-weight: 600;
+  font-size: 13px;
+  transition: color 0.2s, transform 0.2s;
+  margin-bottom: 28px;
+  letter-spacing: 0.1px;
+  gap: 4px;
+}
+
+.back-btn:hover {
+  color: #fff;
+  transform: translateX(-3px);
+}
+
+/* ============================================================
+   SONG PAGE — HEADER
+   ============================================================ */
+
+.song-title {
+  font-size: 40px;
+  font-weight: 800;
+  color: white;
+  text-align: center;
+  margin-bottom: 6px;
+  letter-spacing: -1px;
+  line-height: 1.15;
+}
+
+.song-artist {
+  font-size: 18px;
+  text-align: center;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 24px;
+  font-weight: 500;
+}
+
+.section-header {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 12px;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  margin: 24px 0;
+}
+
+/* ============================================================
+   STAR RATING
+   ============================================================ */
+
+.rating-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 14px 0 6px;
+}
+
+.stars-row { display: flex; gap: 5px; }
+
+.star {
+  font-size: 30px;
+  line-height: 1;
+  transition: transform 0.15s, color 0.15s;
+}
+
+.star-filled  { color: #ffd700; }
+.star-empty   { color: rgba(255,255,255,0.15); }
+
+.star-interactive       { cursor: pointer; }
+.star-interactive:hover { transform: scale(1.2); }
+.star-locked            { cursor: default; }
+
+.rating-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 13px;
+}
+
+.rating-prompt    { color: rgba(255,255,255,0.35); }
+.rating-submitted { color: #1ed760; font-weight: 600; }
+.rating-average   { color: rgba(255,255,255,0.5); font-weight: 500; }
+
+/* ============================================================
+   LYRICS & CHORDS
+   ============================================================ */
+
+.lyrics-pre {
+  white-space: pre-wrap;
+  background: #0d0f1a;
+  padding: 22px 24px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.07);
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(255,255,255,0.8);
+  max-height: 65vh;
+  overflow-y: auto;
+  font-family: "SF Mono", "Monaco", "Courier New", monospace;
+}
+
+.chord-line  { display: block; white-space: pre; margin: 0; }
+.lyric-line  { display: block; white-space: pre; color: rgba(255,255,255,0.5); margin: 0; }
+
+.inline-chord-known   { color: #1ed760; font-weight: 700; }
+.inline-chord-missing { color: #f15e6c; font-weight: 700; }
+
+.no-lyrics {
+  color: rgba(255,255,255,0.25);
+  font-style: italic;
+  text-align: center;
+  padding: 40px;
+}
+
+.lyrics-pre::-webkit-scrollbar       { width: 6px; }
+.lyrics-pre::-webkit-scrollbar-track { background: transparent; }
+.lyrics-pre::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 6px; }
+.lyrics-pre::-webkit-scrollbar-thumb:hover { background: rgba(0,212,255,0.4); }
+
+/* ============================================================
+   TRANSPOSE
+   ============================================================ */
+
+.chords-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.transpose-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.transpose-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  font-family: "Inter", sans-serif;
+}
+
+.transpose-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+  color: white;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+  font-family: "Inter", sans-serif;
+}
+
+.transpose-btn:hover {
+  background: rgba(0,212,255,0.14);
+  border-color: rgba(0,212,255,0.35);
+}
+
+.transpose-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.55);
+  min-width: 110px;
+  text-align: center;
+  font-family: "Inter", sans-serif;
+}
+
+.transpose-reset {
+  font-size: 11px;
+  font-weight: 600;
+  color: #00d4ff;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: "Inter", sans-serif;
+  opacity: 0.65;
+  padding: 0;
+  transition: opacity 0.2s;
+}
+
+.transpose-reset:hover { opacity: 1; }
+
+/* ============================================================
+   CHORD DIAGRAMS
+   ============================================================ */
+
+.chord-diagram-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 16px 0 4px;
+}
+
+.chord-diagram-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: #0d0f1a;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  padding: 10px 8px 6px;
+  transition: border-color 0.2s;
+}
+
+.chord-diagram-wrap:hover { border-color: rgba(255,255,255,0.18); }
+
+.chord-diagram-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.65);
+  letter-spacing: 0.3px;
+  font-family: "Inter", sans-serif;
+}
+
+/* ============================================================
+   ONE CHORD AWAY
+   ============================================================ */
+
+.oca-section {
+  margin-top: 36px;
+  padding-top: 28px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  animation: fadeSlideIn 0.4s ease both;
+}
+
+.oca-list { display: flex; flex-direction: column; gap: 6px; }
+
+.oca-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #141824;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 14px 18px;
+  cursor: pointer;
+  text-align: left;
+  font-family: "Inter", sans-serif;
+  transition: background 0.18s, border-color 0.18s, transform 0.18s;
+  width: 100%;
+}
+
+.oca-item:hover {
+  background: #1a2038;
+  border-color: rgba(0,212,255,0.28);
+  transform: translateY(-1px);
+}
+
+.oca-chord {
+  font-size: 15px;
+  font-weight: 800;
+  color: #00d4ff;
+  min-width: 52px;
+  background: rgba(0,212,255,0.08);
+  border: 1px solid rgba(0,212,255,0.2);
+  border-radius: 8px;
+  padding: 4px 10px;
+  text-align: center;
+  letter-spacing: 0.3px;
+}
+
+.oca-unlocks {
+  font-size: 13px;
+  color: rgba(255,255,255,0.55);
+  min-width: 150px;
+}
+
+.oca-unlocks strong { color: #fff; font-weight: 700; }
+
+.oca-samples {
+  font-size: 12px;
+  color: rgba(255,255,255,0.25);
+  margin-left: auto;
+  text-align: right;
+}
+
+/* ============================================================
+   EXPLORE SECTION
+   ============================================================ */
+
+.explore-section {
+  animation: fadeSlideIn 0.4s ease both;
+  animation-delay: 0.08s;
+}
+
+.explore-label {
+  color: rgba(255,255,255,0.35);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+  margin: 0 0 14px 2px;
+}
+
+.genre-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.genre-tile {
+  background: #141824;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  padding: 18px 10px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, transform 0.18s;
+  color: white;
+  font-family: "Inter", sans-serif;
+}
+
+.genre-tile:hover {
+  background: #1a2038;
+  border-color: rgba(0,212,255,0.3);
+  transform: translateY(-2px);
+}
+
+.genre-tile-icon  { font-size: 22px; line-height: 1; }
+
+.genre-tile-name {
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  color: rgba(255,255,255,0.7);
+  letter-spacing: 0.1px;
+}
+
+.prog-list { display: flex; flex-direction: column; gap: 6px; }
+
+.prog-item {
+  background: #141824;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 13px 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, transform 0.18s;
+  text-align: left;
+  font-family: "Inter", sans-serif;
+  width: 100%;
+}
+
+.prog-item:hover {
+  background: #1a2038;
+  border-color: rgba(0,212,255,0.3);
+  transform: translateY(-1px);
+}
+
+.prog-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.88);
+  min-width: 95px;
+}
+
+.prog-label {
+  font-size: 12px;
+  color: rgba(255,255,255,0.3);
+  font-weight: 500;
+  min-width: 110px;
+}
+
+.prog-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-left: auto; }
+
+.prog-chip {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(0,212,255,0.08);
+  color: #00d4ff;
+  border: 1px solid rgba(0,212,255,0.18);
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  font-family: "Inter", sans-serif;
+  transition: background 0.15s;
+}
+
+.prog-chip:hover { background: rgba(0,212,255,0.18); }
+
+/* ============================================================
+   EMPTY & ERROR STATES
+   ============================================================ */
+
+.empty-state {
+  text-align: center;
+  padding: 64px 20px;
+  animation: fadeSlideIn 0.35s ease both;
+}
+
+.empty-icon  { font-size: 48px; line-height: 1; margin-bottom: 16px; }
+
+.empty-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 8px;
+  letter-spacing: -0.3px;
+}
+
+.empty-text {
+  font-size: 14px;
+  color: rgba(255,255,255,0.4);
+  margin: 0 auto 20px;
+  max-width: 320px;
+  line-height: 1.5;
+}
+
+.empty-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.retry-btn {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: white;
+  padding: 10px 28px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: "Inter", sans-serif;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.retry-btn:hover {
+  background: rgba(0,212,255,0.1);
+  border-color: rgba(0,212,255,0.35);
+}
+
+/* ============================================================
+   RESPONSIVE — TABLET (≤ 768px)
+   ============================================================ */
+
+@media (max-width: 768px) {
+  .navbar { padding: 0 16px; }
+  .page   { padding-left: 12px; padding-right: 12px; }
+  .container { padding: 24px 0 60px; }
+  .hero-title { font-size: 36px; letter-spacing: -1px; }
+  .hero-sub   { font-size: 15px; }
+  .search-panel { padding: 16px 14px 18px; }
+  .input-grid { grid-template-columns: 1fr 1fr; }
+  .tag-input-wrapper { grid-column: 1 / -1; }
+  .glass-card { padding: 28px 24px; margin: 20px auto 40px; }
+  .song-title { font-size: 28px; }
+  .song-artist { font-size: 16px; }
+  .lyrics-pre { overflow-x: auto; padding: 14px; font-size: 13px; max-height: 55vh; }
+  .prog-label { display: none; }
+  .oca-samples { display: none; }
+  .oca-unlocks { min-width: unset; }
+  .genre-tiles { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }
+}
+
+/* ============================================================
+   RESPONSIVE — PHONE (≤ 480px)
+   ============================================================ */
+
+@media (max-width: 480px) {
+  .navbar { padding: 0 12px; }
+  .brand-name { font-size: 17px; }
+  .navbar-cq  { font-size: 16px; }
+  .page { padding-left: 8px; padding-right: 8px; }
+  .container { padding: 12px 0 50px; }
+  .hero { padding: 24px 0 28px; }
+  .hero-title { font-size: 26px; letter-spacing: -0.8px; }
+  .hero-sub   { font-size: 14px; }
+  .search-panel { padding: 12px 10px 14px; border-radius: 14px; }
+  .input-grid { grid-template-columns: 1fr; }
+  .artist-input, .song-input { grid-column: 1 / -1; }
+  .glass-card { padding: 20px 14px; margin: 12px auto 30px; border-radius: 14px; }
+  .song-title { font-size: 22px; }
+  .song-artist { font-size: 15px; margin-bottom: 16px; }
+  .star { font-size: 26px; }
+  .lyrics-pre { padding: 12px 10px; font-size: 12px; line-height: 1.55; max-height: 50vh; border-radius: 10px; }
+  .prog-item  { flex-wrap: wrap; gap: 10px; padding: 12px 14px; }
+  .prog-name  { min-width: unset; }
+  .prog-chips { margin-left: 0; }
+  .oca-item   { flex-wrap: wrap; gap: 8px; padding: 12px 14px; }
+  .oca-chord  { min-width: unset; }
+  .transpose-label { min-width: 80px; font-size: 11px; }
+  .chords-header-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .section-header { font-size: 11px; }
+  .genre-tiles { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 6px; }
+  .genre-tile  { padding: 14px 8px 10px; }
+  .genre-tile-icon { font-size: 18px; }
+  .genre-tile-name { font-size: 11px; }
+  .back-btn { font-size: 12px; margin-bottom: 16px; }
+  .search-btn { font-size: 14px; padding: 13px 24px; }
+}

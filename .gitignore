@@ -14,6 +14,14 @@ node_modules/
 build/
 npm-debug.log*
 
+# Runtime / local DB
+backend/ratings.db
+
+# Env files (may contain secrets)
+.env
+.env.local
+backend/.env
+
 # OS
 .DS_Store
 Thumbs.db
