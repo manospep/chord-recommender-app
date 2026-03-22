@@ -52,9 +52,10 @@ def _resolve_csv_path() -> str:
                 f"Dataset not found at {csv_path}. "
                 "Set DATA_PATH or HF_REPO_ID + HF_TOKEN env vars."
             )
-        print(f"Dataset missing — downloading from HuggingFace ({hf_repo})…")
+        hf_filename = os.getenv("HF_FILENAME", "chords_and_lyrics.csv")
+        print(f"Dataset missing — downloading from HuggingFace ({hf_repo}/{hf_filename})…")
         import urllib.request
-        url = f"https://huggingface.co/datasets/{hf_repo}/resolve/main/chords_and_lyrics.csv"
+        url = f"https://huggingface.co/datasets/{hf_repo}/resolve/main/{hf_filename}"
         headers = {"Authorization": f"Bearer {hf_token}"} if hf_token else {}
         os.makedirs(os.path.dirname(csv_path) or ".", exist_ok=True)
         req = urllib.request.Request(url, headers=headers)
