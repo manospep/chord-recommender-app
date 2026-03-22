@@ -77,7 +77,13 @@ class SongRecommender:
         csv_path = _resolve_csv_path()
 
         print("Loading:", csv_path)
-        self.df = pd.read_csv(csv_path, low_memory=False)
+        # Read only the columns we actually use to keep memory footprint small
+        NEEDED = ["artist_name", "song_name", "genres", "chords", "chords&lyrics", "lyrics"]
+        # Peek at the header to only request columns that exist
+        header = pd.read_csv(csv_path, nrows=0).columns.tolist()
+        usecols = [c for c in NEEDED if c in header]
+        print(f"Loading columns: {usecols}")
+        self.df = pd.read_csv(csv_path, usecols=usecols, low_memory=False)
 
         print("Extracting chords…")
         self.prepare_data()
