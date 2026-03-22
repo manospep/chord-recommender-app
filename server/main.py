@@ -1,14 +1,38 @@
 import os
 import sqlite3
+import threading
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from recommender import SongRecommender
 
-app = FastAPI(title="ChordQuest API")
+# ---- Lazy recommender with background preload ----
+_rec: SongRecommender | None = None
+_rec_error: str | None = None
+_rec_lock = threading.Lock()
+
+def _preload():
+    global _rec, _rec_error
+    try:
+        with _rec_lock:
+            if _rec is None:
+                _rec = SongRecommender()
+    except Exception as e:
+        _rec_error = str(e)
+        print(f"Recommender failed to load: {e}")
+
+@asynccontextmanager
+async def lifespan(app):
+    # Start loading the recommender in the background immediately on startup
+    threading.Thread(target=_preload, daemon=True).start()
+    yield
+
+app = FastAPI(title="ChordQuest API", lifespan=lifespan)
 
 @app.get("/health")
-def health(): return {"status": "ok"}
+def health():
+    return {"status": "ok", "recommender": "ready" if _rec else "loading"}
 
 _raw = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000")
 ALLOWED_ORIGINS = [o.strip() for o in _raw.split(",") if o.strip()]
@@ -74,13 +98,11 @@ def fetch_rating(song_id: int):
         "count": row["count"],
     }
 
-# ---- Lazy-load recommender ----
-_rec: SongRecommender | None = None
-
 def get_rec() -> SongRecommender:
-    global _rec
+    if _rec_error:
+        raise HTTPException(status_code=503, detail=f"Recommender failed to load: {_rec_error}")
     if _rec is None:
-        _rec = SongRecommender()
+        raise HTTPException(status_code=503, detail="Recommender is still loading, please retry in a moment.")
     return _rec
 
 # ---- Endpoints ----
