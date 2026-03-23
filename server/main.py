@@ -145,6 +145,8 @@ def one_chord_away(chords: str = "", genre: str = ""):
             .head(3)[["song_id", "artist_name", "song_name", "genre"]]
             .to_dict(orient="records")
         )
+        for s in sample:
+            s["song_id"] = int(s["song_id"])  # numpy int64 → Python int
         result.append({
             "chord":       chord,
             "unlocks":     len(group),
@@ -162,6 +164,7 @@ def recommend(chords: str = "", artist: str = "", title: str = "", genre: str = 
     # Attach rating summary to each result
     conn = get_db()
     for song in results:
+        song["song_id"] = int(song["song_id"])  # ensure Python int for SQLite + JSON
         row = conn.execute(
             "SELECT ROUND(AVG(rating), 1) as average, COUNT(*) as count FROM ratings WHERE song_id = ?",
             (song["song_id"],)

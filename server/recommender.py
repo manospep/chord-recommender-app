@@ -96,7 +96,7 @@ class SongRecommender:
         known_counts   = [len(s & user_set)  for s in chord_sets]
 
         result = pd.DataFrame({
-            "song_id":       df.index.tolist(),
+            "song_id":       [int(x) for x in df.index],
             "artist_name":   df["artist_name"].tolist(),
             "song_name":     df["song_name"].tolist(),
             "chord_list":    df["chord_list"].tolist(),
