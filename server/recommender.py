@@ -69,6 +69,9 @@ class SongRecommender:
         self.df["song_name"]   = self.df["song_name"].fillna("").astype(str)
         self.df["genre"]       = self.df["genre"].fillna("Other").astype(str)
 
+        # Expose song_id as a regular column too (index stays song_id for .loc lookups)
+        self.df["song_id"] = self.df.index
+
         # Deserialise chord_list and build chord_set for fast set operations
         self.df["chord_list"] = self.df["chord_list"].fillna("").apply(
             lambda s: [c for c in s.split("|") if c]
