@@ -194,7 +194,7 @@ def get_song(song_id: int):
         "chords_raw":       row.get("chords", ""),
         "lyrics":           row.get("lyrics", ""),
         "chords_and_lyrics": row.get("chords&lyrics", row.get("chords_lyrics", "")),
-        "chord_list":       row.get("chord_list", []),
+        "chord_list":       [c for c in str(row.get("chord_list", "")).split("|") if c],
         "rating_average":   rating["average"],
         "rating_count":     rating["count"],
     }
