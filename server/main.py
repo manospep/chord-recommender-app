@@ -2,14 +2,15 @@ import os
 import sqlite3
 import threading
 from contextlib import asynccontextmanager
+from typing import Optional
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from recommender import SongRecommender
 
 # ---- Lazy recommender with background preload ----
-_rec: SongRecommender | None = None
-_rec_error: str | None = None
+_rec: Optional[SongRecommender] = None
+_rec_error: Optional[str] = None
 _rec_lock = threading.Lock()
 
 def _preload():
