@@ -59,25 +59,23 @@ def _resolve_csv_path() -> str:
 class SongRecommender:
     def __init__(self):
         csv_path = _resolve_csv_path()
-
         print("Loading:", csv_path)
-        # Pre-processed file has: song_id, artist_name, song_name, genre, chord_list
-        # chord_list is stored as pipe-separated string (e.g. "Am|C|G|F")
-        self.df = pd.read_csv(csv_path, index_col="song_id", low_memory=False)
 
-        self.df["artist_name"] = self.df["artist_name"].fillna("").astype(str)
-        self.df["song_name"]   = self.df["song_name"].fillna("").astype(str)
-        self.df["genre"]       = self.df["genre"].fillna("Other").astype(str)
+        df = pd.read_csv(csv_path, index_col="song_id", low_memory=False)
+        df["artist_name"] = df["artist_name"].fillna("").astype(str)
+        df["song_name"]   = df["song_name"].fillna("").astype(str)
+        df["genre"]       = df["genre"].fillna("Other").astype(str)
 
-        # Expose song_id as a regular column too (index stays song_id for .loc lookups)
-        self.df["song_id"] = self.df.index
-
-        # Deserialise chord_list and build chord_set for fast set operations
-        self.df["chord_list"] = self.df["chord_list"].fillna("").apply(
-            lambda s: [c for c in s.split("|") if c]
+        # chord_list stays as pipe-separated string — much cheaper than Python lists
+        df["chord_list"] = df["chord_list"].fillna("")
+        # chord_set (frozenset) is needed for fast set arithmetic at query time
+        df["chord_set"] = df["chord_list"].apply(
+            lambda s: frozenset(s.split("|")) if s else frozenset()
         )
-        self.df["chord_set"] = self.df["chord_list"].apply(frozenset)
+        # song_id as a column for endpoints that reference it by name
+        df["song_id"] = df.index.map(int)
 
+        self.df = df
         print(f"Ready. {len(self.df)} songs loaded.")
 
     def recommend(self, user_chords, artist_filter="", title_filter="", genre_filter=""):
@@ -95,20 +93,24 @@ class SongRecommender:
         missing_counts = [len(s - user_set) for s in chord_sets]
         known_counts   = [len(s & user_set)  for s in chord_sets]
 
-        result = pd.DataFrame({
-            "song_id":       [int(x) for x in df.index],
-            "artist_name":   df["artist_name"].tolist(),
-            "song_name":     df["song_name"].tolist(),
-            "chord_list":    df["chord_list"].tolist(),
-            "genre":         df["genre"].tolist(),
-            "missing_count": missing_counts,
-            "known_count":   known_counts,
-        })
+        song_ids     = df["song_id"].tolist()
+        artists      = df["artist_name"].tolist()
+        names        = df["song_name"].tolist()
+        genres       = df["genre"].tolist()
+        chord_strs   = df["chord_list"].tolist()
 
-        result.sort_values(
-            by=["missing_count", "known_count"],
-            ascending=[True, False],
-            inplace=True,
-        )
+        # Sort by (missing_count asc, known_count desc), return top 50
+        ranked = sorted(
+            zip(missing_counts, [-k for k in known_counts], range(len(song_ids)))
+        )[:50]
 
-        return result[["song_id", "artist_name", "song_name", "chord_list", "genre"]].to_dict(orient="records")
+        return [
+            {
+                "song_id":    song_ids[i],
+                "artist_name": artists[i],
+                "song_name":  names[i],
+                "chord_list": [c for c in chord_strs[i].split("|") if c],
+                "genre":      genres[i],
+            }
+            for _, _, i in ranked
+        ]
