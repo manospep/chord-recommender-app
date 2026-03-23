@@ -78,7 +78,9 @@ class SongRecommender:
 
         print("Loading:", csv_path)
         # Read only the columns we actually use to keep memory footprint small
-        NEEDED = ["artist_name", "song_name", "genres", "chords", "chords&lyrics", "lyrics"]
+        # Only load the minimal columns needed for recommendation.
+        # chords&lyrics and lyrics are large text columns excluded to stay within RAM limits.
+        NEEDED = ["artist_name", "song_name", "genres", "chords"]
         # Peek at the header to only request columns that exist
         header = pd.read_csv(csv_path, nrows=0).columns.tolist()
         usecols = [c for c in NEEDED if c in header]
@@ -114,26 +116,15 @@ class SongRecommender:
             return len(d) if isinstance(d, dict) else 0
 
         def extract_row_chords(row):
-            chords = flatten_chords(row["chords"])
-            if chords:
-                return chords
-            # chords column empty — fall back to the full chords&lyrics text
-            fallback = row.get("chords&lyrics", "")
-            if isinstance(fallback, str) and fallback.strip():
-                return extract_chords(fallback)
-            return []
+            return flatten_chords(row["chords"])
 
         self.df["_dict_size"] = self.df["chords"].apply(chords_dict_size)
         self.df["chord_list"] = self.df.apply(extract_row_chords, axis=1)
 
-        # Drop inline-format songs: chords dict has 1-2 entries (entire song crammed
-        # into one or two long strings) AND we extracted fewer than 2 distinct chords.
-        # Songs with 0 dict entries went through the fallback path — keep them if the
-        # fallback produced at least 2 chords.
+        # Keep only songs with a proper chords dict (>=3 sections) and at least 2 distinct chords.
         before = len(self.df)
         self.df = self.df[
-            ((self.df["_dict_size"] >= 3) & (self.df["chord_list"].apply(len) >= 2)) |
-            ((self.df["_dict_size"] == 0) & (self.df["chord_list"].apply(len) >= 2))
+            (self.df["_dict_size"] >= 3) & (self.df["chord_list"].apply(len) >= 2)
         ].copy()
         self.df.drop(columns=["_dict_size"], inplace=True)
         print(f"Filtered {before - len(self.df)} inline/empty-chord songs. {len(self.df)} remain.")
