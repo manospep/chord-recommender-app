@@ -8,11 +8,6 @@ const GENRES = [
   "Country", "Jazz", "Blues", "Electronic", "Folk", "Classical", "Reggae", "Latin", "Other",
 ];
 
-const GENRE_ICONS = {
-  "Metal": "🤘", "Rock": "🎸", "Pop": "🎵", "Hip Hop": "🎤", "R&B / Soul": "🎷",
-  "Country": "🤠", "Jazz": "🎺", "Blues": "🎶", "Electronic": "🎛️",
-  "Folk": "🪕", "Classical": "🎻", "Reggae": "🌴", "Latin": "💃", "Other": "🎼",
-};
 
 const PROGRESSIONS = [
   { name: "Pop / Rock",  label: "I – V – vi – IV", chords: ["C", "G", "Am", "F"] },
@@ -328,7 +323,6 @@ function Home() {
                   className="genre-tile"
                   onClick={() => { updateGenre(g); doSearch(chords, artist, title, g); }}
                 >
-                  <span className="genre-tile-icon">{GENRE_ICONS[g]}</span>
                   <span className="genre-tile-name">{g}</span>
                 </button>
               ))}
