@@ -50,7 +50,7 @@ function GuitarIcon() {
       {/* Lower bout */}
       <ellipse cx="10" cy="36"   rx="9"  ry="7.5" />
       {/* Sound hole — dark cutout */}
-      <circle  cx="10" cy="30"   r="3.6" fill="#0d0d20" />
+      <circle  cx="10" cy="30"   r="3.6" fill="var(--guitar-hole)" />
       {/* Bridge */}
       <rect x="7.5" y="41" width="5" height="2" rx="1" />
     </svg>
@@ -58,7 +58,7 @@ function GuitarIcon() {
 }
 
 // ---- Shared Navbar ----
-function Navbar() {
+function Navbar({ theme, onToggleTheme }) {
   return (
     <nav className="navbar">
       <a href="/" className="navbar-brand">
@@ -70,6 +70,9 @@ function Navbar() {
       <span className="navbar-cq">
         <span className="brand-chord">C</span><span className="brand-quest">Q</span>
       </span>
+      <button className="theme-toggle" onClick={onToggleTheme} title="Toggle theme">
+        {theme === "dark" ? "☀️" : "🌙"}
+      </button>
     </nav>
   );
 }
@@ -462,9 +465,18 @@ function Home() {
 }
 
 export default function App() {
+  const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "dark");
+
+  useEffect(() => {
+    document.body.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme(t => t === "dark" ? "light" : "dark");
+
   return (
     <>
-      <Navbar />
+      <Navbar theme={theme} onToggleTheme={toggleTheme} />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/song/:id" element={<SongPage />} />

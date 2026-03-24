@@ -122,12 +122,12 @@ export function ChordDiagram({ name, known }) {
           <rect
             x={sx(0)} y={TOP - 2}
             width={sx(5) - sx(0)} height={3}
-            fill="rgba(255,255,255,0.7)" rx="1"
+            fill="var(--diagram-nut)" rx="1"
           />
         ) : (
           <text
             x={sx(0) - 4} y={dy(1) + 4}
-            fontSize="7" fill="rgba(255,255,255,0.45)"
+            fontSize="7" fill="var(--diagram-label)"
             textAnchor="end" fontFamily="Inter,sans-serif"
           >
             {startFret}fr
@@ -140,7 +140,7 @@ export function ChordDiagram({ name, known }) {
             key={f}
             x1={sx(0)} y1={fy(f)}
             x2={sx(5)} y2={fy(f)}
-            stroke="rgba(255,255,255,0.13)" strokeWidth={1}
+            stroke="var(--diagram-fret)" strokeWidth={1}
           />
         ))}
 
@@ -150,7 +150,7 @@ export function ChordDiagram({ name, known }) {
             key={i}
             x1={sx(i)} y1={TOP}
             x2={sx(i)} y2={fy(5)}
-            stroke="rgba(255,255,255,0.18)"
+            stroke="var(--diagram-string)"
             strokeWidth={i === 0 || i === 5 ? 1.5 : 1}
           />
         ))}
@@ -160,15 +160,15 @@ export function ChordDiagram({ name, known }) {
           if (f === 0) return (
             <circle key={i}
               cx={sx(i)} cy={TOP - 8} r={4}
-              fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth={1.2}
+              fill="none" stroke="var(--diagram-open)" strokeWidth={1.2}
             />
           );
           if (f === -1) return (
             <g key={i}>
               <line x1={sx(i)-3.5} y1={TOP-13} x2={sx(i)+3.5} y2={TOP-6}
-                stroke="rgba(255,255,255,0.35)" strokeWidth={1.5} strokeLinecap="round" />
+                stroke="var(--diagram-mute)" strokeWidth={1.5} strokeLinecap="round" />
               <line x1={sx(i)+3.5} y1={TOP-13} x2={sx(i)-3.5} y2={TOP-6}
-                stroke="rgba(255,255,255,0.35)" strokeWidth={1.5} strokeLinecap="round" />
+                stroke="var(--diagram-mute)" strokeWidth={1.5} strokeLinecap="round" />
             </g>
           );
           return null;
