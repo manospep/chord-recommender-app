@@ -102,6 +102,86 @@ export const CHORD_SHAPES = {
   E9:     { frets: [0,2,0,1,0,2], startFret: 1 },
   G9:     { frets: [3,2,0,2,0,1], startFret: 1 },
   "F#9":  { frets: [1,3,1,2,1,3], startFret: 2, barre: { fret:1, from:0, to:5 } },
+  "F9":   { frets: [1,3,1,2,1,3], startFret: 1, barre: { fret:1, from:0, to:5 } },
+  "Bb9":  { frets: [1,3,1,2,1,3], startFret: 6, barre: { fret:1, from:0, to:5 } },
+  "Eb9":  { frets: [1,3,1,2,1,3], startFret: 6, barre: { fret:1, from:0, to:5 } },
+
+  // ── Major 9th ─────────────────────────────────────────────────────────────
+  Cmaj9:  { frets: [-1,3,2,0,3,0], startFret: 1 },
+  Dmaj9:  { frets: [-1,-1,0,2,2,4], startFret: 1 },
+  Emaj9:  { frets: [0,2,1,1,2,0], startFret: 1 },
+  Gmaj9:  { frets: [3,2,0,2,0,2], startFret: 1 },
+  Amaj9:  { frets: [-1,0,2,1,2,2], startFret: 1 },
+
+  // ── Minor 9th ─────────────────────────────────────────────────────────────
+  Am9:    { frets: [-1,0,2,0,1,0], startFret: 1 },
+  Dm9:    { frets: [-1,-1,0,2,1,0], startFret: 1 },
+  Em9:    { frets: [0,2,0,0,0,0], startFret: 1 },
+
+  // ── 11th / 13th ───────────────────────────────────────────────────────────
+  C11:    { frets: [-1,3,3,3,3,3], startFret: 1, barre: { fret:3, from:1, to:5 } },
+  D11:    { frets: [-1,-1,0,0,1,0], startFret: 1 },
+  A11:    { frets: [-1,0,0,0,2,0], startFret: 1 },
+  E11:    { frets: [0,2,0,0,0,0], startFret: 1 },
+  G13:    { frets: [3,2,0,0,0,1], startFret: 1 },
+  A13:    { frets: [-1,0,2,0,2,2], startFret: 1 },
+  D13:    { frets: [-1,-1,0,2,1,2], startFret: 1 },
+
+  // ── Diminished ────────────────────────────────────────────────────────────
+  Bdim:   { frets: [-1,2,3,1,3,-1], startFret: 1 },
+  Cdim:   { frets: [-1,3,1,2,1,-1], startFret: 1 },
+  Ddim:   { frets: [-1,-1,0,1,0,1], startFret: 1 },
+  Edim:   { frets: [0,1,2,0,-1,-1], startFret: 1 },
+  Fdim:   { frets: [1,2,3,1,-1,-1], startFret: 1 },
+  Gdim:   { frets: [3,1,2,3,-1,-1], startFret: 1 },
+  Adim:   { frets: [-1,0,1,2,1,-1], startFret: 1 },
+  "F#dim":{ frets: [2,3,1,2,-1,-1], startFret: 1 },
+  "C#dim":{ frets: [-1,4,2,3,2,-1], startFret: 1 },
+  "Bbdim":{ frets: [-1,1,2,3,2,-1], startFret: 1 },
+
+  // ── Diminished 7th ────────────────────────────────────────────────────────
+  Bdim7:  { frets: [-1,2,3,1,3,1], startFret: 1 },
+  Cdim7:  { frets: [-1,3,1,2,1,2], startFret: 1 },
+  Ddim7:  { frets: [-1,-1,0,1,0,1], startFret: 1 },
+  Edim7:  { frets: [0,1,2,0,2,0], startFret: 1 },
+  Fdim7:  { frets: [1,2,3,1,3,1], startFret: 1 },
+  "F#dim7":{ frets: [2,3,1,2,1,2], startFret: 1 },
+  Gdim7:  { frets: [3,1,2,3,2,3], startFret: 1 },
+  Adim7:  { frets: [-1,0,1,2,1,2], startFret: 1 },
+
+  // ── Augmented ─────────────────────────────────────────────────────────────
+  Caug:   { frets: [-1,3,2,1,1,0], startFret: 1 },
+  Daug:   { frets: [-1,-1,0,3,3,2], startFret: 1 },
+  Eaug:   { frets: [0,3,2,1,1,0], startFret: 1 },
+  Faug:   { frets: [1,0,3,2,2,1], startFret: 1 },
+  Gaug:   { frets: [3,2,1,0,0,3], startFret: 1 },
+  Aaug:   { frets: [-1,0,3,2,2,1], startFret: 1 },
+  Baug:   { frets: [-1,2,1,0,0,3], startFret: 1 },
+
+  // ── 6th chords ────────────────────────────────────────────────────────────
+  A6:     { frets: [-1,0,2,2,2,2], startFret: 1 },
+  B6:     { frets: [-1,2,4,4,4,4], startFret: 1 },
+  C6:     { frets: [-1,3,2,2,1,0], startFret: 1 },
+  D6:     { frets: [-1,-1,0,2,0,2], startFret: 1 },
+  E6:     { frets: [0,2,2,1,2,0], startFret: 1 },
+  F6:     { frets: [1,3,3,2,3,1], startFret: 1, barre: { fret:1, from:0, to:5 } },
+  G6:     { frets: [3,2,0,0,0,0], startFret: 1 },
+  Am6:    { frets: [-1,0,2,2,1,2], startFret: 1 },
+  Dm6:    { frets: [-1,-1,0,2,0,1], startFret: 1 },
+  Em6:    { frets: [0,2,2,0,2,0], startFret: 1 },
+
+  // ── More sus variants ─────────────────────────────────────────────────────
+  Bsus2:  { frets: [-1,2,4,4,2,2], startFret: 1 },
+  Bsus4:  { frets: [-1,2,4,4,5,2], startFret: 1 },
+  Csus2:  { frets: [-1,3,3,0,1,1], startFret: 1 },
+  Csus4:  { frets: [-1,3,3,3,1,1], startFret: 1 },
+  Fsus2:  { frets: [1,3,3,3,1,1], startFret: 1, barre: { fret:1, from:0, to:5 } },
+  Fsus4:  { frets: [1,3,3,3,1,1], startFret: 1, barre: { fret:1, from:0, to:5 } },
+  Gsus2:  { frets: [3,2,0,0,3,3], startFret: 1 },
+  "F#sus2":{ frets: [2,4,4,4,2,2], startFret: 1 },
+  "F#sus4":{ frets: [2,4,4,4,2,2], startFret: 1 },
+  "Bbsus2":{ frets: [-1,1,3,3,1,1], startFret: 1 },
+  "Bbsus4":{ frets: [-1,1,3,3,4,1], startFret: 1 },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -4,8 +4,8 @@ import { ChordDiagramRow } from "./ChordDiagram";
 import "./App.css";
 
 // ─── Chord regex ──────────────────────────────────────────────────────────────
-// (?![#\w]) instead of \b: \b fails after '#' causing D# to backtrack to D.
-const CHORD_RE = /\b([A-G](?:#|b)?(?:maj7|maj|min7|min|m7|m|dim7|dim|aug|sus2|sus4|sus|add9|add11|add13|add|6|7|9|11|13|5)?)(?![#\w])/g;
+// Matches root + quality + extensions + optional parenthetical e.g. F#m7(11)
+const CHORD_RE = /\b([A-G](?:#|b)?(?:maj(?:7|9|11|13)?|min(?:7|9|11|13)?|m(?:7|9|11|13)?|dim(?:7)?|aug(?:7)?|sus(?:2|4)?|add(?:9|11|13)|[0-9]{1,2})?(?:\([^)]+\))?)(?![#\w])/g;
 
 // ─── Transpose helpers ────────────────────────────────────────────────────────
 const SHARP = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
