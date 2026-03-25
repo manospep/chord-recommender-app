@@ -69,9 +69,17 @@ export const CHORD_SHAPES = {
   // ── Minor 7ths ────────────────────────────────────────────────────────────
   Am7:    { frets: [-1,0,2,0,1,0], startFret: 1 },
   Bm7:    { frets: [-1,1,3,1,2,1], startFret: 2, barre: { fret:1, from:1, to:5 } },
+  Cm7:    { frets: [-1,1,3,1,2,1], startFret: 3, barre: { fret:1, from:1, to:5 } },
   Dm7:    { frets: [-1,-1,0,2,1,1], startFret: 1 },
   Em7:    { frets: [0,2,2,0,3,0], startFret: 1 },
   Fm7:    { frets: [1,3,1,1,1,1], startFret: 1, barre: { fret:1, from:0, to:5 } },
+  "F#m7": { frets: [-1,-1,4,2,2,2], startFret: 1 },
+  "Gbm7": { frets: [-1,-1,4,2,2,2], startFret: 1 },
+  Gm7:    { frets: [1,3,1,1,1,1], startFret: 3, barre: { fret:1, from:0, to:5 } },
+  "G#m7": { frets: [1,3,1,1,1,1], startFret: 4, barre: { fret:1, from:0, to:5 } },
+  "Abm7": { frets: [1,3,1,1,1,1], startFret: 4, barre: { fret:1, from:0, to:5 } },
+  "C#m7": { frets: [1,3,1,1,1,1], startFret: 4, barre: { fret:1, from:0, to:5 } },
+  "Dbm7": { frets: [1,3,1,1,1,1], startFret: 4, barre: { fret:1, from:0, to:5 } },
 
   // ── Suspended ─────────────────────────────────────────────────────────────
   Asus2:  { frets: [-1,0,2,2,0,0], startFret: 1 },
@@ -85,6 +93,15 @@ export const CHORD_SHAPES = {
   // ── Add chords ────────────────────────────────────────────────────────────
   Cadd9:  { frets: [-1,3,2,0,3,0], startFret: 1 },
   Gadd9:  { frets: [3,2,0,2,0,3], startFret: 1 },
+
+  // ── 9th chords ────────────────────────────────────────────────────────────
+  A9:     { frets: [-1,0,2,0,2,0], startFret: 1 },
+  B9:     { frets: [-1,2,1,2,2,2], startFret: 1 },
+  C9:     { frets: [-1,3,2,3,3,3], startFret: 1 },
+  D9:     { frets: [-1,-1,0,2,1,0], startFret: 1 },
+  E9:     { frets: [0,2,0,1,0,2], startFret: 1 },
+  G9:     { frets: [3,2,0,2,0,1], startFret: 1 },
+  "F#9":  { frets: [1,3,1,2,1,3], startFret: 2, barre: { fret:1, from:0, to:5 } },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -206,9 +223,17 @@ export function ChordDiagram({ name, known }) {
   );
 }
 
+// Strip slash bass note (A9/G → A9) and parenthetical suffix (F#m7(11) → F#m7)
+function normalizeChord(chord) {
+  return chord.split("/")[0].replace(/\(.*\)$/, "").trim();
+}
+
 // Renders a scrollable row of diagrams for a list of chord names
 export function ChordDiagramRow({ chords, knownChords }) {
-  const unique = [...new Set(chords)].filter((c) => CHORD_SHAPES[c]);
+  const seen = new Set();
+  const unique = chords
+    .map(normalizeChord)
+    .filter((c) => CHORD_SHAPES[c] && !seen.has(c) && seen.add(c));
   if (unique.length === 0) return null;
 
   return (
