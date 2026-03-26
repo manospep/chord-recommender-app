@@ -39,6 +39,15 @@
   --diagram-open:   rgba(255,255,255,0.55);
   --diagram-mute:   rgba(255,255,255,0.35);
   --diagram-label:  rgba(255,255,255,0.45);
+  --color-green:         #1ed760;
+  --color-green-bg:      rgba(30,215,96,0.12);
+  --color-green-border:  rgba(30,215,96,0.25);
+  --color-red:           #f15e6c;
+  --color-red-bg:        rgba(241,94,108,0.12);
+  --color-red-border:    rgba(241,94,108,0.25);
+  --color-purple:        #b388ff;
+  --color-purple-bg:     rgba(150,100,255,0.12);
+  --color-purple-border: rgba(150,100,255,0.25);
 }
 
 /* ============================================================
@@ -82,6 +91,15 @@ body[data-theme="light"] {
   --diagram-open:   rgba(13,15,26,0.5);
   --diagram-mute:   rgba(13,15,26,0.35);
   --diagram-label:  rgba(13,15,26,0.45);
+  --color-green:         #14a34a;
+  --color-green-bg:      rgba(20,163,74,0.1);
+  --color-green-border:  rgba(20,163,74,0.25);
+  --color-red:           #c0392b;
+  --color-red-bg:        rgba(192,57,43,0.1);
+  --color-red-border:    rgba(192,57,43,0.25);
+  --color-purple:        #7c3aed;
+  --color-purple-bg:     rgba(124,58,237,0.1);
+  --color-purple-border: rgba(124,58,237,0.25);
 }
 
 /* Light mode: brand-chord is dark, brand-quest stays accent */
@@ -98,7 +116,7 @@ body[data-theme="light"] .navbar-brand:hover .guitar-icon {
    BASE
    ============================================================ */
 
-*, *::before, *::after { box-sizing: border-box; }
+*, *::before, *::after { box-sizing: border-box; font-family: inherit; }
 
 body {
   margin: 0;
@@ -190,7 +208,6 @@ body {
   align-items: center;
   justify-content: center;
   transition: background 0.2s, border-color 0.2s, color 0.2s;
-  font-family: "Inter", sans-serif;
   flex-shrink: 0;
 }
 
@@ -286,7 +303,6 @@ body {
   cursor: text;
   min-height: 48px;
   transition: border-color 0.2s, box-shadow 0.2s;
-  font-family: "Inter", sans-serif;
   grid-column: 1 / -1;
 }
 
@@ -334,7 +350,6 @@ body {
   font-size: 14px;
   font-weight: 500;
   color: var(--text-primary);
-  font-family: "Inter", sans-serif;
 }
 
 .tag-input::placeholder { color: var(--text-faint); }
@@ -353,7 +368,6 @@ body {
   background: var(--bg-input);
   font-weight: 500;
   transition: border-color 0.2s, box-shadow 0.2s;
-  font-family: "Inter", sans-serif;
   color: var(--text-primary);
 }
 
@@ -366,8 +380,9 @@ body {
 .artist-input::placeholder,
 .song-input::placeholder { color: var(--text-faint); }
 
+.input-grid .genre-select { grid-column: 1 / -1; }
+
 .genre-select {
-  grid-column: 1 / -1;
   padding: 13px 16px;
   font-size: 14px;
   border-radius: 12px;
@@ -378,7 +393,6 @@ body {
   transition: border-color 0.2s, box-shadow 0.2s;
   cursor: pointer;
   color: var(--text-primary);
-  font-family: "Inter", sans-serif;
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='rgba(150,160,180,0.6)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
@@ -410,7 +424,6 @@ body {
   transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
   text-transform: uppercase;
   letter-spacing: 1px;
-  font-family: "Inter", sans-serif;
 }
 
 .search-btn:hover {
@@ -523,15 +536,15 @@ body {
 }
 
 .badge-green {
-  background: rgba(30,215,96,0.12);
-  color: #1ed760;
-  border: 1px solid rgba(30,215,96,0.25);
+  background: var(--color-green-bg);
+  color: var(--color-green);
+  border: 1px solid var(--color-green-border);
 }
 
 .badge-red {
-  background: rgba(241,94,108,0.12);
-  color: #f15e6c;
-  border: 1px solid rgba(241,94,108,0.25);
+  background: var(--color-red-bg);
+  color: var(--color-red);
+  border: 1px solid var(--color-red-border);
 }
 
 .badge-grey {
@@ -546,9 +559,9 @@ body {
   font-weight: 700;
   padding: 3px 8px;
   border-radius: 20px;
-  background: rgba(150,100,255,0.12);
-  color: #b388ff;
-  border: 1px solid rgba(150,100,255,0.25);
+  background: var(--color-purple-bg);
+  color: var(--color-purple);
+  border: 1px solid var(--color-purple-border);
   letter-spacing: 0.3px;
   text-transform: uppercase;
 }
@@ -579,15 +592,15 @@ body {
 }
 
 .chip-known {
-  background: rgba(30,215,96,0.12);
-  color: #1ed760;
-  border: 1px solid rgba(30,215,96,0.28);
+  background: var(--color-green-bg);
+  color: var(--color-green);
+  border: 1px solid var(--color-green-border);
 }
 
 .chip-missing {
-  background: rgba(241,94,108,0.12);
-  color: #f15e6c;
-  border: 1px solid rgba(241,94,108,0.28);
+  background: var(--color-red-bg);
+  color: var(--color-red);
+  border: 1px solid var(--color-red-border);
 }
 
 /* ============================================================
@@ -748,7 +761,7 @@ body {
 }
 
 .rating-prompt    { color: var(--text-muted); }
-.rating-submitted { color: #1ed760; font-weight: 600; }
+.rating-submitted { color: var(--color-green); font-weight: 600; }
 .rating-average   { color: var(--text-secondary); font-weight: 500; }
 
 /* ============================================================
@@ -764,16 +777,15 @@ body {
   font-size: 14px;
   line-height: 1.7;
   color: var(--text-secondary);
-  max-height: 65vh;
-  overflow-y: auto;
+  overflow-y: visible;
   font-family: "SF Mono", "Monaco", "Courier New", monospace;
 }
 
 .chord-line  { display: block; white-space: pre; margin: 0; }
 .lyric-line  { display: block; white-space: pre; color: var(--text-secondary); margin: 0; }
 
-.inline-chord-known   { color: #1ed760; font-weight: 700; }
-.inline-chord-missing { color: #f15e6c; font-weight: 700; }
+.inline-chord-known   { color: var(--color-green); font-weight: 700; }
+.inline-chord-missing { color: var(--color-red); font-weight: 700; }
 
 .no-lyrics {
   color: var(--text-faint);
@@ -812,7 +824,6 @@ body {
   letter-spacing: 0.8px;
   text-transform: uppercase;
   color: var(--text-muted);
-  font-family: "Inter", sans-serif;
 }
 
 .transpose-btn {
@@ -830,7 +841,6 @@ body {
   align-items: center;
   justify-content: center;
   transition: background 0.2s, border-color 0.2s;
-  font-family: "Inter", sans-serif;
 }
 
 .transpose-btn:hover {
@@ -844,7 +854,6 @@ body {
   color: var(--text-secondary);
   min-width: 110px;
   text-align: center;
-  font-family: "Inter", sans-serif;
 }
 
 .transpose-reset {
@@ -854,7 +863,6 @@ body {
   background: none;
   border: none;
   cursor: pointer;
-  font-family: "Inter", sans-serif;
   opacity: 0.65;
   padding: 0;
   transition: opacity 0.2s;
@@ -892,7 +900,6 @@ body {
   font-weight: 700;
   color: var(--text-secondary);
   letter-spacing: 0.3px;
-  font-family: "Inter", sans-serif;
 }
 
 /* ============================================================
@@ -918,7 +925,6 @@ body {
   padding: 14px 18px;
   cursor: pointer;
   text-align: left;
-  font-family: "Inter", sans-serif;
   transition: background 0.18s, border-color 0.18s, transform 0.18s;
   width: 100%;
 }
@@ -994,7 +1000,6 @@ body {
   cursor: pointer;
   transition: background 0.18s, border-color 0.18s, transform 0.18s;
   color: var(--text-primary);
-  font-family: "Inter", sans-serif;
 }
 
 .genre-tile:hover {
@@ -1024,7 +1029,6 @@ body {
   cursor: pointer;
   transition: background 0.18s, border-color 0.18s, transform 0.18s;
   text-align: left;
-  font-family: "Inter", sans-serif;
   width: 100%;
 }
 
@@ -1060,7 +1064,6 @@ body {
   border: 1px solid var(--accent-border);
   letter-spacing: 0.2px;
   cursor: pointer;
-  font-family: "Inter", sans-serif;
   transition: background 0.15s;
 }
 
@@ -1110,7 +1113,6 @@ body {
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  font-family: "Inter", sans-serif;
   transition: background 0.2s, border-color 0.2s;
 }
 
@@ -1135,7 +1137,7 @@ body {
   .glass-card { padding: 28px 24px; margin: 20px auto 40px; }
   .song-title { font-size: 28px; }
   .song-artist { font-size: 16px; }
-  .lyrics-pre { overflow-x: auto; padding: 14px; font-size: 13px; max-height: 55vh; }
+  .lyrics-pre { overflow-x: auto; padding: 14px; font-size: 13px; }
   .prog-label { display: none; }
   .oca-samples { display: none; }
   .oca-unlocks { min-width: unset; }
@@ -1162,7 +1164,7 @@ body {
   .song-title { font-size: 22px; }
   .song-artist { font-size: 15px; margin-bottom: 16px; }
   .star { font-size: 26px; }
-  .lyrics-pre { padding: 12px 10px; font-size: 12px; line-height: 1.55; max-height: 50vh; border-radius: 10px; }
+  .lyrics-pre { padding: 12px 10px; font-size: 12px; line-height: 1.55; border-radius: 10px; }
   .prog-item  { flex-wrap: wrap; gap: 10px; padding: 12px 14px; }
   .prog-name  { min-width: unset; }
   .prog-chips { margin-left: 0; }
