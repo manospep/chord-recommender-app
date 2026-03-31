@@ -16,6 +16,7 @@ npm-debug.log*
 
 # Runtime / local DB
 backend/ratings.db
+server/ratings.db
 
 # Env files (may contain secrets)
 .env

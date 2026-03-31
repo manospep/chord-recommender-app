@@ -25,27 +25,27 @@ The website e-chords:  https://www.e-chords.com/chords/
 - FastAPI backend + React frontend
 
 ## Project Structure
-backend/
-frontend/
+server/
+client/
 data/
 README.md
 
 ## Backend setup (FastAPI)
-cd backend
+cd server
 python3 -m venv .venv
 source .venv/bin/activate
 pip install fastapi uvicorn pandas
 uvicorn main:app --reload
 
-Backend: http://127.0.0.1:8000
+Backend will be running on: http://127.0.0.1:8000
 
 ## Frontend setup (React)
 
-cd frontend
+cd client
 npm install
 npm start
 
-Frontend: http://localhost:3000
+Frontend will be running on: http://localhost:3000
 
 ## API Endpoints
 

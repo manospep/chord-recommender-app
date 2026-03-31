@@ -309,9 +309,9 @@ function Home() {
                 <option key={g} value={g}>{g}</option>
               ))}
             </select>
-            <button className="search-btn" onClick={fetchSongs} disabled={!canSearch}>
-              Find Songs
-            </button>
+        <button className="search-btn" onClick={fetchSongs} disabled={!canSearch}>
+          Find Songs
+        </button>
           </div>
         </div>
 
