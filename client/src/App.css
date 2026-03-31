@@ -777,6 +777,7 @@ body {
   font-size: 14px;
   line-height: 1.7;
   color: var(--text-secondary);
+  overflow-x: auto;
   overflow-y: visible;
   font-family: "SF Mono", "Monaco", "Courier New", monospace;
 }
