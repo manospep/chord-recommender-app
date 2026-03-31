@@ -1,78 +1,94 @@
-# Chord Recommender App 
-A full-stack app that recommends songs based on the chords you already know.
-Backend uses FastAPI, frontend uses React, dataset contains chords + lyrics.
+# ChordQuest
 
-##  Data
-Data comes from Kaggle dataset "Chords and Lyrics Dataset" by Eitan Bentora. It includes "Lyrics and chords for 135,783 songs in multiple languages". 
-
-Link to the original repository: https://github.com/eitanbentora/NLP-Project-Hit-Machine
-
-It includes :
-
-Information about the artist that created the song
-A split to the song's chords lyrics, and tabs
-The predicted language of the song.
-
-The Spotify artists dataset: https://www.kaggle.com/ehcall/spotify-artists
-The website e-chords:  https://www.e-chords.com/chords/
+A full-stack app that recommends songs based on the chords you already know. Search 130,000+ songs, see chord diagrams, transpose to any key, and discover what to learn next.
 
 ## Features
-- Enter chords (e.g., C,G,Am) to find matching songs
-- Sorts results by missing vs known chords
-- Filter by artist or song title
-- Click into a song page showing chords above lyrics
-- Clean neon/glass UI with scrolling lyrics
-- FastAPI backend + React frontend
+
+- **Chord search** — enter chords you know (e.g. C, G, Am, F) to find matching songs
+- **Smart ranking** — sorts results by fewest missing chords, then most known chords
+- **One chord away** — suggests which chord to learn next to unlock the most songs
+- **Genre & artist filtering** — filter by genre, artist name, or song title
+- **Song page** — full chords + lyrics with inline colour-coded chord highlighting
+- **Chord diagrams** — SVG guitar diagrams for every chord in the song (150+ shapes)
+- **Transposition** — shift any song up/down by semitone with live re-rendering
+- **Star ratings** — rate songs, see community averages
+- **Dark / light mode** — persisted to localStorage
+- **Quick-start progressions** — 6 built-in chord progressions to search from
 
 ## Project Structure
-server/
-client/
-data/
-README.md
 
-## Backend setup (FastAPI)
+```
+server/       FastAPI backend + recommender
+client/       React frontend
+data/         Dataset (not committed — too large)
+tests/        Backend test suite (pytest)
+```
+
+## Backend Setup
+
+```bash
 cd server
-python3 -m venv .venv
-source .venv/bin/activate
-pip install fastapi uvicorn pandas
+python3 -m venv ../.venv
+source ../.venv/bin/activate
+pip install -r requirements.txt
 uvicorn main:app --reload
+```
 
-Backend will be running on: http://127.0.0.1:8000
+Runs on: http://127.0.0.1:8000
 
-## Frontend setup (React)
+## Frontend Setup
 
+```bash
 cd client
 npm install
 npm start
+```
 
-Frontend will be running on: http://localhost:3000
+Runs on: http://localhost:3000
+
+Set `REACT_APP_API_URL=http://127.0.0.1:8000` in `client/.env`.
+
+## Dataset
+
+The processed dataset (`chords_processed.csv`) is hosted on HuggingFace and auto-downloaded on first server start if not present locally.
+
+Set these env vars for the server:
+
+```
+HF_REPO_ID=manospep/chordquest_data
+HF_FILENAME=chords_processed.csv
+HF_TOKEN=<your_token>         # only needed if repo is private
+DATA_PATH=<optional_override> # custom path for the CSV
+DB_PATH=<optional_override>   # custom path for ratings.db
+```
+
+Source data: [Chords and Lyrics Dataset](https://github.com/eitanbentora/NLP-Project-Hit-Machine) by Eitan Bentora — 135,783 songs from e-chords.com.
 
 ## API Endpoints
 
-GET /recommend?chords=C,G,Am&artist=Ed&title=love
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/recommend?chords=C,G,Am&artist=&title=&genre=` | Top 50 matching songs |
+| GET | `/one-chord-away?chords=C,G,Am&genre=` | Chords to learn next |
+| GET | `/song/{id}` | Full chords + lyrics for one song |
+| POST | `/song/{id}/rate` | Submit a star rating `{"rating": 1-5}` |
+| GET | `/genres` | List of available genres |
+| GET | `/health` | Server health check |
 
---> Returns list of matching songs.
+## Running Tests
 
-GET /song/{id}
+**Backend** (pytest, runs against the full dataset):
+```bash
+source .venv/bin/activate
+pytest tests/test_backend.py -v
+```
 
---> Returns full chords + lyrics for one song.
+**Frontend** (Jest):
+```bash
+cd client
+npm test
+```
 
-## How it works
-1) Extract chords from each song
-2) Compare with user input
-3) Compute missing/known chords
+## License
 
-Sort by:
-
-- lowest missing chords
-
-- highest known chords
-
-## Potential Future Enhancements
-- Difficulty score
-- Transposition
-- Favouriting songs
-- More datasets
-- Mobile app (React Native)
-
-### License --> Unknown
+Unknown
