@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, Link } from "react-router-dom";
 import SongPage from "./SongPage";
+import AuthPage from "./AuthPage";
+import ProfilePage from "./ProfilePage";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import "./App.css";
+
 
 const GENRES = [
   "All Genres", "Metal", "Rock", "Pop", "Hip Hop", "R&B / Soul",
@@ -59,6 +63,8 @@ function GuitarIcon() {
 
 // ---- Shared Navbar ----
 function Navbar({ theme, onToggleTheme }) {
+  const { user, profile } = useAuth();
+
   return (
     <nav className="navbar">
       <a href="/" className="navbar-brand">
@@ -70,9 +76,18 @@ function Navbar({ theme, onToggleTheme }) {
       <span className="navbar-cq">
         <span className="brand-chord">C</span><span className="brand-quest">Q</span>
       </span>
-      <button className="theme-toggle" onClick={onToggleTheme} title="Toggle theme">
-        {theme === "dark" ? "☀️" : "🌙"}
-      </button>
+      <div className="navbar-right">
+        {user ? (
+          <Link to="/profile" className="navbar-avatar" title="Your profile">
+            {(profile?.display_name || user.email || "?")[0].toUpperCase()}
+          </Link>
+        ) : (
+          <Link to="/auth" className="navbar-signin-btn">Sign in</Link>
+        )}
+        <button className="theme-toggle" onClick={onToggleTheme} title="Toggle theme">
+          {theme === "dark" ? "☀️" : "🌙"}
+        </button>
+      </div>
     </nav>
   );
 }
@@ -464,7 +479,7 @@ function Home() {
   );
 }
 
-export default function App() {
+function AppInner() {
   const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "dark");
 
   useEffect(() => {
@@ -480,7 +495,17 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/song/:id" element={<SongPage />} />
+        <Route path="/auth" element={<AuthPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
       </Routes>
     </>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppInner />
+    </AuthProvider>
   );
 }

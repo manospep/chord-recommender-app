@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ChordDiagramRow } from "./ChordDiagram";
+import { useAuth } from "./context/AuthContext";
 import "./App.css";
 
 // ─── Chord regex ──────────────────────────────────────────────────────────────
@@ -158,6 +159,44 @@ function StarRating({ songId, initialAverage, initialCount }) {
   );
 }
 
+// ─── Favorite button ─────────────────────────────────────────────────────────
+function FavoriteButton({ song }) {
+  const { user, addFavorite, removeFavorite, isFavorited } = useAuth();
+  const [favorited, setFavorited] = useState(false);
+  const [busy, setBusy]           = useState(false);
+
+  useEffect(() => {
+    if (user && song) isFavorited(song.song_id).then(setFavorited);
+  }, [user, song]); // eslint-disable-line
+
+  if (!user) return (
+    <Link to="/auth" className="favorite-btn favorite-btn-off" title="Sign in to save">♡</Link>
+  );
+
+  const toggle = async () => {
+    setBusy(true);
+    if (favorited) {
+      await removeFavorite(song.song_id);
+      setFavorited(false);
+    } else {
+      await addFavorite(song);
+      setFavorited(true);
+    }
+    setBusy(false);
+  };
+
+  return (
+    <button
+      className={`favorite-btn ${favorited ? "favorite-btn-on" : "favorite-btn-off"}`}
+      onClick={toggle}
+      disabled={busy}
+      title={favorited ? "Remove from favorites" : "Save to favorites"}
+    >
+      {favorited ? "♥" : "♡"}
+    </button>
+  );
+}
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function SongPage() {
   const { id } = useParams();
@@ -203,8 +242,13 @@ export default function SongPage() {
 
         <Link to="/" className="back-btn">← Back</Link>
 
-        <h1 className="song-title">{song.song_name}</h1>
-        <h2 className="song-artist">{song.artist_name}</h2>
+        <div className="song-title-row">
+          <div>
+            <h1 className="song-title">{song.song_name}</h1>
+            <h2 className="song-artist">{song.artist_name}</h2>
+          </div>
+          <FavoriteButton song={song} />
+        </div>
 
         <StarRating
           songId={song.song_id}
