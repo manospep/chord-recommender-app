@@ -5,6 +5,46 @@ import { useAuth } from "./context/AuthContext";
 const TABS = ["sign-in", "sign-up", "magic-link", "reset"];
 const TAB_LABELS = { "sign-in": "Sign In", "sign-up": "Sign Up", "magic-link": "Magic Link", "reset": "Reset Password" };
 
+function passwordStrength(pw) {
+  if (!pw) return { score: 0, label: "", color: "" };
+  let score = 0;
+  if (pw.length >= 8)  score++;
+  if (pw.length >= 12) score++;
+  if (/[A-Z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+  if (score <= 1) return { score, label: "Weak",   color: "var(--color-red)" };
+  if (score === 2) return { score, label: "Fair",   color: "#f0a500" };
+  if (score === 3) return { score, label: "Good",   color: "#7ec8a0" };
+  return              { score, label: "Strong", color: "var(--color-green)" };
+}
+
+function validatePassword(pw) {
+  if (pw.length < 8)          return "Password must be at least 8 characters.";
+  if (!/[A-Z]/.test(pw))      return "Password must include at least one uppercase letter.";
+  if (!/[0-9]/.test(pw))      return "Password must include at least one number.";
+  return null;
+}
+
+function PasswordStrengthBar({ password }) {
+  const { score, label, color } = passwordStrength(password);
+  if (!password) return null;
+  return (
+    <div className="pw-strength">
+      <div className="pw-strength-bars">
+        {[1, 2, 3, 4, 5].map(i => (
+          <div
+            key={i}
+            className="pw-strength-bar"
+            style={{ background: i <= score ? color : "var(--border)" }}
+          />
+        ))}
+      </div>
+      <span className="pw-strength-label" style={{ color }}>{label}</span>
+    </div>
+  );
+}
+
 export default function AuthPage() {
   const { signIn, signUp, signInMagicLink, resetPassword, updatePassword, user } = useAuth();
   const navigate  = useNavigate();
@@ -37,7 +77,8 @@ export default function AuthPage() {
 
       } else if (tab === "sign-up") {
         if (password !== confirm) throw new Error("Passwords do not match.");
-        if (password.length < 6) throw new Error("Password must be at least 6 characters.");
+        const pwError = validatePassword(password);
+        if (pwError) throw new Error(pwError);
         const { error } = await signUp(email, password);
         if (error) throw error;
         setMessage({ type: "success", text: "Account created! Check your email to confirm your address." });
@@ -54,7 +95,8 @@ export default function AuthPage() {
 
       } else if (tab === "update-password") {
         if (password !== confirm) throw new Error("Passwords do not match.");
-        if (password.length < 6) throw new Error("Password must be at least 6 characters.");
+        const pwError = validatePassword(password);
+        if (pwError) throw new Error(pwError);
         const { error } = await updatePassword(password);
         if (error) throw error;
         setMessage({ type: "success", text: "Password updated! Redirecting…" });
@@ -74,7 +116,8 @@ export default function AuthPage() {
           <h2 className="auth-title">Set New Password</h2>
           <form onSubmit={handle} className="auth-form">
             <label className="auth-label">New password</label>
-            <input className="auth-input" type="password" value={password} onChange={e => setPassword(e.target.value)} required />
+            <input className="auth-input" type="password" placeholder="Min 8 chars, 1 uppercase, 1 number" value={password} onChange={e => setPassword(e.target.value)} required />
+            <PasswordStrengthBar password={password} />
             <label className="auth-label">Confirm password</label>
             <input className="auth-input" type="password" value={confirm} onChange={e => setConfirm(e.target.value)} required />
             {message && <p className={`auth-msg auth-msg-${message.type}`}>{message.text}</p>}
@@ -122,11 +165,12 @@ export default function AuthPage() {
               <input
                 className="auth-input"
                 type="password"
-                placeholder={tab === "sign-up" ? "At least 6 characters" : "Your password"}
+                placeholder={tab === "sign-up" ? "Min 8 chars, 1 uppercase, 1 number" : "Your password"}
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 required
               />
+              {tab === "sign-up" && <PasswordStrengthBar password={password} />}
             </>
           )}
 
