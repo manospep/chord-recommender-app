@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { ChordDiagramRow } from "./ChordDiagram";
 import { useAuth } from "./context/AuthContext";
 import "./App.css";
@@ -159,6 +160,30 @@ function StarRating({ songId, initialAverage, initialCount }) {
   );
 }
 
+// ─── Share button ────────────────────────────────────────────────────────────
+function ShareButton({ song }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: `${song.song_name} — ${song.artist_name}`, url });
+        return;
+      } catch (_) {}
+    }
+    await navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <button className="share-btn" onClick={handleShare} title="Share this song">
+      {copied ? "Copied!" : "Share"}
+    </button>
+  );
+}
+
 // ─── Favorite button ─────────────────────────────────────────────────────────
 function FavoriteButton({ song }) {
   const { user, addFavorite, removeFavorite, isFavorited } = useAuth();
@@ -236,8 +261,22 @@ export default function SongPage() {
   // Transposed chord list for chips + diagrams
   const transposedChords = (song.chord_list || []).map((ch) => transposeChord(ch, transpose));
 
+  const pageUrl    = `https://chord-recommender-app.vercel.app/song/${song.song_id}`;
+  const metaTitle  = `${song.song_name} — ${song.artist_name} chords | ChordQuest`;
+  const metaDesc   = `Guitar chords for ${song.song_name} by ${song.artist_name}. Chords used: ${(song.chord_list || []).slice(0, 6).join(", ")}. Play along with the full chord chart on ChordQuest.`;
+
   return (
     <div className="page">
+      <Helmet>
+        <title>{metaTitle}</title>
+        <meta name="description" content={metaDesc} />
+        <meta property="og:title" content={metaTitle} />
+        <meta property="og:description" content={metaDesc} />
+        <meta property="og:url" content={pageUrl} />
+        <meta property="og:type" content="article" />
+        <link rel="canonical" href={pageUrl} />
+      </Helmet>
+
       <div className="glass-card">
 
         <Link to="/" className="back-btn">← Back</Link>
@@ -247,7 +286,10 @@ export default function SongPage() {
             <h1 className="song-title">{song.song_name}</h1>
             <h2 className="song-artist">{song.artist_name}</h2>
           </div>
-          <FavoriteButton song={song} />
+          <div className="song-title-actions">
+            <ShareButton song={song} />
+            <FavoriteButton song={song} />
+          </div>
         </div>
 
         <StarRating

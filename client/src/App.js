@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, Link } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 import SongPage from "./SongPage";
 import AuthPage from "./AuthPage";
 import ProfilePage from "./ProfilePage";
@@ -504,8 +505,10 @@ function AppInner() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AppInner />
-    </AuthProvider>
+    <HelmetProvider>
+      <AuthProvider>
+        <AppInner />
+      </AuthProvider>
+    </HelmetProvider>
   );
 }

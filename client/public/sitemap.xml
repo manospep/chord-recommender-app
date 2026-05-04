@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap><loc>https://chord-recommender-app.vercel.app/sitemap-static.xml</loc><lastmod>2026-05-04</lastmod></sitemap>
+  <sitemap><loc>https://chord-recommender-app.vercel.app/sitemap-songs-1.xml</loc><lastmod>2026-05-04</lastmod></sitemap>
+  <sitemap><loc>https://chord-recommender-app.vercel.app/sitemap-songs-2.xml</loc><lastmod>2026-05-04</lastmod></sitemap>
+  <sitemap><loc>https://chord-recommender-app.vercel.app/sitemap-songs-3.xml</loc><lastmod>2026-05-04</lastmod></sitemap>
+</sitemapindex>
