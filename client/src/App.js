@@ -4,6 +4,7 @@ import { HelmetProvider } from "react-helmet-async";
 import SongPage from "./SongPage";
 import AuthPage from "./AuthPage";
 import ProfilePage from "./ProfilePage";
+import VerifiedPage from "./VerifiedPage";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import "./App.css";
 
@@ -498,6 +499,7 @@ function AppInner() {
         <Route path="/song/:id" element={<SongPage />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/verified" element={<VerifiedPage />} />
       </Routes>
     </>
   );

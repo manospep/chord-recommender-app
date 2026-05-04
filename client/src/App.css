@@ -1396,6 +1396,59 @@ body {
 .auth-link-btn:hover { text-decoration: underline; }
 
 /* ============================================================
+   VERIFIED PAGE
+   ============================================================ */
+
+.verified-card {
+  max-width: 400px;
+  margin: 80px auto;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 48px 32px;
+  text-align: center;
+  box-shadow: 0 8px 40px var(--shadow);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.verified-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--color-green-bg);
+  border: 2px solid var(--color-green-border);
+  color: var(--color-green);
+  font-size: 28px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.verified-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.verified-sub {
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.verified-redirect {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 4px 0 8px;
+}
+
+/* ============================================================
    PROFILE PAGE
    ============================================================ */
 

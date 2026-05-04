@@ -34,7 +34,10 @@ export function AuthProvider({ children }) {
   }
 
   async function signUp(email, password) {
-    return supabase.auth.signUp({ email, password });
+    return supabase.auth.signUp({
+      email, password,
+      options: { emailRedirectTo: `${window.location.origin}/verified` },
+    });
   }
 
   async function signIn(email, password) {
@@ -42,7 +45,10 @@ export function AuthProvider({ children }) {
   }
 
   async function signInMagicLink(email) {
-    return supabase.auth.signInWithOtp({ email });
+    return supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: `${window.location.origin}/verified` },
+    });
   }
 
   async function signOut() {
