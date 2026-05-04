@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 
 export default function ProfilePage() {
-  const { user, profile, updateProfile, signOut, getFavorites, removeFavorite, loadChords, syncChords, deleteAccount } = useAuth();
+  const { user, profile, updateProfile, signOut, getFavorites, removeFavorite, loadChords, syncChords } = useAuth();
   const navigate = useNavigate();
 
   const [displayName, setDisplayName]     = useState("");
@@ -12,8 +12,6 @@ export default function ProfilePage() {
   const [saveMsg, setSaveMsg]             = useState(null);
   const [savingProfile, setSavingProfile] = useState(false);
   const [activeTab, setActiveTab]         = useState("account");
-  const [confirmDelete, setConfirmDelete] = useState(false);
-  const [deleting, setDeleting]           = useState(false);
 
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
@@ -55,17 +53,6 @@ export default function ProfilePage() {
     navigate("/");
   };
 
-  const handleDeleteAccount = async () => {
-    setDeleting(true);
-    const { error } = await deleteAccount();
-    if (error) {
-      setSaveMsg({ type: "error", text: error.message });
-      setDeleting(false);
-      setConfirmDelete(false);
-    } else {
-      navigate("/");
-    }
-  };
 
   return (
     <div className="page">
@@ -126,20 +113,7 @@ export default function ProfilePage() {
             <p className="profile-hint">To change your password, sign out and use "Forgot password?" on the sign-in page.</p>
 
             <h3 className="profile-section-title" style={{ marginTop: "32px", color: "var(--color-red)" }}>Danger zone</h3>
-            <button className="danger-btn" onClick={handleSignOut} style={{ marginBottom: "10px" }}>Sign out of all devices</button>
-            {!confirmDelete ? (
-              <button className="danger-btn" onClick={() => setConfirmDelete(true)}>Delete account</button>
-            ) : (
-              <div className="delete-confirm">
-                <p className="delete-confirm-text">This permanently deletes your account, favorites, and chord list. Are you sure?</p>
-                <div className="delete-confirm-actions">
-                  <button className="danger-btn" onClick={handleDeleteAccount} disabled={deleting}>
-                    {deleting ? "Deleting…" : "Yes, delete my account"}
-                  </button>
-                  <button className="danger-btn-cancel" onClick={() => setConfirmDelete(false)}>Cancel</button>
-                </div>
-              </div>
-            )}
+            <button className="danger-btn" onClick={handleSignOut}>Sign out of all devices</button>
           </div>
         )}
 
