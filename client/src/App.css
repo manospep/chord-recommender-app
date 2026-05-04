@@ -1585,6 +1585,43 @@ body {
 
 .danger-btn:hover { opacity: 0.8; }
 
+.delete-confirm {
+  background: var(--color-red-bg);
+  border: 1px solid var(--color-red-border);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.delete-confirm-text {
+  font-size: 13px;
+  color: var(--color-red);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.delete-confirm-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.danger-btn-cancel {
+  background: var(--toggle-bg);
+  border: 1px solid var(--toggle-border);
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.danger-btn-cancel:hover { opacity: 0.8; }
+
 .favorites-list {
   display: flex;
   flex-direction: column;

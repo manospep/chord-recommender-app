@@ -113,6 +113,12 @@ export function AuthProvider({ children }) {
     return !!data;
   }
 
+  async function deleteAccount() {
+    const { error } = await supabase.rpc("delete_user");
+    if (!error) await supabase.auth.signOut();
+    return { error };
+  }
+
   // Chord sync
   async function syncChords(chords) {
     return supabase.from("user_chords").upsert({
@@ -137,7 +143,7 @@ export function AuthProvider({ children }) {
       signUp, signIn, signInMagicLink, signOut,
       resetPassword, updatePassword, updateProfile,
       addFavorite, removeFavorite, getFavorites, isFavorited,
-      syncChords, loadChords,
+      syncChords, loadChords, deleteAccount,
     }}>
       {children}
     </AuthContext.Provider>
