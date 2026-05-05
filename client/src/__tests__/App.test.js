@@ -1,41 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import App from "../App";
-
-// ── Transpose helpers (duplicated here so they can be unit-tested without
-//    a running DOM — mirrors the logic in SongPage.js exactly) ───────────────
-
-const SHARP = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
-const FLAT  = ["C","Db","D","Eb","E","F","Gb","G","Ab","A","Bb","B"];
-
-function transposeNote(note, n) {
-  let idx = SHARP.indexOf(note);
-  if (idx === -1) idx = FLAT.indexOf(note);
-  if (idx === -1) return note;
-  const ni = ((idx + n) % 12 + 12) % 12;
-  return (n >= 0 ? SHARP : FLAT)[ni];
-}
-
-function transposeChord(chord, n) {
-  if (!n) return chord;
-  const m = chord.match(/^([A-G][#b]?)(.*)$/);
-  if (!m) return chord;
-  return transposeNote(m[1], n) + m[2];
-}
-
-// ── isChordLine (mirrors SongPage.js) ────────────────────────────────────────
-
-const CHORD_RE = /\b([A-G](?:#|b)?(?:maj(?:7|9|11|13)?|min(?:7|9|11|13)?|m(?:7|9|11|13)?|dim(?:7)?|aug(?:7)?|sus(?:2|4)?|add(?:9|11|13)|[0-9]{1,2})?(?:\([^)]+\))?)(?![#\w])/g;
-
-function isChordLine(line) {
-  const trimmed = line.trim();
-  if (!trimmed) return false;
-  const chords = trimmed.match(CHORD_RE) || [];
-  if (chords.length === 0) return false;
-  const chordChars = chords.join("").length;
-  const nonSpace   = trimmed.replace(/\s/g, "").length;
-  return nonSpace > 0 && chordChars / nonSpace > 0.5;
-}
+import { transposeChord, isChordLine } from "../SongPage";
 
 // ── transposeChord tests ──────────────────────────────────────────────────────
 

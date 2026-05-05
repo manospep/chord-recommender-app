@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
+import { useToast } from "./context/ToastContext";
 
 export default function ProfilePage() {
   const { user, profile, updateProfile, signOut, getFavorites, removeFavorite, loadChords, syncChords } = useAuth();
   const navigate = useNavigate();
+  const toast    = useToast();
 
   const [displayName, setDisplayName]     = useState("");
   const [favorites, setFavorites]         = useState([]);
   const [chords, setChords]               = useState([]);
-  const [saveMsg, setSaveMsg]             = useState(null);
   const [savingProfile, setSavingProfile] = useState(false);
   const [activeTab, setActiveTab]         = useState("account");
 
@@ -20,45 +21,41 @@ export default function ProfilePage() {
     loadChords().then(loaded => {
       if (loaded.length > 0) setChords(loaded);
       else {
-        // Fall back to localStorage
         const local = (localStorage.getItem("userChords") || "").split(",").filter(Boolean);
         setChords(local);
       }
     });
   }, [user, profile]); // eslint-disable-line
 
-  const handleSaveProfile = async (e) => {
+  const handleSaveProfile = useCallback(async (e) => {
     e.preventDefault();
     setSavingProfile(true);
     const { error } = await updateProfile({ display_name: displayName });
-    setSaveMsg(error ? { type: "error", text: error.message } : { type: "success", text: "Profile saved!" });
+    toast(error ? error.message : "Profile saved!", error ? "error" : "success");
     setSavingProfile(false);
-    setTimeout(() => setSaveMsg(null), 3000);
-  };
+  }, [displayName, updateProfile, toast]);
 
-  const handleSaveChords = async () => {
+  const handleSaveChords = useCallback(async () => {
     await syncChords(chords);
     localStorage.setItem("userChords", chords.join(","));
-    setSaveMsg({ type: "success", text: "Chords synced!" });
-    setTimeout(() => setSaveMsg(null), 3000);
-  };
+    toast("Chords synced across devices!", "success");
+  }, [chords, syncChords, toast]);
 
-  const handleUnfavorite = async (songId) => {
+  const handleUnfavorite = useCallback(async (songId) => {
     await removeFavorite(songId);
     setFavorites(f => f.filter(s => s.song_id !== songId));
-  };
+    toast("Removed from favorites", "success", 2000);
+  }, [removeFavorite, toast]);
 
-  const handleSignOut = async () => {
+  const handleSignOut = useCallback(async () => {
     await signOut();
     navigate("/");
-  };
-
+  }, [signOut, navigate]);
 
   return (
     <div className="page">
       <div className="profile-container">
 
-        {/* Header */}
         <div className="profile-header">
           <div className="profile-avatar">
             {(profile?.display_name || user?.email || "?")[0].toUpperCase()}
@@ -70,7 +67,6 @@ export default function ProfilePage() {
           <button className="signout-btn" onClick={handleSignOut}>Sign out</button>
         </div>
 
-        {/* Tabs */}
         <div className="profile-tabs">
           {["account", "chords", "favorites"].map(t => (
             <button
@@ -83,13 +79,6 @@ export default function ProfilePage() {
           ))}
         </div>
 
-        {saveMsg && (
-          <p className={`auth-msg auth-msg-${saveMsg.type}`} style={{ marginBottom: "16px" }}>
-            {saveMsg.text}
-          </p>
-        )}
-
-        {/* Account tab */}
         {activeTab === "account" && (
           <div className="profile-section">
             <h3 className="profile-section-title">Profile</h3>
@@ -117,7 +106,6 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {/* Chords tab */}
         {activeTab === "chords" && (
           <div className="profile-section">
             <h3 className="profile-section-title">Your chord list</h3>
@@ -126,10 +114,7 @@ export default function ProfilePage() {
               {chords.map((ch, i) => (
                 <span key={i} className="tag-chip">
                   {ch}
-                  <button
-                    className="tag-remove"
-                    onClick={() => setChords(chords.filter((_, j) => j !== i))}
-                  >×</button>
+                  <button className="tag-remove" onClick={() => setChords(chords.filter((_, j) => j !== i))}>×</button>
                 </span>
               ))}
               {chords.length === 0 && (
@@ -142,29 +127,20 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {/* Favorites tab */}
         {activeTab === "favorites" && (
           <div className="profile-section">
             <h3 className="profile-section-title">Saved songs</h3>
             {favorites.length === 0 ? (
-              <p className="profile-hint">
-                No favorites yet. Hit the ♡ button on any song page to save it here.
-              </p>
+              <p className="profile-hint">No favorites yet. Hit the ♡ button on any song page to save it here.</p>
             ) : (
               <div className="favorites-list">
                 {favorites.map(song => (
                   <div key={song.song_id} className="favorite-item">
                     <Link to={`/song/${song.song_id}`} className="favorite-link">
                       <span className="favorite-title">{song.artist_name} — {song.song_name}</span>
-                      {song.genre && song.genre !== "Other" && (
-                        <span className="genre-badge">{song.genre}</span>
-                      )}
+                      {song.genre && song.genre !== "Other" && <span className="genre-badge">{song.genre}</span>}
                     </Link>
-                    <button
-                      className="unfavorite-btn"
-                      onClick={() => handleUnfavorite(song.song_id)}
-                      title="Remove from favorites"
-                    >♥</button>
+                    <button className="unfavorite-btn" onClick={() => handleUnfavorite(song.song_id)} title="Remove from favorites">♥</button>
                   </div>
                 ))}
               </div>
