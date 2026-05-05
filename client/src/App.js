@@ -30,6 +30,24 @@ const PROGRESSIONS = [
   { name: "Rock Anthem", label: "i – VII – VI",     chords: ["Am", "G", "F"] },
 ];
 
+// Genre accent colors for tile strips
+const GENRE_COLORS = {
+  "Metal":      ["#ff4757", "#c0392b"],
+  "Rock":       ["#ff6348", "#d63031"],
+  "Pop":        ["#fd79a8", "#e84393"],
+  "Hip Hop":    ["#a29bfe", "#6c5ce7"],
+  "R&B / Soul": ["#fd79a8", "#b44fff"],
+  "Country":    ["#fdcb6e", "#e17055"],
+  "Jazz":       ["#55efc4", "#00b894"],
+  "Blues":      ["#74b9ff", "#0984e3"],
+  "Electronic": ["#00e5ff", "#b84fff"],
+  "Folk":       ["#b8e994", "#6ab04c"],
+  "Classical":  ["#ffeaa7", "#f9ca24"],
+  "Reggae":     ["#55efc4", "#079992"],
+  "Latin":      ["#fd79a8", "#fdcb6e"],
+  "Other":      ["#b2bec3", "#636e72"],
+};
+
 // ---- Search state machine ----
 function searchReducer(state, action) {
   switch (action.type) {
@@ -87,9 +105,9 @@ function Navbar({ theme, onToggleTheme }) {
           <span className="brand-chord">Chord</span><span className="brand-quest">Quest</span>
         </span>
       </a>
-      <span className="navbar-cq">
+      <a href="/" className="navbar-cq">
         <span className="brand-chord">C</span><span className="brand-quest">Q</span>
-      </span>
+      </a>
       <div className="navbar-right">
         {user ? (
           <Link to="/profile" className="navbar-avatar" title="Your profile">
@@ -182,10 +200,38 @@ function SkeletonCard({ delay }) {
   );
 }
 
+// ---- Recently viewed songs ----
+function RecentSongs() {
+  const [recent] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("cq_recent") || "[]"); }
+    catch { return []; }
+  });
+  if (recent.length === 0) return null;
+  return (
+    <div className="recent-section">
+      <p className="explore-label">Recently viewed</p>
+      <div className="recent-list">
+        {recent.map(song => (
+          <Link key={song.song_id} to={`/song/${song.song_id}`} className="recent-item">
+            <div className="recent-item-info">
+              <span className="recent-item-name">{song.song_name}</span>
+              <span className="recent-item-artist">{song.artist_name}</span>
+            </div>
+            {song.genre && song.genre !== "Other" && (
+              <span className="genre-badge">{song.genre}</span>
+            )}
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ---- Song result card (memoized to prevent re-renders during transitions) ----
 const SongCard = React.memo(function SongCard({ song, userChords, onNavigate }) {
   const known   = useMemo(() => song.chord_list.filter(ch => userChords.has(ch)), [song, userChords]);
   const missing = useMemo(() => song.chord_list.filter(ch => !userChords.has(ch)), [song, userChords]);
+  const pct     = song.chord_list.length > 0 ? (known.length / song.chord_list.length) * 100 : 0;
 
   return (
     <Link className="song-card" to={`/song/${song.song_id}`} onClick={onNavigate}>
@@ -209,9 +255,14 @@ const SongCard = React.memo(function SongCard({ song, userChords, onNavigate }) 
         </div>
       </div>
       <div className="chip-row">
-        {known.map(ch    => <span key={ch} className="chip chip-known">{ch}</span>)}
-        {missing.map(ch  => <span key={ch} className="chip chip-missing">{ch}</span>)}
+        {known.map(ch   => <span key={ch} className="chip chip-known">{ch}</span>)}
+        {missing.map(ch => <span key={ch} className="chip chip-missing">{ch}</span>)}
       </div>
+      {song.chord_list.length > 0 && (
+        <div className="match-bar">
+          <div className="match-bar-fill" style={{ width: `${pct}%` }} />
+        </div>
+      )}
     </Link>
   );
 });
@@ -371,16 +422,26 @@ function Home() {
         {/* ---- Explore (pre-search) ---- */}
         {!state.searched && !isLoading && (
           <div className="explore-section">
+            <RecentSongs />
+
             <p className="explore-label">Browse by genre</p>
             <div className="genre-tiles">
-              {GENRES.slice(1).map(g => (
-                <button key={g} className="genre-tile" onClick={() => {
-                  setField("genre", g);
-                  doSearch(state.chords, state.artist, state.title, g);
-                }}>
-                  <span className="genre-tile-name">{g}</span>
-                </button>
-              ))}
+              {GENRES.slice(1).map(g => {
+                const [c1, c2] = GENRE_COLORS[g] || ["#00e5ff", "#b84fff"];
+                return (
+                  <button
+                    key={g}
+                    className="genre-tile"
+                    style={{ "--gc1": c1, "--gc2": c2 }}
+                    onClick={() => {
+                      setField("genre", g);
+                      doSearch(state.chords, state.artist, state.title, g);
+                    }}
+                  >
+                    <span className="genre-tile-name">{g}</span>
+                  </button>
+                );
+              })}
             </div>
 
             <p className="explore-label" style={{ marginTop: "28px" }}>Try a progression</p>

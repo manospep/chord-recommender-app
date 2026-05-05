@@ -328,3 +328,70 @@ export function ChordDiagramRow({ chords, knownChords }) {
     </div>
   );
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Guitar tab notation
+// Display order: high e (index 5) → low E (index 0)
+// Absolute fret = startFret + frets[i] - 1  (for frets[i] > 0)
+// ─────────────────────────────────────────────────────────────────────────────
+const STRING_ORDER  = [5, 4, 3, 2, 1, 0];
+const STRING_LABELS = ["e", "B", "G", "D", "A", "E"];
+
+export function ChordTab({ name, known }) {
+  const shape = CHORD_SHAPES[name];
+  if (!shape) return null;
+
+  const { frets, startFret = 1 } = shape;
+
+  const fretNums = STRING_ORDER.map(i => {
+    if (frets[i] === -1) return "x";
+    if (frets[i] === 0)  return "0";
+    return String(startFret + frets[i] - 1);
+  });
+
+  const maxLen   = Math.max(...fretNums.map(f => f.length));
+  const dotColor = known ? "var(--accent)" : "var(--color-red)";
+
+  return (
+    <div className="chord-tab-wrap">
+      <div className="chord-tab-lines">
+        {STRING_LABELS.map((label, idx) => {
+          const fv     = fretNums[idx];
+          const padded = fv.padEnd(maxLen, "–");
+          return (
+            <div key={label} className="chord-tab-string">
+              <span className="chord-tab-label">{label}</span>
+              <span className="chord-tab-sep">|</span>
+              <span
+                className="chord-tab-fret"
+                style={{ color: fv === "x" ? "var(--text-muted)" : dotColor }}
+              >{padded}</span>
+              <span className="chord-tab-sep">|</span>
+            </div>
+          );
+        })}
+      </div>
+      <div className="chord-diagram-name">{name}</div>
+    </div>
+  );
+}
+
+export function ChordTabRow({ chords, knownChords }) {
+  const seen = new Set();
+  const unique = chords
+    .map(normalizeChord)
+    .filter((c) => CHORD_SHAPES[c] && !seen.has(c) && seen.add(c));
+  if (unique.length === 0) return null;
+
+  return (
+    <div className="chord-diagram-row">
+      {unique.map((chord) => (
+        <ChordTab
+          key={chord}
+          name={chord}
+          known={knownChords ? knownChords.has(chord) : true}
+        />
+      ))}
+    </div>
+  );
+}

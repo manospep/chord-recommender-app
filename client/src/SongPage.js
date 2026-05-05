@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { ChordDiagramRow } from "./ChordDiagram";
+import { ChordDiagramRow, ChordTabRow, ChordDiagram, CHORD_SHAPES } from "./ChordDiagram";
 import { useAuth } from "./context/AuthContext";
 import { useToast } from "./context/ToastContext";
 import { useKeyboardShortcut } from "./hooks/useKeyboardShortcut";
@@ -40,8 +40,13 @@ export function isChordLine(line) {
   return nonSpace > 0 && chordChars / nonSpace > 0.5;
 }
 
+// Strip slash bass note and parenthetical suffix for shape lookup
+function shapeKey(chord) {
+  return chord.split("/")[0].replace(/\(.*\)$/, "").trim();
+}
+
 // ─── Chord line rendering ─────────────────────────────────────────────────────
-function renderChordLine(line, knownChords, semitones) {
+function renderChordLine(line, knownChords, semitones, onChordClick) {
   const parts = [];
   let lastIndex = 0;
   CHORD_RE.lastIndex = 0;
@@ -52,25 +57,60 @@ function renderChordLine(line, knownChords, semitones) {
     const chord    = transposeChord(original, semitones);
     const cls      = knownChords.has(chord) ? "inline-chord-known" : "inline-chord-missing";
     const pad      = " ".repeat(Math.max(0, original.length - chord.length));
-    parts.push(<span key={`${original}-${match.index}`} className={cls}>{chord}{pad}</span>);
+    const key      = shapeKey(chord);
+    const hasShape = !!CHORD_SHAPES[key];
+    parts.push(
+      <span
+        key={`${original}-${match.index}`}
+        className={`${cls}${hasShape ? " chord-clickable" : ""}`}
+        onClick={hasShape ? (e) => { e.stopPropagation(); onChordClick(key, e.currentTarget); } : undefined}
+      >
+        {chord}{pad}
+      </span>
+    );
     lastIndex = match.index + original.length;
   }
   if (lastIndex < line.length) parts.push(line.slice(lastIndex));
   return parts;
 }
 
-function ChordsAndLyrics({ text, knownChords, semitones }) {
+function ChordsAndLyrics({ text, knownChords, semitones, onChordClick }) {
   if (!text) return <p className="no-lyrics">No lyrics available</p>;
   return (
     <div className="lyrics-pre">
       {text.split("\n").map((line, i) =>
         isChordLine(line)
-          ? <div key={i} className="chord-line">{renderChordLine(line, knownChords, semitones)}</div>
-          : <div key={i} className="lyric-line">{line || " "}</div>
+          ? <div key={i} className="chord-line">{renderChordLine(line, knownChords, semitones, onChordClick)}</div>
+          : <div key={i} className="lyric-line">{line || " "}</div>
       )}
     </div>
   );
 }
+
+// ─── Chord popover ────────────────────────────────────────────────────────────
+const ChordPopover = React.forwardRef(function ChordPopover({ chord, known, anchor, onClose }, ref) {
+  const left   = Math.min(Math.max(anchor.left + anchor.width / 2, 90), window.innerWidth - 90);
+  const below  = anchor.bottom + 10;
+  const flipUp = below + 190 > window.innerHeight;
+
+  return (
+    <div
+      ref={ref}
+      className="chord-popover"
+      style={{
+        top:       flipUp ? anchor.top - 10 : below,
+        left,
+        transform: flipUp ? "translateX(-50%) translateY(-100%)" : "translateX(-50%)",
+      }}
+    >
+      <div className="chord-popover-header">
+        <span className="chord-popover-name">{chord}</span>
+        <button className="chord-popover-close" onClick={onClose}>×</button>
+      </div>
+      <ChordDiagram name={chord} known={known} />
+    </div>
+  );
+});
 
 // ─── Transpose control ────────────────────────────────────────────────────────
 function TransposeControl({ value, onChange }) {
@@ -99,8 +139,6 @@ function StarRating({ songId, initialAverage, initialCount }) {
 
   const handleRate = useCallback(async (star) => {
     if (submitted) return;
-
-    // Optimistic update — show immediately
     const prevAvg   = average;
     const prevCount = count;
     const newCount  = (count || 0) + 1;
@@ -109,7 +147,6 @@ function StarRating({ songId, initialAverage, initialCount }) {
     setCount(newCount);
     setSubmitted(true);
     localStorage.setItem(storageKey, String(star));
-
     try {
       const res = await fetch(`${process.env.REACT_APP_API_URL}/song/${songId}/rate`, {
         method: "POST",
@@ -121,17 +158,10 @@ function StarRating({ songId, initialAverage, initialCount }) {
         setAverage(data.average);
         setCount(data.count);
       } else {
-        // Rollback on server error
-        setAverage(prevAvg);
-        setCount(prevCount);
-        setSubmitted(false);
-        localStorage.removeItem(storageKey);
+        setAverage(prevAvg); setCount(prevCount); setSubmitted(false); localStorage.removeItem(storageKey);
       }
     } catch {
-      setAverage(prevAvg);
-      setCount(prevCount);
-      setSubmitted(false);
-      localStorage.removeItem(storageKey);
+      setAverage(prevAvg); setCount(prevCount); setSubmitted(false); localStorage.removeItem(storageKey);
     }
   }, [submitted, average, count, songId, storageKey]);
 
@@ -168,7 +198,6 @@ function StarRating({ songId, initialAverage, initialCount }) {
 // ─── Share button ─────────────────────────────────────────────────────────────
 function ShareButton({ song }) {
   const toast = useToast();
-
   const handleShare = useCallback(async () => {
     const url = window.location.href;
     if (navigator.share) {
@@ -178,7 +207,6 @@ function ShareButton({ song }) {
     await navigator.clipboard.writeText(url);
     toast("Link copied to clipboard!", "success", 2000);
   }, [song, toast]);
-
   return (
     <button className="share-btn" onClick={handleShare} title="Share this song">Share</button>
   );
@@ -212,7 +240,6 @@ function FavoriteButton({ song }) {
   if (!user) return (
     <Link to="/auth" className="favorite-btn favorite-btn-off" title="Sign in to save">♡</Link>
   );
-
   return (
     <button
       className={`favorite-btn ${favorited ? "favorite-btn-on" : "favorite-btn-off"}`}
@@ -231,9 +258,12 @@ export default function SongPage() {
   const [song, setSong]           = useState(null);
   const [error, setError]         = useState(false);
   const [transpose, setTranspose] = useState(0);
-  const abortRef = useRef(null);
+  const [activeChord, setActiveChord]     = useState(null);
+  const [popoverAnchor, setPopoverAnchor] = useState(null);
+  const [chordView, setChordView]         = useState("diagrams");
+  const abortRef   = useRef(null);
+  const popoverRef = useRef(null);
 
-  // Memoize known chords — only recomputes when localStorage changes
   const knownChords = useMemo(() => new Set(
     (localStorage.getItem("userChords") || "").split(",").map(c => c.trim()).filter(Boolean)
   ), []); // eslint-disable-line
@@ -250,7 +280,40 @@ export default function SongPage() {
     return () => abortRef.current?.abort();
   }, [id]);
 
-  // Keyboard: arrow keys / +/- to transpose, 0 to reset
+  // Save to recently viewed when song loads
+  useEffect(() => {
+    if (!song) return;
+    try {
+      const recent = JSON.parse(localStorage.getItem("cq_recent") || "[]");
+      const next = [
+        { song_id: song.song_id, song_name: song.song_name, artist_name: song.artist_name, genre: song.genre },
+        ...recent.filter(s => s.song_id !== song.song_id),
+      ].slice(0, 8);
+      localStorage.setItem("cq_recent", JSON.stringify(next));
+    } catch {}
+  }, [song]);
+
+  // Dismiss chord popover on outside click or Escape
+  useEffect(() => {
+    if (!activeChord) return;
+    const onKey   = (e) => { if (e.key === "Escape") setActiveChord(null); };
+    const onMouse = (e) => {
+      if (popoverRef.current && !popoverRef.current.contains(e.target)) setActiveChord(null);
+    };
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("mousedown", onMouse);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("mousedown", onMouse);
+    };
+  }, [activeChord]);
+
+  const handleChordClick = useCallback((chord, el) => {
+    if (activeChord === chord) { setActiveChord(null); return; }
+    setPopoverAnchor(el.getBoundingClientRect());
+    setActiveChord(chord);
+  }, [activeChord]);
+
   const adjustTranspose = useCallback((delta) => setTranspose(t => t + delta), []);
   const resetTranspose  = useCallback(() => setTranspose(0), []);
 
@@ -317,7 +380,7 @@ export default function SongPage() {
         <hr className="divider" />
 
         <div className="chords-header-row">
-          <h3 className="section-header" style={{ margin: 0 }}>🎵 Chords Used</h3>
+          <h3 className="section-header" style={{ margin: 0 }}>Chords Used</h3>
           <TransposeControl value={transpose} onChange={setTranspose} />
         </div>
 
@@ -334,11 +397,43 @@ export default function SongPage() {
           ))}
         </div>
 
-        <ChordDiagramRow chords={transposedChords} knownChords={knownChords} />
+        <div className="chord-view-toggle">
+          <button
+            className={`view-toggle-btn${chordView === "diagrams" ? " view-toggle-active" : ""}`}
+            onClick={() => setChordView("diagrams")}
+          >Diagrams</button>
+          <button
+            className={`view-toggle-btn${chordView === "tab" ? " view-toggle-active" : ""}`}
+            onClick={() => setChordView("tab")}
+          >Tab</button>
+        </div>
 
-        <h3 className="section-header" style={{ marginTop: "30px" }}>📄 Chords + Lyrics</h3>
-        <ChordsAndLyrics text={song.chords_and_lyrics} knownChords={knownChords} semitones={transpose} />
+        {chordView === "diagrams"
+          ? <ChordDiagramRow chords={transposedChords} knownChords={knownChords} />
+          : <ChordTabRow     chords={transposedChords} knownChords={knownChords} />
+        }
+
+        <h3 className="section-header" style={{ marginTop: "30px" }}>
+          Chords + Lyrics
+          <span className="lyrics-hint"> — tap any chord to see fingering</span>
+        </h3>
+        <ChordsAndLyrics
+          text={song.chords_and_lyrics}
+          knownChords={knownChords}
+          semitones={transpose}
+          onChordClick={handleChordClick}
+        />
       </div>
+
+      {activeChord && popoverAnchor && (
+        <ChordPopover
+          ref={popoverRef}
+          chord={activeChord}
+          known={knownChords.has(activeChord)}
+          anchor={popoverAnchor}
+          onClose={() => setActiveChord(null)}
+        />
+      )}
     </div>
   );
 }
