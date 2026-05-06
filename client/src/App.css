@@ -166,8 +166,11 @@ body[data-theme="light"] .hero-title .accent {
 body {
   margin: 0;
   background-color: var(--bg);
-  background-image: radial-gradient(rgba(255, 255, 255, 0.032) 1px, transparent 1px);
-  background-size: 28px 28px;
+  /* Fretboard grid — fret lines every 88px, string lines every 14px */
+  background-image:
+    linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px),
+    linear-gradient(0deg,  rgba(255,255,255,0.014) 1px, transparent 1px);
+  background-size: 88px 14px;
   color: var(--text-primary);
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -198,8 +201,10 @@ body::after {
 }
 
 body[data-theme="light"] {
-  background-image: radial-gradient(rgba(0, 120, 200, 0.04) 1px, transparent 1px);
-  background-size: 28px 28px;
+  background-image:
+    linear-gradient(90deg, rgba(0,80,180,0.055) 1px, transparent 1px),
+    linear-gradient(0deg,  rgba(0,80,180,0.035) 1px, transparent 1px);
+  background-size: 88px 14px;
 }
 
 body[data-theme="light"]::before {
@@ -231,10 +236,28 @@ body[data-theme="light"]::after {
   background: var(--navbar-bg);
   backdrop-filter: blur(32px) saturate(180%);
   -webkit-backdrop-filter: blur(32px) saturate(180%);
-  border-bottom: 1px solid var(--navbar-border);
   display: flex;
   align-items: center;
   padding: 0 36px;
+}
+
+/* 6 guitar strings replace the navbar bottom border — high e (top) to low E (bottom) */
+.navbar::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 9px;
+  pointer-events: none;
+  background-image:
+    linear-gradient(90deg, transparent 0%, rgba(0,229,255,0.28) 15%, rgba(184,79,255,0.28) 85%, transparent 100%),
+    linear-gradient(90deg, transparent 0%, rgba(0,229,255,0.24) 15%, rgba(184,79,255,0.24) 85%, transparent 100%),
+    linear-gradient(90deg, transparent 0%, rgba(0,229,255,0.20) 15%, rgba(184,79,255,0.20) 85%, transparent 100%),
+    linear-gradient(90deg, transparent 0%, rgba(0,229,255,0.16) 15%, rgba(184,79,255,0.16) 85%, transparent 100%),
+    linear-gradient(90deg, transparent 0%, rgba(0,229,255,0.12) 15%, rgba(184,79,255,0.12) 85%, transparent 100%),
+    linear-gradient(90deg, transparent 0%, rgba(0,229,255,0.09) 15%, rgba(184,79,255,0.09) 85%, transparent 100%);
+  background-size: 100% 1px,   100% 1px,   100% 1px,   100% 1.5px, 100% 1.5px, 100% 2px;
+  background-position: 0 0px, 0 1.6px, 0 3.2px, 0 4.8px, 0 6.4px, 0 7.8px;
+  background-repeat: no-repeat;
 }
 
 .navbar-brand {
@@ -357,6 +380,16 @@ body[data-theme="light"]::after {
   letter-spacing: 0.01em;
 }
 
+.hero-strings {
+  display: block;
+  width: 100%;
+  max-width: 640px;
+  margin: 28px auto 0;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.85;
+}
+
 /* ============================================================
    SEARCH PANEL
    ============================================================ */
@@ -468,6 +501,63 @@ body[data-theme="light"]::after {
 }
 
 .tag-input::placeholder { color: var(--text-faint); }
+
+/* ============================================================
+   AUTOCOMPLETE DROPDOWN
+   ============================================================ */
+
+.autocomplete-wrapper {
+  position: relative;
+}
+
+/* When used as a grid item, the wrapper must fill its cell so the input matches its old size */
+.input-grid .autocomplete-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-grid .autocomplete-wrapper > input {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+}
+
+.autocomplete-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  animation: toast-in 0.12s ease both;
+}
+
+.autocomplete-item {
+  padding: 9px 14px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.autocomplete-item:not(:last-child) {
+  border-bottom: 1px solid var(--border);
+}
+
+.autocomplete-item:hover,
+.autocomplete-item-active {
+  background: rgba(0, 229, 255, 0.08);
+  color: var(--text);
+}
 
 /* ============================================================
    OTHER INPUTS
@@ -867,8 +957,27 @@ body[data-theme="light"] .song-card:hover {
 
 .divider {
   border: none;
-  border-top: 1px solid var(--border);
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0,229,255,0.45) 18%,
+    rgba(184,79,255,0.38) 82%,
+    transparent 100%
+  );
+  box-shadow: 0 0 8px rgba(0,229,255,0.08);
   margin: 24px 0;
+}
+
+body[data-theme="light"] .divider {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0,120,200,0.35) 18%,
+    rgba(140,50,200,0.28) 82%,
+    transparent 100%
+  );
+  box-shadow: none;
 }
 
 /* ============================================================
@@ -2339,6 +2448,8 @@ a.navbar-signin-btn:focus-visible {
   .search-panel { padding: 16px 14px 18px; }
   .input-grid { grid-template-columns: 1fr 1fr; }
   .tag-input-wrapper { grid-column: 1 / -1; }
+  .input-grid .autocomplete-wrapper:has(.artist-input),
+  .input-grid .autocomplete-wrapper:has(.song-input) { grid-column: span 1; }
   .glass-card { padding: 28px 24px; margin: 20px auto 40px; }
   .song-title { font-size: 28px; }
   .song-artist { font-size: 16px; }
@@ -2365,6 +2476,7 @@ a.navbar-signin-btn:focus-visible {
   .search-panel { padding: 12px 10px 14px; border-radius: 14px; }
   .input-grid { grid-template-columns: 1fr; }
   .artist-input, .song-input { grid-column: 1 / -1; }
+  .input-grid .autocomplete-wrapper { grid-column: 1 / -1; }
   .glass-card { padding: 20px 14px; margin: 12px auto 30px; border-radius: 16px; }
   .song-title { font-size: 22px; }
   .song-artist { font-size: 15px; margin-bottom: 16px; }

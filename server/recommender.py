@@ -1,4 +1,5 @@
 import os
+import re
 import pandas as pd
 
 # Broad genre buckets — checked in order, first match wins
@@ -83,9 +84,21 @@ class SongRecommender:
 
         df = self.df
         if artist_filter:
-            df = df[df["artist_name"].str.contains(artist_filter, case=False, na=False)]
+            exact = df[df["artist_name"].str.contains(artist_filter, case=False, na=False, regex=False)]
+            if len(exact) == 0:
+                words = [w for w in re.split(r"\s+", artist_filter) if len(w) > 2]
+                if words:
+                    pattern = "|".join(re.escape(w) for w in words)
+                    exact = df[df["artist_name"].str.contains(pattern, case=False, na=False)]
+            df = exact
         if title_filter:
-            df = df[df["song_name"].str.contains(title_filter, case=False, na=False)]
+            exact = df[df["song_name"].str.contains(title_filter, case=False, na=False, regex=False)]
+            if len(exact) == 0:
+                words = [w for w in re.split(r"\s+", title_filter) if len(w) > 2]
+                if words:
+                    pattern = "|".join(re.escape(w) for w in words)
+                    exact = df[df["song_name"].str.contains(pattern, case=False, na=False)]
+            df = exact
         if genre_filter:
             df = df[df["genre"] == genre_filter]
 

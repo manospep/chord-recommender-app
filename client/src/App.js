@@ -8,6 +8,8 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ToastProvider } from "./context/ToastContext";
 import { useKeyboardShortcut } from "./hooks/useKeyboardShortcut";
 import { useLocalStorage } from "./hooks/useLocalStorage";
+import { useDebounce } from "./hooks/useDebounce";
+import { CHORD_SHAPES } from "./ChordDiagram";
 import "./App.css";
 
 // ---- Lazy-loaded routes (code-split per page) ----
@@ -78,6 +80,35 @@ function readSessionCache() {
   };
 }
 
+// ---- Guitar strings decoration ----
+function GuitarStrings() {
+  // 6 strings, high e (thinnest, top) to low E (thickest, bottom)
+  const strings = [
+    { y: 7,  sw: 0.55, op: 0.55 },
+    { y: 18, sw: 0.70, op: 0.50 },
+    { y: 29, sw: 0.90, op: 0.45 },
+    { y: 40, sw: 1.15, op: 0.40 },
+    { y: 51, sw: 1.50, op: 0.36 },
+    { y: 62, sw: 2.00, op: 0.32 },
+  ];
+  return (
+    <svg className="hero-strings" height="70" viewBox="0 0 800 70" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="stringFade" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%"   stopColor="transparent" />
+          <stop offset="10%"  stopColor="rgba(0,229,255,1)" />
+          <stop offset="90%"  stopColor="rgba(184,79,255,1)" />
+          <stop offset="100%" stopColor="transparent" />
+        </linearGradient>
+      </defs>
+      {strings.map((s, i) => (
+        <line key={i} x1="0" y1={s.y} x2="800" y2={s.y}
+          stroke="url(#stringFade)" strokeWidth={s.sw} opacity={s.op} />
+      ))}
+    </svg>
+  );
+}
+
 // ---- Guitar SVG icon ----
 function GuitarIcon() {
   return (
@@ -95,17 +126,21 @@ function GuitarIcon() {
 }
 
 // ---- Navbar ----
+function resetHome() {
+  sessionStorage.removeItem("cq_search");
+}
+
 function Navbar({ theme, onToggleTheme }) {
   const { user, profile } = useAuth();
   return (
     <nav className="navbar">
-      <a href="/" className="navbar-brand">
+      <a href="/" className="navbar-brand" onClick={resetHome}>
         <GuitarIcon />
         <span className="brand-name">
           <span className="brand-chord">Chord</span><span className="brand-quest">Quest</span>
         </span>
       </a>
-      <a href="/" className="navbar-cq">
+      <a href="/" className="navbar-cq" onClick={resetHome}>
         <span className="brand-chord">C</span><span className="brand-quest">Q</span>
       </a>
       <div className="navbar-right">
@@ -124,21 +159,122 @@ function Navbar({ theme, onToggleTheme }) {
   );
 }
 
+// ---- Autocomplete input (artist / title fields) ----
+const ALL_CHORD_NAMES = Object.keys(CHORD_SHAPES);
+
+function AutocompleteInput({ className, placeholder, value, onChange, onKeyDown, field, crossValue = "" }) {
+  const [suggestions, setSuggestions] = useState([]);
+  const [activeIdx, setActiveIdx]     = useState(-1);
+  const [open, setOpen]               = useState(false);
+  const wrapRef                       = useRef(null);
+  const debouncedQ                    = useDebounce(value, 200);
+  const debouncedCross                = useDebounce(crossValue, 200);
+
+  useEffect(() => {
+    if (!debouncedQ || debouncedQ.length < 2) { setSuggestions([]); setOpen(false); return; }
+    const crossParam = field === "title"
+      ? `&artist_filter=${encodeURIComponent(debouncedCross)}`
+      : `&title_filter=${encodeURIComponent(debouncedCross)}`;
+    fetch(`${process.env.REACT_APP_API_URL}/autocomplete?q=${encodeURIComponent(debouncedQ)}&field=${field}&limit=8${crossParam}`)
+      .then(r => r.json())
+      .then(data => { setSuggestions(data); setOpen(data.length > 0); setActiveIdx(-1); })
+      .catch(() => {});
+  }, [debouncedQ, field, debouncedCross]);
+
+  useEffect(() => {
+    const handler = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const select = useCallback((s) => {
+    onChange({ target: { value: s } });
+    setOpen(false);
+  }, [onChange]);
+
+  const handleKeyDown = useCallback((e) => {
+    if (open && suggestions.length > 0) {
+      if (e.key === "ArrowDown")  { e.preventDefault(); setActiveIdx(i => Math.min(i + 1, suggestions.length - 1)); return; }
+      if (e.key === "ArrowUp")    { e.preventDefault(); setActiveIdx(i => Math.max(i - 1, -1)); return; }
+      if (e.key === "Enter" && activeIdx >= 0) { e.preventDefault(); select(suggestions[activeIdx]); return; }
+      if (e.key === "Escape")     { setOpen(false); return; }
+    }
+    onKeyDown?.(e);
+  }, [open, suggestions, activeIdx, select, onKeyDown]);
+
+  return (
+    <div className="autocomplete-wrapper" ref={wrapRef}>
+      <input
+        className={className}
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        onKeyDown={handleKeyDown}
+        onFocus={() => suggestions.length > 0 && setOpen(true)}
+        autoComplete="off"
+      />
+      {open && (
+        <div className="autocomplete-dropdown">
+          {suggestions.map((s, i) => (
+            <div
+              key={s}
+              className={`autocomplete-item${i === activeIdx ? " autocomplete-item-active" : ""}`}
+              onMouseDown={(e) => { e.preventDefault(); select(s); }}
+              onMouseEnter={() => setActiveIdx(i)}
+            >
+              {s}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ---- Chord tag input ----
 function ChordTagInput({ chords, onChange, onSubmit, inputRef }) {
-  const [text, setText] = useState("");
+  const [text, setText]         = useState("");
+  const [suggOpen, setSuggOpen] = useState(false);
+  const [activeSugg, setActiveSugg] = useState(-1);
+  const wrapRef = useRef(null);
+
+  const chordSuggestions = useMemo(() => {
+    if (!text || text.length < 1) return [];
+    const tl = text.toLowerCase();
+    const starts   = ALL_CHORD_NAMES.filter(c => c.toLowerCase().startsWith(tl));
+    const contains = ALL_CHORD_NAMES.filter(c => !c.toLowerCase().startsWith(tl) && c.toLowerCase().includes(tl));
+    return [...starts, ...contains].slice(0, 8);
+  }, [text]);
+
+  useEffect(() => {
+    setSuggOpen(chordSuggestions.length > 0);
+    setActiveSugg(-1);
+  }, [chordSuggestions]);
+
+  useEffect(() => {
+    const handler = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setSuggOpen(false); };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   const addChord = useCallback((raw) => {
     const trimmed = raw.trim().replace(/,/g, "");
     if (trimmed && !chords.includes(trimmed)) onChange([...chords, trimmed]);
     setText("");
+    setSuggOpen(false);
   }, [chords, onChange]);
 
   const handleKeyDown = useCallback((e) => {
+    if (suggOpen && chordSuggestions.length > 0) {
+      if (e.key === "ArrowDown")  { e.preventDefault(); setActiveSugg(i => Math.min(i + 1, chordSuggestions.length - 1)); return; }
+      if (e.key === "ArrowUp")    { e.preventDefault(); setActiveSugg(i => Math.max(i - 1, -1)); return; }
+      if (e.key === "Enter" && activeSugg >= 0) { e.preventDefault(); addChord(chordSuggestions[activeSugg]); return; }
+      if (e.key === "Escape")     { setSuggOpen(false); return; }
+    }
     if (e.key === " " && text.trim()) { e.preventDefault(); addChord(text); }
     else if (e.key === "Enter") { text.trim() ? addChord(text) : onSubmit(); }
     else if (e.key === "Backspace" && text === "" && chords.length > 0) onChange(chords.slice(0, -1));
-  }, [text, chords, addChord, onSubmit, onChange]);
+  }, [text, chords, addChord, onSubmit, onChange, suggOpen, chordSuggestions, activeSugg]);
 
   const handleChange = useCallback((e) => {
     const val = e.target.value;
@@ -147,7 +283,7 @@ function ChordTagInput({ chords, onChange, onSubmit, inputRef }) {
   }, [addChord]);
 
   return (
-    <div className="tag-input-wrapper">
+    <div className="tag-input-wrapper autocomplete-wrapper" ref={wrapRef}>
       {chords.map((chord, i) => (
         <span key={i} className="tag-chip">
           {chord}
@@ -161,7 +297,22 @@ function ChordTagInput({ chords, onChange, onSubmit, inputRef }) {
         value={text}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
+        autoComplete="off"
       />
+      {suggOpen && (
+        <div className="autocomplete-dropdown">
+          {chordSuggestions.map((s, i) => (
+            <div
+              key={s}
+              className={`autocomplete-item${i === activeSugg ? " autocomplete-item-active" : ""}`}
+              onMouseDown={(e) => { e.preventDefault(); addChord(s); }}
+              onMouseEnter={() => setActiveSugg(i)}
+            >
+              {s}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -378,6 +529,7 @@ function Home() {
             <p className="hero-sub">
               Enter the chords you know — we'll match you with songs from 135,000+ tracks.
             </p>
+            <GuitarStrings />
           </div>
         )}
 
@@ -391,19 +543,23 @@ function Home() {
               onSubmit={fetchSongs}
               inputRef={chordInputRef}
             />
-            <input
+            <AutocompleteInput
               className="artist-input"
               placeholder="Filter by artist"
               value={state.artist}
               onChange={e => setField("artist", e.target.value)}
               onKeyDown={handleEnter}
+              field="artist"
+              crossValue={state.title}
             />
-            <input
+            <AutocompleteInput
               className="song-input"
               placeholder="Filter by song"
               value={state.title}
               onChange={e => setField("title", e.target.value)}
               onKeyDown={handleEnter}
+              field="title"
+              crossValue={state.artist}
             />
             <select
               className="genre-select"

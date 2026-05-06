@@ -198,6 +198,36 @@ def get_song(song_id: int):
     }
 
 
+@app.get("/autocomplete")
+def autocomplete(
+    q: str = "", field: str = "artist", limit: int = 8,
+    artist_filter: str = "", title_filter: str = "",
+):
+    if len(q) < 1:
+        return []
+    df = get_rec().df
+    if field == "artist":
+        col = "artist_name"
+    elif field == "title":
+        col = "song_name"
+    else:
+        return []
+
+    # Cross-field scoping: constrain to matching rows from the other field
+    if field == "title" and artist_filter:
+        df = df[df["artist_name"].str.contains(artist_filter, case=False, na=False, regex=False)]
+    elif field == "artist" and title_filter:
+        df = df[df["song_name"].str.contains(title_filter, case=False, na=False, regex=False)]
+
+    mask    = df[col].str.contains(q, case=False, na=False, regex=False)
+    matches = df[mask][col].dropna().unique()
+
+    q_lower  = q.lower()
+    starts   = sorted(m for m in matches if m.lower().startswith(q_lower))
+    contains = sorted(m for m in matches if not m.lower().startswith(q_lower))
+    return (starts + contains)[:limit]
+
+
 class RatingBody(BaseModel):
     rating: int
 
