@@ -108,168 +108,109 @@ function GuitarStrings() {
   );
 }
 
-// ---- Electric guitar illustration (Stratocaster-style) ----
+// ---- Acoustic guitar illustration ----
 function HeroGuitar() {
-  const NECK_Y   = 80;   // y of nut
-  const NECK_LEN = 122;  // neck length (nut → body join)
-  const BODY_Y   = NECK_Y + NECK_LEN; // 202
+  const NUT_Y    = 58;
+  const NECK_LEN = 142;
+  const BODY_Y   = NUT_Y + NECK_LEN; // 200
 
-  // Equal-temperament fret y-positions
   const fretYs = [1,2,3,4,5,6,7,8,9,10,11,12].map(
-    n => NECK_Y + NECK_LEN * (1 - Math.pow(2, -n / 12))
+    n => NUT_Y + NECK_LEN * (1 - Math.pow(2, -n / 12))
   );
-  // Neck half-width at y: tapers from 19 at nut to 30 at body
-  const neckHW = (y) => 19 + 11 * ((y - NECK_Y) / NECK_LEN);
-  // Inlay slot midpoint between frets f-1 and f
+  const neckHW = (y) => 20 + 8 * ((y - NUT_Y) / NECK_LEN);
   const slotY  = (f) => (fretYs[f - 2] + fretYs[f - 1]) / 2;
 
-  // String x-offsets (bass E to high e): spread 20px at bridge, 11px at nut
-  const STRING_DX = [-10, -6, -2, 2, 6, 10];
+  const nutXs    = [-12.5, -7.5, -2.5, 2.5, 7.5, 12.5].map(d => 100 + d);
+  const bridgeXs = [-14, -8.4, -2.8, 2.8, 8.4, 14].map(d => 100 + d);
 
   return (
-    <svg viewBox="0 0 200 478" className="hero-guitar" fill="none" aria-hidden="true">
+    <svg viewBox="0 0 200 470" className="hero-guitar" fill="none" aria-hidden="true">
       <defs>
         <linearGradient id="hgS" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%"   stopColor="rgba(0,229,255,0.92)" />
           <stop offset="100%" stopColor="rgba(184,79,255,0.78)" />
         </linearGradient>
         <linearGradient id="hgF" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%"   stopColor="rgba(0,229,255,0.10)" />
-          <stop offset="100%" stopColor="rgba(184,79,255,0.06)" />
+          <stop offset="0%"   stopColor="rgba(0,229,255,0.12)" />
+          <stop offset="100%" stopColor="rgba(184,79,255,0.08)" />
         </linearGradient>
         <linearGradient id="hgStr" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%"   stopColor="rgba(210,245,255,0.80)" />
-          <stop offset="100%" stopColor="rgba(184,79,255,0.58)" />
-        </linearGradient>
-        <linearGradient id="hgPg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%"   stopColor="rgba(0,229,255,0.06)" />
-          <stop offset="100%" stopColor="rgba(184,79,255,0.04)" />
+          <stop offset="100%" stopColor="rgba(184,79,255,0.55)" />
         </linearGradient>
       </defs>
 
-      {/* ══ HEADSTOCK (Fender 6-in-line) ══ */}
-      {/* Shape: bass side wider, treble side tapers to a point at top */}
-      <path d="M 81 80 L 73 8 C 73 2,79 0,88 0 L 103 0 C 116 0,122 8,116 26 L 119 80 Z"
-        fill="url(#hgF)" stroke="url(#hgS)" strokeWidth="1.1" />
-      {/* 6 tuning machine heads — all on the bass (left) side */}
-      {[7, 19, 31, 43, 55, 67].map((py, i) => (
-        <g key={py}>
-          <ellipse cx="52" cy={py} rx="10" ry="5"
-            fill="rgba(0,229,255,0.12)" stroke="rgba(0,229,255,0.42)" strokeWidth="0.9" />
-          {/* Post line from peg to headstock */}
-          <line x1="72" y1={py} x2="62" y2={py} stroke="rgba(0,229,255,0.28)" strokeWidth="0.8" />
+      {/* HEADSTOCK — 3+3 */}
+      <path d="M 80 58 L 76 10 C 75 3, 81 0, 88 0 L 112 0 C 119 0, 125 3, 124 10 L 120 58 Z"
+        fill="url(#hgF)" stroke="url(#hgS)" strokeWidth="1.2" />
+      {[10, 24, 38].map(py => (
+        <g key={`L${py}`}>
+          <line x1="76" y1={py + 2} x2="62" y2={py + 2} stroke="rgba(0,229,255,0.35)" strokeWidth="0.9" />
+          <circle cx="56" cy={py + 2} r="5.5" fill="rgba(0,229,255,0.12)" stroke="rgba(0,229,255,0.52)" strokeWidth="0.9" />
+          <circle cx="56" cy={py + 2} r="1.6" fill="rgba(0,229,255,0.65)" />
+        </g>
+      ))}
+      {[10, 24, 38].map(py => (
+        <g key={`R${py}`}>
+          <line x1="124" y1={py + 2} x2="138" y2={py + 2} stroke="rgba(0,229,255,0.35)" strokeWidth="0.9" />
+          <circle cx="144" cy={py + 2} r="5.5" fill="rgba(0,229,255,0.12)" stroke="rgba(0,229,255,0.52)" strokeWidth="0.9" />
+          <circle cx="144" cy={py + 2} r="1.6" fill="rgba(0,229,255,0.65)" />
         </g>
       ))}
       {/* Nut */}
-      <rect x="81" y="77" width="38" height="4" rx="2" fill="rgba(0,229,255,0.55)" />
+      <rect x="80" y="55" width="40" height="5" rx="2" fill="rgba(0,229,255,0.55)" stroke="url(#hgS)" strokeWidth="0.8" />
 
-      {/* ══ NECK / FRETBOARD ══ */}
-      <path d={`M ${100-19} ${NECK_Y} L ${100+19} ${NECK_Y} L ${100+30} ${BODY_Y} L ${100-30} ${BODY_Y} Z`}
+      {/* NECK */}
+      <path d={`M ${100-20} ${NUT_Y} L ${100+20} ${NUT_Y} L ${100+28} ${BODY_Y} L ${100-28} ${BODY_Y} Z`}
         fill="url(#hgF)" stroke="url(#hgS)" strokeWidth="0.9" />
-      {/* Fret lines */}
       {fretYs.map((y, i) => {
         const hw = neckHW(y);
         return (
           <line key={i} x1={100-hw} y1={y} x2={100+hw} y2={y}
-            stroke="rgba(0,229,255,0.32)" strokeWidth={i === 11 ? 1.1 : 0.72} />
+            stroke="rgba(0,229,255,0.30)" strokeWidth={i === 11 ? 1.1 : 0.7} />
         );
       })}
-      {/* Position inlay dots — frets 3, 5, 7, 9 (single), 12 (double) */}
       {[3, 5, 7, 9].map(f => (
-        <circle key={f} cx="100" cy={slotY(f)} r="2.6" fill="rgba(0,229,255,0.62)" />
+        <circle key={f} cx="100" cy={slotY(f)} r="2.4" fill="rgba(0,229,255,0.62)" />
       ))}
-      <circle cx="92"  cy={slotY(12)} r="2.6" fill="rgba(0,229,255,0.62)" />
-      <circle cx="108" cy={slotY(12)} r="2.6" fill="rgba(0,229,255,0.62)" />
+      <circle cx="94"  cy={slotY(12)} r="2.3" fill="rgba(0,229,255,0.62)" />
+      <circle cx="106" cy={slotY(12)} r="2.3" fill="rgba(0,229,255,0.62)" />
 
-      {/* ══ BODY — Strat double-cutaway ══ */}
-      {/*
-          Upper (bass) horn: long, sweeps far left to ~x=6
-          Lower (treble) horn: shorter, sweeps right to ~x=178
-          Both horns have the signature concave cutaway curves
-      */}
+      {/* BODY — figure-8 acoustic */}
       <path d={`
-        M ${100-30} ${BODY_Y}
-        C 46 204, 12 218, 6 244
-        C 0 264, 8 284, 26 294
-        C 42 303, 62 308, 68 310
-        L 68 328
-        C 40 338, 4 366, 2 406
-        C 0 440, 28 466, 68 472
-        C 82 476, 100 478, 100 478
-        C 118 478, 138 476, 152 472
-        C 192 466, 218 440, 216 406
-        C 214 366, 178 338, 132 328
-        L 132 316
-        C 150 310, 170 300, 180 284
-        C 190 266, 186 246, 174 232
-        C 162 218, 144 204, ${100+30} ${BODY_Y}
+        M 126 ${BODY_Y}
+        C 163 ${BODY_Y} 165 236 162 263
+        C 159 290 150 302 150 317
+        C 150 332 174 357 174 387
+        C 174 421 152 460 100 462
+        C  48 460  26 421  26 387
+        C  26 357  50 332  50 317
+        C  50 302  41 290  38 263
+        C  35 236  37 ${BODY_Y} 74 ${BODY_Y}
         Z
-      `} fill="url(#hgF)" stroke="url(#hgS)" strokeWidth="1.3" />
+      `} fill="url(#hgF)" stroke="url(#hgS)" strokeWidth="1.4" />
 
-      {/* ══ PICKGUARD (dashed outline — Strat-style teardrop/angled shape) ══ */}
-      <path d="M 70 210 L 70 406 C 76 416,95 420,116 420 L 158 420 L 158 240 C 150 216,136 208,128 208 Z"
-        fill="url(#hgPg)" stroke="rgba(0,229,255,0.22)" strokeWidth="0.7" strokeDasharray="5 3" />
+      {/* SOUND HOLE with rosette rings */}
+      <circle cx="100" cy="372" r="30" fill="rgba(0,0,0,0.28)" stroke="url(#hgS)" strokeWidth="1.3" />
+      <circle cx="100" cy="372" r="26" fill="none" stroke="rgba(0,229,255,0.20)" strokeWidth="0.8" />
+      <circle cx="100" cy="372" r="22" fill="none" stroke="rgba(184,79,255,0.18)" strokeWidth="0.7" />
 
-      {/* ══ 3 SINGLE-COIL PICKUPS ══ */}
-      {[318, 350, 382].map((py, pi) => (
-        <g key={py}>
-          <rect x="80" y={py} width="38" height="13" rx="2"
-            fill="rgba(0,229,255,0.13)" stroke="url(#hgS)" strokeWidth="0.85" />
-          {/* 6 pole pieces per pickup */}
-          {STRING_DX.map((dx, si) => (
-            <circle key={si} cx={100 + dx * 1.5} cy={py + 6.5} r="1.3"
-              fill="rgba(0,229,255,0.55)" />
-          ))}
-        </g>
+      {/* BRIDGE */}
+      <rect x="81" y="416" width="38" height="10" rx="3"
+        fill="rgba(0,229,255,0.16)" stroke="url(#hgS)" strokeWidth="1" />
+      <rect x="82" y="418" width="36" height="3" rx="1.5" fill="rgba(0,229,255,0.48)" />
+      {bridgeXs.map((x, i) => (
+        <circle key={i} cx={x} cy={425} r="1.5" fill="rgba(0,229,255,0.50)" />
       ))}
 
-      {/* ══ TREMOLO BRIDGE ══ */}
-      {/* Bridge plate */}
-      <rect x="78" y="408" width="44" height="8" rx="2"
-        fill="rgba(0,229,255,0.18)" stroke="url(#hgS)" strokeWidth="1" />
-      {/* Individual saddles */}
-      {STRING_DX.map((dx, i) => (
-        <rect key={i} x={100 + dx * 1.8 - 2.5} y="406" width="5" height="7" rx="1"
-          fill="rgba(0,229,255,0.38)" />
-      ))}
-      {/* Tremolo arm (whammy bar) */}
-      <path d="M 122 413 C 136 415, 148 422, 152 436"
-        stroke="rgba(0,229,255,0.40)" strokeWidth="1.5" strokeLinecap="round" />
-
-      {/* ══ CONTROLS (volume + 2 tone knobs) ══ */}
-      {[402, 422, 442].map((cy, i) => (
-        <g key={cy}>
-          <circle cx="148" cy={cy} r="7"
-            fill="rgba(0,229,255,0.13)" stroke="url(#hgS)" strokeWidth="0.9" />
-          {/* Centre indicator dot */}
-          <circle cx="148" cy={cy - 4} r="1.5" fill="rgba(0,229,255,0.45)" />
-        </g>
-      ))}
-
-      {/* ══ 5-WAY PICKUP SELECTOR SWITCH ══ */}
-      <rect x="154" y="368" width="6" height="26" rx="3"
-        fill="rgba(0,229,255,0.22)" stroke="url(#hgS)" strokeWidth="0.85" />
-      {/* Tip */}
-      <circle cx="157" cy="368" r="3.5"
-        fill="rgba(0,229,255,0.28)" stroke="url(#hgS)" strokeWidth="0.8" />
-
-      {/* ══ OUTPUT JACK (side of body) ══ */}
-      <circle cx="70" cy="456" r="4"
-        fill="rgba(0,229,255,0.16)" stroke="rgba(0,229,255,0.44)" strokeWidth="0.9" />
-      <circle cx="70" cy="456" r="1.8" fill="rgba(0,229,255,0.40)" />
-
-      {/* ══ STRAP BUTTON (bottom) ══ */}
-      <circle cx="100" cy="475" r="4"
-        fill="rgba(0,229,255,0.16)" stroke="rgba(0,229,255,0.38)" strokeWidth="0.8" />
-
-      {/* ══ STRINGS (nut → bridge) ══ */}
-      {STRING_DX.map((dx, i) => (
+      {/* STRINGS */}
+      {nutXs.map((x1, i) => (
         <line key={i}
-          x1={100 + dx * 0.48} y1={NECK_Y + 4}
-          x2={100 + dx * 1.8}  y2={410}
+          x1={x1}          y1={NUT_Y + 5}
+          x2={bridgeXs[i]} y2={418}
           stroke="url(#hgStr)"
-          strokeWidth={0.42 + i * 0.13}
-          opacity={0.68 - i * 0.05}
+          strokeWidth={0.5 + i * 0.11}
+          opacity={0.72 - i * 0.04}
         />
       ))}
     </svg>
