@@ -349,9 +349,16 @@ body[data-theme="light"]::after {
    ============================================================ */
 
 .hero {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 48px;
   padding: 56px 0 44px;
   animation: fadeSlideIn 0.5s ease both;
+}
+
+.hero-text {
+  flex: 1;
+  min-width: 0;
 }
 
 .hero-title {
@@ -383,11 +390,21 @@ body[data-theme="light"]::after {
 .hero-strings {
   display: block;
   width: 100%;
-  max-width: 640px;
-  margin: 28px auto 0;
+  margin-top: 24px;
   pointer-events: none;
   user-select: none;
   opacity: 0.85;
+}
+
+.hero-guitar {
+  width: 152px;
+  height: auto;
+  flex-shrink: 0;
+  opacity: 0.82;
+  filter:
+    drop-shadow(0 0 18px rgba(0, 229, 255, 0.22))
+    drop-shadow(0 0 48px rgba(184, 79, 255, 0.14));
+  animation: fadeSlideIn 0.6s ease both 0.12s;
 }
 
 /* ============================================================
@@ -2442,7 +2459,8 @@ a.navbar-signin-btn:focus-visible {
   .navbar { padding: 0 16px; }
   .page   { padding-left: 12px; padding-right: 12px; }
   .container { padding: 24px 0 60px; }
-  .hero  { padding: 36px 0 28px; }
+  .hero  { padding: 36px 0 28px; gap: 28px; }
+  .hero-guitar { width: 110px; }
   .hero-title { font-size: 38px; letter-spacing: -1px; }
   .hero-sub   { font-size: 15px; }
   .search-panel { padding: 16px 14px 18px; }
@@ -2470,7 +2488,8 @@ a.navbar-signin-btn:focus-visible {
   .navbar-cq  { font-size: 16px; }
   .page { padding-left: 8px; padding-right: 8px; }
   .container { padding: 12px 0 50px; }
-  .hero { padding: 24px 0 24px; }
+  .hero { padding: 24px 0 24px; flex-direction: column; align-items: flex-start; gap: 0; }
+  .hero-guitar { display: none; }
   .hero-title { font-size: 27px; letter-spacing: -0.8px; }
   .hero-sub   { font-size: 14px; }
   .search-panel { padding: 12px 10px 14px; border-radius: 14px; }

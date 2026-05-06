@@ -80,9 +80,8 @@ function readSessionCache() {
   };
 }
 
-// ---- Guitar strings decoration ----
+// ---- Guitar strings decoration (horizontal) ----
 function GuitarStrings() {
-  // 6 strings, high e (thinnest, top) to low E (thickest, bottom)
   const strings = [
     { y: 7,  sw: 0.55, op: 0.55 },
     { y: 18, sw: 0.70, op: 0.50 },
@@ -104,6 +103,112 @@ function GuitarStrings() {
       {strings.map((s, i) => (
         <line key={i} x1="0" y1={s.y} x2="800" y2={s.y}
           stroke="url(#stringFade)" strokeWidth={s.sw} opacity={s.op} />
+      ))}
+    </svg>
+  );
+}
+
+// ---- Acoustic guitar illustration ----
+function HeroGuitar() {
+  // Equal-temperament fret positions along the neck
+  const NECK_Y     = 68;   // nut y-position
+  const NECK_LEN   = 136;  // neck length in SVG units
+  const fretYs     = [1,2,3,4,5,6,7,8,9,10,11,12].map(
+    n => NECK_Y + NECK_LEN * (1 - Math.pow(2, -n / 12))
+  );
+  const neckHW = (y) => 23 + 11 * ((y - NECK_Y) / NECK_LEN); // half-width of neck
+
+  // Inlay dot positions: midpoint between consecutive frets
+  const slotY = (f) => (fretYs[f - 2] + fretYs[f - 1]) / 2;
+
+  return (
+    <svg viewBox="0 0 200 478" className="hero-guitar" fill="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="hgS" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stopColor="rgba(0,229,255,0.9)" />
+          <stop offset="100%" stopColor="rgba(184,79,255,0.75)" />
+        </linearGradient>
+        <linearGradient id="hgF" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%"   stopColor="rgba(0,229,255,0.09)" />
+          <stop offset="100%" stopColor="rgba(184,79,255,0.06)" />
+        </linearGradient>
+        <linearGradient id="hgStr" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stopColor="rgba(200,240,255,0.75)" />
+          <stop offset="100%" stopColor="rgba(184,79,255,0.55)" />
+        </linearGradient>
+      </defs>
+
+      {/* ── Headstock ── */}
+      <path d="M76 2 Q76 0 100 0 Q124 0 124 2 L126 65 L74 65 Z"
+        fill="url(#hgF)" stroke="url(#hgS)" strokeWidth="1.1" />
+      {/* Tuning pegs — 3 per side */}
+      {[13, 28, 43].map(py => (
+        <g key={py}>
+          <ellipse cx="58"  cy={py} rx="11" ry="5.5"
+            fill="rgba(0,229,255,0.10)" stroke="rgba(0,229,255,0.38)" strokeWidth="0.9" />
+          <ellipse cx="142" cy={py} rx="11" ry="5.5"
+            fill="rgba(0,229,255,0.10)" stroke="rgba(0,229,255,0.38)" strokeWidth="0.9" />
+          <line x1="74"  y1={py} x2="69"  y2={py} stroke="rgba(0,229,255,0.28)" strokeWidth="0.8" />
+          <line x1="126" y1={py} x2="131" y2={py} stroke="rgba(0,229,255,0.28)" strokeWidth="0.8" />
+        </g>
+      ))}
+      {/* Nut */}
+      <rect x="76" y="65" width="48" height="3" rx="1.5" fill="rgba(0,229,255,0.55)" />
+
+      {/* ── Neck ── */}
+      <path d={`M${100 - 23} ${NECK_Y} L${100 + 23} ${NECK_Y} L${100 + 34} ${NECK_Y + NECK_LEN} L${100 - 34} ${NECK_Y + NECK_LEN} Z`}
+        fill="url(#hgF)" stroke="url(#hgS)" strokeWidth="0.9" />
+      {/* Fret lines */}
+      {fretYs.map((y, i) => {
+        const hw = neckHW(y);
+        return (
+          <line key={i} x1={100 - hw} y1={y} x2={100 + hw} y2={y}
+            stroke="rgba(0,229,255,0.30)" strokeWidth={i === 11 ? 1.1 : 0.75} />
+        );
+      })}
+      {/* Position inlay dots: 3, 5, 7, 9 (single), 12 (double) */}
+      {[3, 5, 7, 9].map(f => (
+        <circle key={f} cx="100" cy={slotY(f)} r="2.8" fill="rgba(0,229,255,0.60)" />
+      ))}
+      <circle cx="93"  cy={slotY(12)} r="2.8" fill="rgba(0,229,255,0.60)" />
+      <circle cx="107" cy={slotY(12)} r="2.8" fill="rgba(0,229,255,0.60)" />
+
+      {/* ── Body ── */}
+      <path d={`
+        M ${100 - 34} 204
+        C 46 206, 16 228, 16 264
+        C 16 298, 48 316, 80 318
+        L 80 332
+        C 56 342, 8 365, 8 408
+        C 8 448, 50 472, 100 472
+        C 150 472, 192 448, 192 408
+        C 192 365, 144 342, 120 332
+        L 120 318
+        C 152 316, 184 298, 184 264
+        C 184 228, 154 206, ${100 + 34} 204
+        Z
+      `} fill="url(#hgF)" stroke="url(#hgS)" strokeWidth="1.3" />
+
+      {/* Sound hole */}
+      <circle cx="100" cy="404" r="37" fill="none" stroke="url(#hgS)" strokeWidth="1.6" />
+      <circle cx="100" cy="404" r="31" fill="none" stroke="rgba(0,229,255,0.13)" strokeWidth="0.7" />
+      <circle cx="100" cy="404" r="34" fill="none" stroke="rgba(0,229,255,0.18)"
+        strokeWidth="0.6" strokeDasharray="6 4" />
+
+      {/* Bridge */}
+      <path d="M65 450 L135 450 L137 460 L63 460 Z"
+        fill="rgba(0,229,255,0.13)" stroke="url(#hgS)" strokeWidth="1" />
+      <rect x="69" y="450" width="62" height="3" rx="1.5" fill="rgba(0,229,255,0.45)" />
+
+      {/* ── Strings (nut → bridge) ── */}
+      {[-12.5, -7.5, -2.5, 2.5, 7.5, 12.5].map((dx, i) => (
+        <line key={i}
+          x1={100 + dx * 0.28} y1={NECK_Y + 3}
+          x2={100 + dx}        y2={451}
+          stroke="url(#hgStr)"
+          strokeWidth={0.42 + i * 0.14}
+          opacity={0.65 - i * 0.05}
+        />
       ))}
     </svg>
   );
@@ -522,14 +627,17 @@ function Home() {
         {/* ---- Hero ---- */}
         {!state.searched && !isLoading && (
           <div className="hero">
-            <h1 className="hero-title">
-              Find songs you can<br />
-              <span className="accent">play right now.</span>
-            </h1>
-            <p className="hero-sub">
-              Enter the chords you know — we'll match you with songs from 135,000+ tracks.
-            </p>
-            <GuitarStrings />
+            <div className="hero-text">
+              <h1 className="hero-title">
+                Find songs you can<br />
+                <span className="accent">play right now.</span>
+              </h1>
+              <p className="hero-sub">
+                Enter the chords you know — we'll match you with songs from 135,000+ tracks.
+              </p>
+              <GuitarStrings />
+            </div>
+            <HeroGuitar />
           </div>
         )}
 
