@@ -1,11 +1,11 @@
 import os
-import sqlite3
 import threading
+from collections import defaultdict
 from contextlib import asynccontextmanager
 from typing import Optional
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from supabase import create_client, Client
 from recommender import SongRecommender
 
 # ---- Lazy recommender with background preload ----
@@ -25,7 +25,6 @@ def _preload():
 
 @asynccontextmanager
 async def lifespan(app):
-    # Start loading the recommender in the background immediately on startup
     threading.Thread(target=_preload, daemon=True).start()
     yield
 
@@ -41,62 +40,46 @@ ALLOWED_ORIGINS = [o.strip() for o in _raw.split(",") if o.strip()]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
-    allow_credentials=ALLOWED_ORIGINS != ["*"],  # credentials + wildcard is invalid
+    allow_credentials=ALLOWED_ORIGINS != ["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# ---- Ratings DB ----
-def _resolve_db_path() -> str:
-    if custom := os.getenv("DB_PATH"):
-        os.makedirs(os.path.dirname(custom) or ".", exist_ok=True)
-        return custom
-    candidates = [
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), "ratings.db"),
-        "/tmp/ratings.db",
-        os.path.join(os.path.expanduser("~"), "ratings.db"),
-    ]
-    for path in candidates:
-        try:
-            os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
-            open(path, "a").close()
-            return path
-        except OSError:
-            continue
-    return candidates[-1]
+# ---- Supabase client ----
+_sb: Optional[Client] = None
 
-DB_PATH = _resolve_db_path()
-print(f"Using DB: {DB_PATH}")
+def get_supabase() -> Optional[Client]:
+    global _sb
+    if _sb is None:
+        url = os.getenv("SUPABASE_URL")
+        key = os.getenv("SUPABASE_ANON_KEY")
+        if url and key:
+            _sb = create_client(url, key)
+    return _sb
 
-def get_db():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+def fetch_rating(song_id: int) -> dict:
+    sb = get_supabase()
+    if not sb:
+        return {"average": None, "count": 0}
+    res = sb.table("song_ratings").select("rating").eq("song_id", song_id).execute()
+    rows = res.data
+    if not rows:
+        return {"average": None, "count": 0}
+    ratings = [r["rating"] for r in rows]
+    return {"average": round(sum(ratings) / len(ratings), 1), "count": len(ratings)}
 
-def init_db():
-    conn = get_db()
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS ratings (
-            id        INTEGER PRIMARY KEY AUTOINCREMENT,
-            song_id   INTEGER NOT NULL,
-            rating    INTEGER NOT NULL
-        )
-    """)
-    conn.commit()
-    conn.close()
-
-init_db()
-
-def fetch_rating(song_id: int):
-    conn = get_db()
-    row = conn.execute(
-        "SELECT ROUND(AVG(rating), 1) as average, COUNT(*) as count FROM ratings WHERE song_id = ?",
-        (song_id,)
-    ).fetchone()
-    conn.close()
+def fetch_ratings_bulk(song_ids: list) -> dict:
+    """Returns {song_id: {average, count}} for a list of song_ids in one query."""
+    sb = get_supabase()
+    if not sb or not song_ids:
+        return {}
+    res = sb.table("song_ratings").select("song_id,rating").in_("song_id", song_ids).execute()
+    stats: dict = defaultdict(list)
+    for r in res.data:
+        stats[r["song_id"]].append(r["rating"])
     return {
-        "average": float(row["average"]) if row["average"] else None,
-        "count": row["count"],
+        sid: {"average": round(sum(rs) / len(rs), 1), "count": len(rs)}
+        for sid, rs in stats.items()
     }
 
 def get_rec() -> SongRecommender:
@@ -131,13 +114,11 @@ def one_chord_away(chords: str = "", genre: str = ""):
     if genre:
         df = df[df["genre"] == genre]
 
-    # Songs where user is exactly 1 chord away
     missing = df["chord_set"].apply(lambda s: s - user_set)
     one_away_mask = missing.apply(len) == 1
     one_away = df[one_away_mask].copy()
     one_away["missing_chord"] = missing[one_away_mask].apply(lambda s: next(iter(s)))
 
-    # Group by that missing chord, count songs
     grouped = one_away.groupby("missing_chord")
     result = []
     for chord, group in sorted(grouped, key=lambda x: -len(x[1])):
@@ -147,10 +128,10 @@ def one_chord_away(chords: str = "", genre: str = ""):
             .to_dict(orient="records")
         )
         for s in sample:
-            s["song_id"] = int(s["song_id"])  # numpy int64 → Python int
+            s["song_id"] = int(s["song_id"])
         result.append({
-            "chord":       chord,
-            "unlocks":     len(group),
+            "chord":        chord,
+            "unlocks":      len(group),
             "sample_songs": sample,
         })
 
@@ -159,31 +140,35 @@ def one_chord_away(chords: str = "", genre: str = ""):
 
 @app.get("/top-songs")
 def top_songs(limit: int = 5):
-    conn = get_db()
-    rows = conn.execute("""
-        SELECT song_id, ROUND(AVG(rating), 1) as average, COUNT(*) as count
-        FROM ratings
-        GROUP BY song_id
-        HAVING count >= 1
-        ORDER BY average DESC, count DESC
-        LIMIT ?
-    """, (limit,)).fetchall()
-    conn.close()
+    sb = get_supabase()
+    if not sb:
+        return []
+    res = sb.table("song_ratings").select("song_id,rating").execute()
+    if not res.data:
+        return []
+
+    stats: dict = defaultdict(list)
+    for r in res.data:
+        stats[r["song_id"]].append(r["rating"])
+
+    ranked = sorted(
+        [(sid, round(sum(rs) / len(rs), 1), len(rs)) for sid, rs in stats.items()],
+        key=lambda x: (-x[1], -x[2]),
+    )[:limit]
 
     df = get_rec().df
     result = []
-    for row in rows:
-        sid = row["song_id"]
+    for sid, avg, cnt in ranked:
         if sid not in df.index:
             continue
         sr = df.loc[sid]
         result.append({
-            "song_id":      int(sid),
-            "artist_name":  sr.get("artist_name", ""),
-            "song_name":    sr.get("song_name", ""),
-            "genre":        sr.get("genre", "Other"),
-            "rating_average": float(row["average"]),
-            "rating_count":   row["count"],
+            "song_id":        int(sid),
+            "artist_name":    sr.get("artist_name", ""),
+            "song_name":      sr.get("song_name", ""),
+            "genre":          sr.get("genre", "Other"),
+            "rating_average": avg,
+            "rating_count":   cnt,
         })
     return result
 
@@ -193,17 +178,13 @@ def recommend(chords: str = "", artist: str = "", title: str = "", genre: str = 
     chord_list = [c.strip() for c in chords.split(",") if c.strip()]
     results = get_rec().recommend(chord_list, artist_filter=artist, title_filter=title, genre_filter=genre)
 
-    # Attach rating summary to each result
-    conn = get_db()
+    song_ids = [int(s["song_id"]) for s in results]
+    ratings  = fetch_ratings_bulk(song_ids)
     for song in results:
-        song["song_id"] = int(song["song_id"])  # ensure Python int for SQLite + JSON
-        row = conn.execute(
-            "SELECT ROUND(AVG(rating), 1) as average, COUNT(*) as count FROM ratings WHERE song_id = ?",
-            (song["song_id"],)
-        ).fetchone()
-        song["rating_average"] = float(row["average"]) if row["average"] else None
-        song["rating_count"]   = row["count"]
-    conn.close()
+        song["song_id"] = int(song["song_id"])
+        r = ratings.get(song["song_id"], {"average": None, "count": 0})
+        song["rating_average"] = r["average"]
+        song["rating_count"]   = r["count"]
 
     return results
 
@@ -215,17 +196,17 @@ def get_song(song_id: int):
     if song_id not in df.index:
         raise HTTPException(status_code=404, detail="Song not found")
 
-    row = df.loc[song_id]
+    row    = df.loc[song_id]
     rating = fetch_rating(song_id)
 
     return {
-        "song_id":          int(song_id),
-        "artist_name":      row.get("artist_name", ""),
-        "song_name":        row.get("song_name", ""),
+        "song_id":           int(song_id),
+        "artist_name":       row.get("artist_name", ""),
+        "song_name":         row.get("song_name", ""),
         "chords_and_lyrics": row.get("chords&lyrics", ""),
-        "chord_list":       [c for c in str(row.get("chord_list", "")).split("|") if c],
-        "rating_average":   rating["average"],
-        "rating_count":     rating["count"],
+        "chord_list":        [c for c in str(row.get("chord_list", "")).split("|") if c],
+        "rating_average":    rating["average"],
+        "rating_count":      rating["count"],
     }
 
 
@@ -244,7 +225,6 @@ def autocomplete(
     else:
         return []
 
-    # Cross-field scoping: constrain to matching rows from the other field
     if field == "title" and artist_filter:
         df = df[df["artist_name"].str.contains(artist_filter, case=False, na=False, regex=False)]
     elif field == "artist" and title_filter:
@@ -257,22 +237,3 @@ def autocomplete(
     starts   = sorted(m for m in matches if m.lower().startswith(q_lower))
     contains = sorted(m for m in matches if not m.lower().startswith(q_lower))
     return (starts + contains)[:limit]
-
-
-class RatingBody(BaseModel):
-    rating: int
-
-@app.post("/song/{song_id}/rate")
-def rate_song(song_id: int, body: RatingBody):
-    if body.rating < 1 or body.rating > 5:
-        raise HTTPException(status_code=400, detail="Rating must be between 1 and 5")
-
-    conn = get_db()
-    conn.execute(
-        "INSERT INTO ratings (song_id, rating) VALUES (?, ?)",
-        (song_id, body.rating)
-    )
-    conn.commit()
-    conn.close()
-
-    return fetch_rating(song_id)

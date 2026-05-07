@@ -128,44 +128,64 @@ function TransposeControl({ value, onChange }) {
   );
 }
 
-// ─── Star rating — optimistic updates ────────────────────────────────────────
+// ─── Star rating ─────────────────────────────────────────────────────────────
 function StarRating({ songId, initialAverage, initialCount }) {
-  const storageKey          = `rated_${songId}`;
-  const [average, setAverage] = useState(initialAverage);
-  const [count, setCount]     = useState(initialCount);
-  const [hovered, setHovered] = useState(0);
-  const [submitted, setSubmitted] = useState(() => !!localStorage.getItem(storageKey));
-  const userRating = parseInt(localStorage.getItem(storageKey) || "0");
+  const { user, ratesSong, getUserRating } = useAuth();
+  const toast = useToast();
+  const [average, setAverage]     = useState(initialAverage);
+  const [count, setCount]         = useState(initialCount);
+  const [userRating, setUserRating] = useState(0);
+  const [hovered, setHovered]     = useState(0);
+  const [busy, setBusy]           = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    getUserRating(songId).then(r => { if (r) setUserRating(r); });
+  }, [user, songId]); // eslint-disable-line
 
   const handleRate = useCallback(async (star) => {
-    if (submitted) return;
-    const prevAvg   = average;
-    const prevCount = count;
-    const newCount  = (count || 0) + 1;
-    const newAvg    = ((average || 0) * (count || 0) + star) / newCount;
-    setAverage(newAvg);
-    setCount(newCount);
-    setSubmitted(true);
-    localStorage.setItem(storageKey, String(star));
-    try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/song/${songId}/rate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rating: star }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setAverage(data.average);
-        setCount(data.count);
-      } else {
-        setAverage(prevAvg); setCount(prevCount); setSubmitted(false); localStorage.removeItem(storageKey);
-      }
-    } catch {
-      setAverage(prevAvg); setCount(prevCount); setSubmitted(false); localStorage.removeItem(storageKey);
-    }
-  }, [submitted, average, count, songId, storageKey]);
+    if (!user || busy) return;
+    setBusy(true);
+    const prevAvg    = average;
+    const prevCount  = count;
+    const prevRating = userRating;
 
-  const displayRating = submitted ? userRating : hovered;
+    // Optimistic update — replace existing vote or add new one
+    const newCount = prevRating ? count : (count || 0) + 1;
+    const newSum   = (average || 0) * (count || 0) - (prevRating || 0) + star;
+    setAverage(newCount > 0 ? newSum / newCount : star);
+    setCount(newCount);
+    setUserRating(star);
+
+    const { error } = await ratesSong(songId, star);
+    if (error) {
+      setAverage(prevAvg);
+      setCount(prevCount);
+      setUserRating(prevRating);
+      toast("Failed to save rating", "error", 2000);
+    }
+    setBusy(false);
+  }, [user, busy, average, count, userRating, songId, ratesSong, toast]); // eslint-disable-line
+
+  const displayRating = hovered || userRating;
+
+  if (!user) return (
+    <div className="rating-section">
+      <div className="stars-row">
+        {[1, 2, 3, 4, 5].map(star => (
+          <span key={star} className="star star-empty star-locked">★</span>
+        ))}
+      </div>
+      <div className="rating-meta">
+        <Link to="/auth" className="rating-prompt">Sign in to rate</Link>
+        {average && (
+          <span className="rating-average">
+            {average.toFixed(1)} ★ &nbsp;·&nbsp; {count} {count === 1 ? "rating" : "ratings"}
+          </span>
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <div className="rating-section">
@@ -173,16 +193,16 @@ function StarRating({ songId, initialAverage, initialCount }) {
         {[1, 2, 3, 4, 5].map(star => (
           <span
             key={star}
-            className={`star ${displayRating >= star ? "star-filled" : "star-empty"} ${submitted ? "star-locked" : "star-interactive"}`}
-            onMouseEnter={() => !submitted && setHovered(star)}
-            onMouseLeave={() => !submitted && setHovered(0)}
+            className={`star ${displayRating >= star ? "star-filled" : "star-empty"} ${busy ? "star-locked" : "star-interactive"}`}
+            onMouseEnter={() => !busy && setHovered(star)}
+            onMouseLeave={() => !busy && setHovered(0)}
             onClick={() => handleRate(star)}
           >★</span>
         ))}
       </div>
       <div className="rating-meta">
-        {submitted
-          ? <span className="rating-submitted">Thanks for rating!</span>
+        {userRating
+          ? <span className="rating-submitted">Your rating: {userRating}/5 — click to change</span>
           : <span className="rating-prompt">Rate this song</span>
         }
         {average && (

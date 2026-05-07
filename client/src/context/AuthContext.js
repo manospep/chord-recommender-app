@@ -113,6 +113,28 @@ export function AuthProvider({ children }) {
     return !!data;
   }
 
+  // Ratings
+  async function ratesSong(songId, rating) {
+    if (!user) return { error: new Error("Not logged in") };
+    return supabase
+      .from("song_ratings")
+      .upsert(
+        { user_id: user.id, song_id: songId, rating },
+        { onConflict: "user_id,song_id" }
+      );
+  }
+
+  async function getUserRating(songId) {
+    if (!user) return null;
+    const { data } = await supabase
+      .from("song_ratings")
+      .select("rating")
+      .eq("user_id", user.id)
+      .eq("song_id", songId)
+      .single();
+    return data?.rating ?? null;
+  }
+
   async function deleteAccount() {
     const { error } = await supabase.rpc("delete_user");
     if (!error) await supabase.auth.signOut();
@@ -143,6 +165,7 @@ export function AuthProvider({ children }) {
       signUp, signIn, signInMagicLink, signOut,
       resetPassword, updatePassword, updateProfile,
       addFavorite, removeFavorite, getFavorites, isFavorited,
+      ratesSong, getUserRating,
       syncChords, loadChords, deleteAccount,
     }}>
       {children}
