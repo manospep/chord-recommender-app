@@ -2179,6 +2179,43 @@ body[data-theme="light"] .divider {
   flex-shrink: 1;
 }
 
+/* ---- Top Songs ---- */
+.top-songs-section {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 24px;
+  margin-bottom: 24px;
+}
+
+.top-song-item {
+  justify-content: space-between;
+}
+
+.top-song-rank {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 28px;
+  flex-shrink: 0;
+}
+
+.top-song-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.top-song-rating {
+  font-size: 12px;
+  color: #f9ca24;
+  white-space: nowrap;
+}
+
+.top-song-count {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
 /* ============================================================
    CHORD POPOVER
    ============================================================ */

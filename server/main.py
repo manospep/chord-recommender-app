@@ -157,6 +157,37 @@ def one_chord_away(chords: str = "", genre: str = ""):
     return result[:8]
 
 
+@app.get("/top-songs")
+def top_songs(limit: int = 5):
+    conn = get_db()
+    rows = conn.execute("""
+        SELECT song_id, ROUND(AVG(rating), 1) as average, COUNT(*) as count
+        FROM ratings
+        GROUP BY song_id
+        HAVING count >= 1
+        ORDER BY average DESC, count DESC
+        LIMIT ?
+    """, (limit,)).fetchall()
+    conn.close()
+
+    df = get_rec().df
+    result = []
+    for row in rows:
+        sid = row["song_id"]
+        if sid not in df.index:
+            continue
+        sr = df.loc[sid]
+        result.append({
+            "song_id":      int(sid),
+            "artist_name":  sr.get("artist_name", ""),
+            "song_name":    sr.get("song_name", ""),
+            "genre":        sr.get("genre", "Other"),
+            "rating_average": float(row["average"]),
+            "rating_count":   row["count"],
+        })
+    return result
+
+
 @app.get("/recommend")
 def recommend(chords: str = "", artist: str = "", title: str = "", genre: str = ""):
     chord_list = [c.strip() for c in chords.split(",") if c.strip()]
