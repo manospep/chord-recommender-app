@@ -2216,6 +2216,16 @@ body[data-theme="light"] .divider {
   color: var(--text-muted);
 }
 
+.top-songs-empty {
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 12px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin: 0;
+}
+
 /* ============================================================
    CHORD POPOVER
    ============================================================ */

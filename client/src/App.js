@@ -461,42 +461,48 @@ function SkeletonCard({ delay }) {
 
 // ---- Recently viewed songs ----
 function TopSongs() {
-  const [songs, setSongs] = useState([]);
+  const [songs, setSongs] = useState(null); // null = loading
 
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_URL}/top-songs`)
       .then(r => r.ok ? r.json() : [])
       .then(setSongs)
-      .catch(() => {});
+      .catch(() => setSongs([]));
   }, []);
 
-  if (songs.length === 0) return null;
+  if (songs === null) return null; // still loading — don't flash
 
   return (
     <div className="recent-section top-songs-section">
-      <p className="explore-label">Top rated songs</p>
-      <div className="recent-list">
-        {songs.map((song, i) => (
-          <Link key={song.song_id} to={`/song/${song.song_id}`} className="recent-item top-song-item">
-            <span className="top-song-rank">#{i + 1}</span>
-            <div className="recent-item-info">
-              <span className="recent-item-name">{song.song_name}</span>
-              <span className="recent-item-artist">{song.artist_name}</span>
-            </div>
-            <div className="top-song-meta">
-              {song.genre && song.genre !== "Other" && (
-                <span className="genre-badge">{song.genre}</span>
-              )}
-              <span className="top-song-rating">
-                {"★".repeat(Math.round(song.rating_average))}
-                {"☆".repeat(5 - Math.round(song.rating_average))}
-                {" "}{song.rating_average.toFixed(1)}
-                <span className="top-song-count"> ({song.rating_count})</span>
-              </span>
-            </div>
-          </Link>
-        ))}
-      </div>
+      <p className="explore-label">Most liked songs</p>
+      {songs.length === 0 ? (
+        <p className="top-songs-empty">
+          No ratings yet — open any song and be the first to rate it!
+        </p>
+      ) : (
+        <div className="recent-list">
+          {songs.map((song, i) => (
+            <Link key={song.song_id} to={`/song/${song.song_id}`} className="recent-item top-song-item">
+              <span className="top-song-rank">#{i + 1}</span>
+              <div className="recent-item-info">
+                <span className="recent-item-name">{song.song_name}</span>
+                <span className="recent-item-artist">{song.artist_name}</span>
+              </div>
+              <div className="top-song-meta">
+                {song.genre && song.genre !== "Other" && (
+                  <span className="genre-badge">{song.genre}</span>
+                )}
+                <span className="top-song-rating">
+                  {"★".repeat(Math.round(song.rating_average))}
+                  {"☆".repeat(5 - Math.round(song.rating_average))}
+                  {" "}{song.rating_average.toFixed(1)}
+                  <span className="top-song-count"> ({song.rating_count})</span>
+                </span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
