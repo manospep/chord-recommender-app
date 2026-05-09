@@ -272,6 +272,67 @@ function FavoriteButton({ song }) {
   );
 }
 
+// ─── List buttons (To Learn / Learned) ───────────────────────────────────────
+function ListButton({ song }) {
+  const { user, addToList, removeFromList, isInList } = useAuth();
+  const toast = useToast();
+  const [inToLearn, setInToLearn] = useState(false);
+  const [inLearned, setInLearned] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (!user || !song) return;
+    Promise.all([
+      isInList(song.song_id, "to_learn"),
+      isInList(song.song_id, "learned"),
+    ]).then(([tl, l]) => { setInToLearn(tl); setInLearned(l); });
+  }, [user, song]); // eslint-disable-line
+
+  const toggle = useCallback(async (listType) => {
+    if (!user || busy) return;
+    setBusy(true);
+    const isIn    = listType === "to_learn" ? inToLearn : inLearned;
+    const other   = listType === "to_learn" ? "learned" : "to_learn";
+    const inOther = listType === "to_learn" ? inLearned : inToLearn;
+    if (isIn) {
+      await removeFromList(song.song_id, listType);
+      listType === "to_learn" ? setInToLearn(false) : setInLearned(false);
+      toast(`Removed from ${listType === "to_learn" ? "To Learn" : "Learned"}`, "success", 2000);
+    } else {
+      await addToList(song, listType);
+      listType === "to_learn" ? setInToLearn(true) : setInLearned(true);
+      if (inOther) {
+        await removeFromList(song.song_id, other);
+        other === "to_learn" ? setInToLearn(false) : setInLearned(false);
+      }
+      toast(`Added to ${listType === "to_learn" ? "To Learn" : "Learned"}!`, "success", 2000);
+    }
+    setBusy(false);
+  }, [user, busy, inToLearn, inLearned, song, addToList, removeFromList, toast]); // eslint-disable-line
+
+  if (!user) return null;
+  return (
+    <div className="list-buttons">
+      <button
+        className={`list-btn${inToLearn ? " list-btn-tolearn" : ""}`}
+        onClick={() => toggle("to_learn")}
+        disabled={busy}
+        title={inToLearn ? "Remove from To Learn" : "Add to To Learn"}
+      >
+        {inToLearn ? "📖 To Learn ✓" : "📖 To Learn"}
+      </button>
+      <button
+        className={`list-btn${inLearned ? " list-btn-learned" : ""}`}
+        onClick={() => toggle("learned")}
+        disabled={busy}
+        title={inLearned ? "Remove from Learned" : "Mark as Learned"}
+      >
+        {inLearned ? "🎸 Learned ✓" : "🎸 Learned"}
+      </button>
+    </div>
+  );
+}
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function SongPage() {
   const { id } = useParams();
@@ -396,6 +457,8 @@ export default function SongPage() {
           initialAverage={song.rating_average}
           initialCount={song.rating_count}
         />
+
+        <ListButton song={song} />
 
         <hr className="divider" />
 

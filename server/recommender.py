@@ -1,6 +1,9 @@
 import os
 import re
+import numpy as np
 import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 # Broad genre buckets — checked in order, first match wins
 GENRE_RULES = [
@@ -77,7 +80,74 @@ class SongRecommender:
         df["song_id"] = df.index.map(int)
 
         self.df = df
-        print(f"Ready. {len(self.df)} songs loaded.")
+
+        # Build TF-IDF matrix over the chord vocabulary.
+        # IDF weights chords that appear in fewer songs more heavily —
+        # rare chords are more informative than Cmaj / Am / G.
+        self._vec = TfidfVectorizer(
+            tokenizer=lambda s: s.split("|"),
+            lowercase=False,
+            token_pattern=None,
+        )
+        self._tfidf = self._vec.fit_transform(df["chord_list"].fillna(""))
+
+        # Position lookup: song_id → row index in df / tfidf matrix
+        self._id_to_pos = {sid: i for i, sid in enumerate(df.index)}
+
+        print(f"Ready. {len(self.df)} songs loaded, TF-IDF matrix {self._tfidf.shape}.")
+
+    def suggest(self, learned_ids: list, limit: int = 6) -> list:
+        valid = [i for i in learned_ids if i in self._id_to_pos]
+        if not valid:
+            return []
+
+        positions = [self._id_to_pos[i] for i in valid]
+
+        # User profile = mean TF-IDF vector across all learned songs
+        user_profile = self._tfidf[positions].mean(axis=0)  # (1, vocab)
+
+        # Cosine similarity with every song in the corpus
+        sims = cosine_similarity(user_profile, self._tfidf).flatten()  # (n_songs,)
+
+        # Zero out songs the user already knows
+        learned_set = set(valid)
+        for p in positions:
+            sims[p] = 0.0
+
+        # Known chord pool
+        known = frozenset().union(*[self.df.iloc[p]["chord_set"] for p in positions])
+
+        # Take top-100 by raw TF-IDF similarity, then re-rank with novelty
+        top_pos = np.argpartition(sims, -100)[-100:]
+        top_pos = top_pos[np.argsort(-sims[top_pos])]
+
+        candidates = []
+        for pos in top_pos:
+            row   = self.df.iloc[pos]
+            new_n = len(row["chord_set"] - known)
+            # Novelty bonus: 1-3 new chords = ideal learning zone
+            if   1 <= new_n <= 3: nf = 1.15
+            elif new_n == 0:      nf = 0.85
+            elif new_n <= 5:      nf = 1.00
+            else:                 nf = max(0.55, 1.0 - (new_n - 5) * 0.09)
+            candidates.append((pos, float(sims[pos]) * nf))
+
+        candidates.sort(key=lambda x: -x[1])
+
+        result = []
+        for pos, score in candidates[:limit]:
+            row        = self.df.iloc[pos]
+            song_id    = int(self.df.index[pos])
+            new_chords = sorted(row["chord_set"] - known)[:4]
+            result.append({
+                "song_id":     song_id,
+                "artist_name": row.get("artist_name", ""),
+                "song_name":   row.get("song_name", ""),
+                "genre":       row.get("genre", "Other"),
+                "match_pct":   min(99, round(score * 100)),
+                "new_chords":  new_chords,
+            })
+        return result
 
     def recommend(self, user_chords, artist_filter="", title_filter="", genre_filter=""):
         user_set = frozenset(ch.strip() for ch in user_chords if ch.strip())

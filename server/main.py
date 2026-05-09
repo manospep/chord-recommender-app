@@ -210,6 +210,42 @@ def get_song(song_id: int):
     }
 
 
+@app.get("/suggest")
+def suggest(song_ids: str = "", limit: int = 6):
+    if not song_ids:
+        return []
+    ids = [int(i) for i in song_ids.split(",") if i.strip().isdigit()]
+    if not ids:
+        return []
+    return get_rec().suggest(ids, limit=limit)
+
+
+@app.get("/artists")
+def artists(q: str = "", limit: int = 48, offset: int = 0):
+    df = get_rec().df
+    counts = df.groupby("artist_name").size().reset_index(name="song_count")
+    if q:
+        counts = counts[counts["artist_name"].str.contains(q, case=False, na=False, regex=False)]
+    counts = counts.sort_values("song_count", ascending=False)
+    page = counts.iloc[offset: offset + limit]
+    return page.rename(columns={"artist_name": "name"}).to_dict(orient="records")
+
+
+@app.get("/artist/{name}/songs")
+def artist_songs(name: str):
+    df  = get_rec().df
+    hits = df[df["artist_name"].str.lower() == name.lower()]
+    result = []
+    for song_id, row in hits.iterrows():
+        result.append({
+            "song_id":     int(song_id),
+            "song_name":   row.get("song_name", ""),
+            "genre":       row.get("genre", "Other"),
+            "chord_list":  [c for c in str(row.get("chord_list", "")).split("|") if c],
+        })
+    return sorted(result, key=lambda x: x["song_name"])
+
+
 @app.get("/autocomplete")
 def autocomplete(
     q: str = "", field: str = "artist", limit: int = 8,

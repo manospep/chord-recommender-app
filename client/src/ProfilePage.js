@@ -4,12 +4,14 @@ import { useAuth } from "./context/AuthContext";
 import { useToast } from "./context/ToastContext";
 
 export default function ProfilePage() {
-  const { user, profile, updateProfile, signOut, getFavorites, removeFavorite, loadChords, syncChords } = useAuth();
+  const { user, profile, updateProfile, signOut, getFavorites, removeFavorite, loadChords, syncChords, getList, removeFromList } = useAuth();
   const navigate = useNavigate();
   const toast    = useToast();
 
   const [displayName, setDisplayName]     = useState("");
   const [favorites, setFavorites]         = useState([]);
+  const [toLearnList, setToLearnList]     = useState([]);
+  const [learnedList, setLearnedList]     = useState([]);
   const [chords, setChords]               = useState([]);
   const [savingProfile, setSavingProfile] = useState(false);
   const [activeTab, setActiveTab]         = useState("account");
@@ -18,6 +20,8 @@ export default function ProfilePage() {
     if (!user) { navigate("/auth"); return; }
     if (profile) setDisplayName(profile.display_name || "");
     getFavorites().then(setFavorites);
+    getList("to_learn").then(setToLearnList);
+    getList("learned").then(setLearnedList);
     loadChords().then(loaded => {
       if (loaded.length > 0) setChords(loaded);
       else {
@@ -68,13 +72,17 @@ export default function ProfilePage() {
         </div>
 
         <div className="profile-tabs">
-          {["account", "chords", "favorites"].map(t => (
+          {["account", "chords", "favorites", "to_learn", "learned"].map(t => (
             <button
               key={t}
               className={`profile-tab ${activeTab === t ? "profile-tab-active" : ""}`}
               onClick={() => setActiveTab(t)}
             >
-              {t === "account" ? "Account" : t === "chords" ? `My Chords (${chords.length})` : `Favorites (${favorites.length})`}
+              {t === "account"   ? "Account"
+               : t === "chords"   ? `My Chords (${chords.length})`
+               : t === "favorites" ? `Favorites (${favorites.length})`
+               : t === "to_learn"  ? `To Learn (${toLearnList.length})`
+               :                     `Learned (${learnedList.length})`}
             </button>
           ))}
         </div>
@@ -141,6 +149,62 @@ export default function ProfilePage() {
                       {song.genre && song.genre !== "Other" && <span className="genre-badge">{song.genre}</span>}
                     </Link>
                     <button className="unfavorite-btn" onClick={() => handleUnfavorite(song.song_id)} title="Remove from favorites">♥</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === "to_learn" && (
+          <div className="profile-section">
+            <h3 className="profile-section-title">Songs to learn</h3>
+            {toLearnList.length === 0 ? (
+              <p className="profile-hint">No songs queued yet. Hit "📖 To Learn" on any song page to add it here.</p>
+            ) : (
+              <div className="favorites-list">
+                {toLearnList.map(song => (
+                  <div key={song.song_id} className="favorite-item">
+                    <Link to={`/song/${song.song_id}`} className="favorite-link">
+                      <span className="favorite-title">{song.artist_name} — {song.song_name}</span>
+                      {song.genre && song.genre !== "Other" && <span className="genre-badge">{song.genre}</span>}
+                    </Link>
+                    <button
+                      className="unfavorite-btn"
+                      onClick={async () => {
+                        await removeFromList(song.song_id, "to_learn");
+                        setToLearnList(l => l.filter(s => s.song_id !== song.song_id));
+                      }}
+                      title="Remove"
+                    >×</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === "learned" && (
+          <div className="profile-section">
+            <h3 className="profile-section-title">Songs I've learned</h3>
+            {learnedList.length === 0 ? (
+              <p className="profile-hint">Nothing here yet. Hit "🎸 Learned" on any song page once you can play it!</p>
+            ) : (
+              <div className="favorites-list">
+                {learnedList.map(song => (
+                  <div key={song.song_id} className="favorite-item">
+                    <Link to={`/song/${song.song_id}`} className="favorite-link">
+                      <span className="favorite-title">{song.artist_name} — {song.song_name}</span>
+                      {song.genre && song.genre !== "Other" && <span className="genre-badge">{song.genre}</span>}
+                    </Link>
+                    <button
+                      className="unfavorite-btn"
+                      onClick={async () => {
+                        await removeFromList(song.song_id, "learned");
+                        setLearnedList(l => l.filter(s => s.song_id !== song.song_id));
+                      }}
+                      title="Remove"
+                    >×</button>
                   </div>
                 ))}
               </div>

@@ -17,6 +17,8 @@ const SongPage     = lazy(() => import("./SongPage"));
 const AuthPage     = lazy(() => import("./AuthPage"));
 const ProfilePage  = lazy(() => import("./ProfilePage"));
 const VerifiedPage = lazy(() => import("./VerifiedPage"));
+const ArtistsPage  = lazy(() => import("./ArtistsPage"));
+const ArtistPage   = lazy(() => import("./ArtistPage"));
 
 const GENRES = [
   "All Genres", "Metal", "Rock", "Pop", "Hip Hop", "R&B / Soul",
@@ -236,6 +238,7 @@ function Navbar({ theme, onToggleTheme }) {
         <span className="brand-chord">C</span><span className="brand-quest">Q</span>
       </a>
       <div className="navbar-right">
+        <Link to="/artists" className="navbar-artists-link">Artists</Link>
         {user ? (
           <Link to="/profile" className="navbar-avatar" title="Your profile">
             {(profile?.display_name || user.email || "?")[0].toUpperCase()}
@@ -438,6 +441,54 @@ function SkeletonCard({ delay }) {
       <div className="skeleton-line narrow" />
       <div className="skeleton-chips">
         {[...Array(4)].map((_, i) => <div key={i} className="skeleton-chip" />)}
+      </div>
+    </div>
+  );
+}
+
+// ---- Suggested songs (ML recommender based on learned list) ----
+function SuggestedSongs() {
+  const { user, getList } = useAuth();
+  const [songs, setSongs] = useState(null);
+
+  useEffect(() => {
+    if (!user) return;
+    getList("learned").then(learned => {
+      if (!learned.length) { setSongs([]); return; }
+      const ids = learned.map(s => s.song_id).join(",");
+      fetch(`${process.env.REACT_APP_API_URL}/suggest?song_ids=${ids}&limit=5`)
+        .then(r => r.ok ? r.json() : [])
+        .then(setSongs)
+        .catch(() => setSongs([]));
+    });
+  }, [user]); // eslint-disable-line
+
+  if (!user || songs === null) return null;
+  if (songs.length === 0) return null;
+
+  return (
+    <div className="recent-section suggested-section">
+      <p className="explore-label">Suggested for you</p>
+      <div className="recent-list">
+        {songs.map(song => (
+          <Link key={song.song_id} to={`/song/${song.song_id}`} className="recent-item suggested-item">
+            <div className="recent-item-info">
+              <span className="recent-item-name">{song.song_name}</span>
+              <span className="recent-item-artist">{song.artist_name}</span>
+            </div>
+            <div className="suggested-meta">
+              {song.genre && song.genre !== "Other" && (
+                <span className="genre-badge">{song.genre}</span>
+              )}
+              {song.new_chords.length > 0 && (
+                <span className="suggested-new-chords">
+                  +{song.new_chords.slice(0, 3).join(", ")}
+                </span>
+              )}
+              <span className="suggested-match">{song.match_pct}% match</span>
+            </div>
+          </Link>
+        ))}
       </div>
     </div>
   );
@@ -726,6 +777,7 @@ function Home() {
         {/* ---- Explore (pre-search) ---- */}
         {!state.searched && !isLoading && (
           <div className="explore-section">
+            <SuggestedSongs />
             <TopSongs />
             <RecentSongs />
 
@@ -855,11 +907,13 @@ function AppInner() {
       <Navbar theme={theme} onToggleTheme={toggleTheme} />
       <Suspense fallback={<div className="route-loader">Loading…</div>}>
         <Routes>
-          <Route path="/"         element={<Home />} />
-          <Route path="/song/:id" element={<SongPage />} />
-          <Route path="/auth"     element={<AuthPage />} />
-          <Route path="/profile"  element={<ProfilePage />} />
-          <Route path="/verified" element={<VerifiedPage />} />
+          <Route path="/"                element={<Home />} />
+          <Route path="/song/:id"        element={<SongPage />} />
+          <Route path="/artists"         element={<ArtistsPage />} />
+          <Route path="/artist/:name"    element={<ArtistPage />} />
+          <Route path="/auth"            element={<AuthPage />} />
+          <Route path="/profile"         element={<ProfilePage />} />
+          <Route path="/verified"        element={<VerifiedPage />} />
         </Routes>
       </Suspense>
     </>

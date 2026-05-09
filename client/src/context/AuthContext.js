@@ -141,6 +141,47 @@ export function AuthProvider({ children }) {
     return { error };
   }
 
+  // Song lists (to_learn / learned)
+  async function addToList(song, listType) {
+    return supabase.from("user_song_lists").upsert({
+      user_id:     user.id,
+      song_id:     song.song_id,
+      list_type:   listType,
+      song_name:   song.song_name,
+      artist_name: song.artist_name,
+      genre:       song.genre || null,
+      chord_list:  (song.chord_list || []).join("|"),
+    });
+  }
+
+  async function removeFromList(songId, listType) {
+    return supabase.from("user_song_lists").delete()
+      .eq("user_id", user.id)
+      .eq("song_id", songId)
+      .eq("list_type", listType);
+  }
+
+  async function getList(listType) {
+    const { data } = await supabase
+      .from("user_song_lists")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("list_type", listType)
+      .order("created_at", { ascending: false });
+    return data || [];
+  }
+
+  async function isInList(songId, listType) {
+    const { data } = await supabase
+      .from("user_song_lists")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("song_id", songId)
+      .eq("list_type", listType)
+      .maybeSingle();
+    return !!data;
+  }
+
   // Chord sync
   async function syncChords(chords) {
     return supabase.from("user_chords").upsert({
@@ -166,6 +207,7 @@ export function AuthProvider({ children }) {
       resetPassword, updatePassword, updateProfile,
       addFavorite, removeFavorite, getFavorites, isFavorited,
       ratesSong, getUserRating,
+      addToList, removeFromList, getList, isInList,
       syncChords, loadChords, deleteAccount,
     }}>
       {children}

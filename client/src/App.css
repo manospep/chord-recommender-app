@@ -2300,6 +2300,90 @@ body[data-theme="light"] .divider {
   margin: 0;
 }
 
+/* ---- List buttons (To Learn / Learned) ---- */
+.list-buttons {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0 4px;
+  flex-wrap: wrap;
+}
+
+.list-btn {
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s, color 0.18s;
+}
+
+.list-btn:hover {
+  border-color: var(--accent-border);
+  color: var(--text-primary);
+}
+
+.list-btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.list-btn-tolearn {
+  border-color: rgba(0, 229, 255, 0.45);
+  background: rgba(0, 229, 255, 0.1);
+  color: var(--accent);
+}
+
+.list-btn-learned {
+  border-color: rgba(80, 220, 120, 0.45);
+  background: rgba(80, 220, 120, 0.1);
+  color: #50dc78;
+}
+
+/* ---- Suggested songs section ---- */
+.suggested-section {
+  border-left: 2px solid var(--accent);
+  padding-left: 4px;
+}
+
+.suggested-item {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.suggested-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.suggested-new-chords {
+  font-size: 11px;
+  color: var(--accent);
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  border-radius: 8px;
+  padding: 2px 7px;
+  white-space: nowrap;
+}
+
+.suggested-match {
+  font-size: 11px;
+  font-weight: 600;
+  color: #50dc78;
+  background: rgba(80, 220, 120, 0.1);
+  border: 1px solid rgba(80, 220, 120, 0.25);
+  border-radius: 8px;
+  padding: 2px 7px;
+  white-space: nowrap;
+}
+
 /* ============================================================
    CHORD POPOVER
    ============================================================ */
@@ -2560,6 +2644,227 @@ a.navbar-signin-btn:focus-visible {
 }
 
 /* ============================================================
+   ARTISTS PAGE
+   ============================================================ */
+
+.artists-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 16px 60px;
+}
+
+.artists-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.artists-title {
+  font-size: 28px;
+  font-weight: 700;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+}
+
+.artists-search {
+  flex: 1;
+  min-width: 180px;
+  max-width: 320px;
+  padding: 10px 16px;
+  border-radius: 24px;
+  border: 1px solid var(--border-input);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.18s;
+}
+
+.artists-search:focus {
+  border-color: var(--accent-border);
+}
+
+.artists-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 18px;
+}
+
+.artist-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 12px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  text-decoration: none;
+  transition: border-color 0.18s, transform 0.18s, background 0.18s;
+  cursor: pointer;
+}
+
+.artist-card:hover {
+  border-color: var(--accent-border);
+  background: var(--bg-card-hover);
+  transform: translateY(-3px);
+}
+
+.artist-avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-bg), var(--accent-2-bg));
+  border: 1px solid var(--border);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.artist-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.artist-initials {
+  font-size: 28px;
+  font-weight: 700;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  user-select: none;
+}
+
+.artist-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+.artist-song-count {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.load-more-btn {
+  display: block;
+  margin: 32px auto 0;
+  padding: 10px 32px;
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.18s, color 0.18s;
+}
+
+.load-more-btn:hover {
+  border-color: var(--accent-border);
+  color: var(--text-primary);
+}
+
+/* ---- Artist detail page ---- */
+
+.artist-page-hero {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.artist-page-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-bg), var(--accent-2-bg));
+  border: 1px solid var(--border);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.artist-page-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.artist-page-initials {
+  font-size: 38px;
+  font-weight: 700;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  user-select: none;
+}
+
+.artist-page-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.artist-bio {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-top: 8px;
+  max-width: 480px;
+}
+
+.favorite-link-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.artist-song-chords {
+  font-size: 11px;
+  color: var(--text-faint);
+  font-family: "SF Mono", "Fira Code", monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Navbar artists link */
+.navbar-artists-link {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid transparent;
+  transition: color 0.18s, border-color 0.18s;
+}
+
+.navbar-artists-link:hover {
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+
+/* ============================================================
    PREFERS REDUCED MOTION
    ============================================================ */
 
@@ -2616,6 +2921,10 @@ a.navbar-signin-btn:focus-visible {
   .search-panel { padding: 12px 10px 14px; border-radius: 14px; }
   .input-grid { grid-template-columns: 1fr; }
   .artist-input, .song-input { grid-column: 1 / -1; }
+  .artists-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .artist-card  { padding: 14px 10px 12px; }
+  .artist-avatar { width: 72px; height: 72px; font-size: 24px; }
+  .artist-page-avatar { width: 96px; height: 96px; font-size: 30px; }
   .input-grid .autocomplete-wrapper { grid-column: 1 / -1; }
   .glass-card { padding: 20px 14px; margin: 12px auto 30px; border-radius: 16px; }
   .song-title { font-size: 22px; }
