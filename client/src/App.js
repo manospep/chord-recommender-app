@@ -32,6 +32,15 @@ const PROGRESSIONS = [
   { name: "Rock Anthem", label: "i – VII – VI",     chords: ["Am", "G", "F"] },
 ];
 
+const QUICK_STARTS = [
+  { label: "Beginner", chords: ["C", "G", "Am", "F"] },
+  { label: "Pop",      chords: ["C", "G", "Am", "F"] },
+  { label: "Rock",     chords: ["Am", "G", "F", "Em"] },
+  { label: "Blues",    chords: ["A", "D", "E"] },
+  { label: "Country",  chords: ["G", "C", "D", "Em"] },
+  { label: "Folk",     chords: ["C", "G", "Em", "D"] },
+];
+
 // Genre accent colors for tile strips
 const GENRE_COLORS = {
   "Metal":      ["#ff4757", "#c0392b"],
@@ -81,136 +90,119 @@ function readSessionCache() {
 }
 
 // ---- Guitar strings decoration (horizontal) ----
-function GuitarStrings() {
-  const strings = [
-    { y: 7,  sw: 0.55, op: 0.55 },
-    { y: 18, sw: 0.70, op: 0.50 },
-    { y: 29, sw: 0.90, op: 0.45 },
-    { y: 40, sw: 1.15, op: 0.40 },
-    { y: 51, sw: 1.50, op: 0.36 },
-    { y: 62, sw: 2.00, op: 0.32 },
-  ];
-  return (
-    <svg className="hero-strings" height="70" viewBox="0 0 800 70" preserveAspectRatio="none" aria-hidden="true">
-      <defs>
-        <linearGradient id="stringFade" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%"   stopColor="transparent" />
-          <stop offset="10%"  stopColor="rgba(0,229,255,1)" />
-          <stop offset="90%"  stopColor="rgba(184,79,255,1)" />
-          <stop offset="100%" stopColor="transparent" />
-        </linearGradient>
-      </defs>
-      {strings.map((s, i) => (
-        <line key={i} x1="0" y1={s.y} x2="800" y2={s.y}
-          stroke="url(#stringFade)" strokeWidth={s.sw} opacity={s.op} />
-      ))}
-    </svg>
-  );
-}
-
-// ---- Acoustic guitar illustration ----
+// ---- Neon guitar illustration ----
 function HeroGuitar() {
   const NUT_Y    = 58;
-  const NECK_LEN = 142;
-  const BODY_Y   = NUT_Y + NECK_LEN; // 200
+  const NECK_LEN = 134;
+  const BODY_Y   = NUT_Y + NECK_LEN; // 192
 
   const fretYs = [1,2,3,4,5,6,7,8,9,10,11,12].map(
     n => NUT_Y + NECK_LEN * (1 - Math.pow(2, -n / 12))
   );
-  const neckHW = (y) => 20 + 8 * ((y - NUT_Y) / NECK_LEN);
+  const neckHW = (y) => 20 + 7 * ((y - NUT_Y) / NECK_LEN);
   const slotY  = (f) => (fretYs[f - 2] + fretYs[f - 1]) / 2;
 
-  const nutXs    = [-12.5, -7.5, -2.5, 2.5, 7.5, 12.5].map(d => 100 + d);
-  const bridgeXs = [-14, -8.4, -2.8, 2.8, 8.4, 14].map(d => 100 + d);
+  const nutXs    = [-11, -6.6, -2.2, 2.2, 6.6, 11].map(d => 100 + d);
+  const bridgeXs = [-13, -7.8, -2.6, 2.6, 7.8, 13].map(d => 100 + d);
+
+  // Shared path data
+  const bodyD = `
+    M 127 ${BODY_Y}
+    C 154 ${BODY_Y} 156 215 153 240
+    C 150 265 140 276 140 288
+    C 140 300 155 318 154 352
+    C 153 390 136 436 100 438
+    C  64 436  47 390  46 352
+    C  45 318  60 300  60 288
+    C  60 276  50 265  47 240
+    C  44 215  46 ${BODY_Y}  73 ${BODY_Y}
+    Z`;
+  const neckD  = `M 80 ${NUT_Y} L 120 ${NUT_Y} L 127 ${BODY_Y} L 73 ${BODY_Y} Z`;
+  const headD  = `M 80 ${NUT_Y} L 120 ${NUT_Y} L 122 16 C 122 7 114 3 107 3 L 93 3 C 86 3 78 7 78 16 Z`;
 
   return (
     <svg viewBox="0 0 200 470" className="hero-guitar" fill="none" aria-hidden="true">
       <defs>
-        <linearGradient id="hgS" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"   stopColor="rgba(0,229,255,0.92)" />
-          <stop offset="100%" stopColor="rgba(184,79,255,0.78)" />
-        </linearGradient>
-        <linearGradient id="hgF" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%"   stopColor="rgba(0,229,255,0.12)" />
-          <stop offset="100%" stopColor="rgba(184,79,255,0.08)" />
-        </linearGradient>
-        <linearGradient id="hgStr" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"   stopColor="rgba(210,245,255,0.80)" />
-          <stop offset="100%" stopColor="rgba(184,79,255,0.55)" />
+        <linearGradient id="strGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stopColor="rgba(120,235,255,0.90)" />
+          <stop offset="100%" stopColor="rgba(255,45,180,0.70)" />
         </linearGradient>
       </defs>
 
-      {/* HEADSTOCK — 3+3 */}
-      <path d="M 80 58 L 76 10 C 75 3, 81 0, 88 0 L 112 0 C 119 0, 125 3, 124 10 L 120 58 Z"
-        fill="url(#hgF)" stroke="url(#hgS)" strokeWidth="1.2" />
-      {[10, 24, 38].map(py => (
-        <g key={`L${py}`}>
-          <line x1="76" y1={py + 2} x2="62" y2={py + 2} stroke="rgba(0,229,255,0.35)" strokeWidth="0.9" />
-          <circle cx="56" cy={py + 2} r="5.5" fill="rgba(0,229,255,0.12)" stroke="rgba(0,229,255,0.52)" strokeWidth="0.9" />
-          <circle cx="56" cy={py + 2} r="1.6" fill="rgba(0,229,255,0.65)" />
-        </g>
-      ))}
-      {[10, 24, 38].map(py => (
-        <g key={`R${py}`}>
-          <line x1="124" y1={py + 2} x2="138" y2={py + 2} stroke="rgba(0,229,255,0.35)" strokeWidth="0.9" />
-          <circle cx="144" cy={py + 2} r="5.5" fill="rgba(0,229,255,0.12)" stroke="rgba(0,229,255,0.52)" strokeWidth="0.9" />
-          <circle cx="144" cy={py + 2} r="1.6" fill="rgba(0,229,255,0.65)" />
-        </g>
-      ))}
-      {/* Nut */}
-      <rect x="80" y="55" width="40" height="5" rx="2" fill="rgba(0,229,255,0.55)" stroke="url(#hgS)" strokeWidth="0.8" />
+      {/* BODY — cyan, glow layer then bright line */}
+      <path d={bodyD} stroke="#00e5ff" strokeWidth="9"   opacity="0.22" />
+      <path d={bodyD} stroke="#00e5ff" strokeWidth="2.2" opacity="0.95" />
 
-      {/* NECK */}
-      <path d={`M ${100-20} ${NUT_Y} L ${100+20} ${NUT_Y} L ${100+28} ${BODY_Y} L ${100-28} ${BODY_Y} Z`}
-        fill="url(#hgF)" stroke="url(#hgS)" strokeWidth="0.9" />
+      {/* SOUND HOLE */}
+      <circle cx="100" cy="352" r="30" stroke="#00e5ff" strokeWidth="8"   opacity="0.20" />
+      <circle cx="100" cy="352" r="30" stroke="#00e5ff" strokeWidth="2"   opacity="0.90" />
+      <circle cx="100" cy="352" r="25" stroke="#00e5ff" strokeWidth="0.8" opacity="0.35" />
+      <circle cx="100" cy="352" r="20" stroke="#00e5ff" strokeWidth="0.6" opacity="0.25" />
+
+      {/* BRIDGE */}
+      <rect x="83" y="406" width="34" height="9" rx="3"
+        stroke="#00e5ff" strokeWidth="7"   opacity="0.20" />
+      <rect x="83" y="406" width="34" height="9" rx="3"
+        stroke="#00e5ff" strokeWidth="1.8" opacity="0.90" />
+      <rect x="84" y="408" width="32" height="3" rx="1.5"
+        stroke="#00e5ff" strokeWidth="1.5" opacity="0.60" />
+
+      {/* NECK — pink, glow then bright */}
+      <path d={neckD} stroke="#ff2db4" strokeWidth="8"   opacity="0.22" />
+      <path d={neckD} stroke="#ff2db4" strokeWidth="1.8" opacity="0.95" />
+
+      {/* FRET LINES */}
       {fretYs.map((y, i) => {
         const hw = neckHW(y);
         return (
           <line key={i} x1={100-hw} y1={y} x2={100+hw} y2={y}
-            stroke="rgba(0,229,255,0.30)" strokeWidth={i === 11 ? 1.1 : 0.7} />
+            stroke="#ff2db4"
+            strokeWidth={i === 11 ? 1.2 : 0.75}
+            opacity={i === 11 ? 0.85 : 0.50} />
         );
       })}
+
+      {/* POSITION DOTS */}
       {[3, 5, 7, 9].map(f => (
-        <circle key={f} cx="100" cy={slotY(f)} r="2.4" fill="rgba(0,229,255,0.62)" />
+        <circle key={f} cx="100" cy={slotY(f)} r="2.4" fill="#ff2db4" opacity="0.80" />
       ))}
-      <circle cx="94"  cy={slotY(12)} r="2.3" fill="rgba(0,229,255,0.62)" />
-      <circle cx="106" cy={slotY(12)} r="2.3" fill="rgba(0,229,255,0.62)" />
+      <circle cx="94"  cy={slotY(12)} r="2.2" fill="#ff2db4" opacity="0.80" />
+      <circle cx="106" cy={slotY(12)} r="2.2" fill="#ff2db4" opacity="0.80" />
 
-      {/* BODY — figure-8 acoustic */}
-      <path d={`
-        M 126 ${BODY_Y}
-        C 163 ${BODY_Y} 165 236 162 263
-        C 159 290 150 302 150 317
-        C 150 332 174 357 174 387
-        C 174 421 152 460 100 462
-        C  48 460  26 421  26 387
-        C  26 357  50 332  50 317
-        C  50 302  41 290  38 263
-        C  35 236  37 ${BODY_Y} 74 ${BODY_Y}
-        Z
-      `} fill="url(#hgF)" stroke="url(#hgS)" strokeWidth="1.4" />
+      {/* HEADSTOCK — pink */}
+      <path d={headD} stroke="#ff2db4" strokeWidth="8"   opacity="0.22" />
+      <path d={headD} stroke="#ff2db4" strokeWidth="1.8" opacity="0.95" />
 
-      {/* SOUND HOLE with rosette rings */}
-      <circle cx="100" cy="372" r="30" fill="rgba(0,0,0,0.28)" stroke="url(#hgS)" strokeWidth="1.3" />
-      <circle cx="100" cy="372" r="26" fill="none" stroke="rgba(0,229,255,0.20)" strokeWidth="0.8" />
-      <circle cx="100" cy="372" r="22" fill="none" stroke="rgba(184,79,255,0.18)" strokeWidth="0.7" />
+      {/* NUT */}
+      <rect x="80" y={NUT_Y - 3} width="40" height="4" rx="2"
+        stroke="#ff2db4" strokeWidth="1.6" opacity="0.95" />
 
-      {/* BRIDGE */}
-      <rect x="81" y="416" width="38" height="10" rx="3"
-        fill="rgba(0,229,255,0.16)" stroke="url(#hgS)" strokeWidth="1" />
-      <rect x="82" y="418" width="36" height="3" rx="1.5" fill="rgba(0,229,255,0.48)" />
-      {bridgeXs.map((x, i) => (
-        <circle key={i} cx={x} cy={425} r="1.5" fill="rgba(0,229,255,0.50)" />
+      {/* TUNING PEGS — 3+3 */}
+      {[12, 26, 40].map(py => (
+        <g key={`L${py}`}>
+          <line x1="78" y1={py} x2="64" y2={py} stroke="#ff2db4" strokeWidth="1" opacity="0.75" />
+          <circle cx="60" cy={py} r="5" stroke="#ff2db4" strokeWidth="6"   opacity="0.18" />
+          <circle cx="60" cy={py} r="5" stroke="#ff2db4" strokeWidth="1.4" opacity="0.90" />
+          <circle cx="60" cy={py} r="2" fill="#ff2db4" opacity="0.85" />
+        </g>
+      ))}
+      {[12, 26, 40].map(py => (
+        <g key={`R${py}`}>
+          <line x1="122" y1={py} x2="136" y2={py} stroke="#ff2db4" strokeWidth="1" opacity="0.75" />
+          <circle cx="140" cy={py} r="5" stroke="#ff2db4" strokeWidth="6"   opacity="0.18" />
+          <circle cx="140" cy={py} r="5" stroke="#ff2db4" strokeWidth="1.4" opacity="0.90" />
+          <circle cx="140" cy={py} r="2" fill="#ff2db4" opacity="0.85" />
+        </g>
       ))}
 
       {/* STRINGS */}
       {nutXs.map((x1, i) => (
         <line key={i}
-          x1={x1}          y1={NUT_Y + 5}
-          x2={bridgeXs[i]} y2={418}
-          stroke="url(#hgStr)"
-          strokeWidth={0.5 + i * 0.11}
-          opacity={0.72 - i * 0.04}
+          x1={x1}          y1={NUT_Y + 4}
+          x2={bridgeXs[i]} y2={412}
+          stroke="url(#strGrad)"
+          strokeWidth={0.5 + i * 0.10}
+          opacity={0.70 - i * 0.04}
         />
       ))}
     </svg>
@@ -683,9 +675,20 @@ function Home() {
                 <span className="accent">play right now.</span>
               </h1>
               <p className="hero-sub">
-                Enter the chords you know — we'll match you with songs from 135,000+ tracks.
+                Enter the chords you know — we'll match you with songs from{" "}
+                <span className="hero-count">135,000+</span> tracks.
               </p>
-              <GuitarStrings />
+              <div className="quick-starts">
+                <span className="quick-starts-label">Quick-start progressions</span>
+                <div className="quick-starts-pills">
+                  {QUICK_STARTS.map(qs => (
+                    <button key={qs.label} className="quick-start-pill" onClick={() => {
+                      setField("chords", qs.chords);
+                      doSearch(qs.chords, state.artist, state.title, state.genre);
+                    }}>{qs.label}</button>
+                  ))}
+                </div>
+              </div>
             </div>
             <HeroGuitar />
           </div>
@@ -731,6 +734,12 @@ function Home() {
               {isLoading ? "Searching…" : "Find Songs"}
             </button>
           </div>
+          {!state.searched && (
+            <div className="tip-card">
+              <span className="tip-icon">✦</span>
+              <span className="tip-text"><strong>Tip:</strong> Not sure what to search? Try a quick-start progression or enter a few chords you know!</span>
+            </div>
+          )}
         </div>
 
         {/* ---- Explore (pre-search) ---- */}
