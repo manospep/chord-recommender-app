@@ -32,14 +32,6 @@ const PROGRESSIONS = [
   { name: "Rock Anthem", label: "i – VII – VI",     chords: ["Am", "G", "F"] },
 ];
 
-const QUICK_STARTS = [
-  { label: "Beginner", chords: ["C", "G", "Am", "F"] },
-  { label: "Pop",      chords: ["C", "G", "Am", "F"] },
-  { label: "Rock",     chords: ["Am", "G", "F", "Em"] },
-  { label: "Blues",    chords: ["A", "D", "E"] },
-  { label: "Country",  chords: ["G", "C", "D", "Em"] },
-  { label: "Folk",     chords: ["C", "G", "Em", "D"] },
-];
 
 // Genre accent colors for tile strips
 const GENRE_COLORS = {
@@ -678,17 +670,6 @@ function Home() {
                 Enter the chords you know — we'll match you with songs from{" "}
                 <span className="hero-count">135,000+</span> tracks.
               </p>
-              <div className="quick-starts">
-                <span className="quick-starts-label">Quick-start progressions</span>
-                <div className="quick-starts-pills">
-                  {QUICK_STARTS.map(qs => (
-                    <button key={qs.label} className="quick-start-pill" onClick={() => {
-                      setField("chords", qs.chords);
-                      doSearch(qs.chords, state.artist, state.title, state.genre);
-                    }}>{qs.label}</button>
-                  ))}
-                </div>
-              </div>
             </div>
             <HeroGuitar />
           </div>
