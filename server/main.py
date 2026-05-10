@@ -221,7 +221,7 @@ def suggest(song_ids: str = "", limit: int = 6):
     try:
         return get_rec().suggest(ids, limit=limit)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=_tb.format_exc())
+        return {"_error": _tb.format_exc()}
 
 
 @app.get("/artists")
