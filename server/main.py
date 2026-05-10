@@ -32,7 +32,7 @@ app = FastAPI(title="ChordQuest API", lifespan=lifespan)
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "recommender": "ready" if _rec else "loading"}
+    return {"status": "ok", "recommender": "ready" if _rec else "loading", "v": 2}
 
 _raw = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000")
 ALLOWED_ORIGINS = [o.strip() for o in _raw.split(",") if o.strip()]
