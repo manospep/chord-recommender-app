@@ -2778,6 +2778,39 @@ a.navbar-signin-btn:focus-visible {
   color: var(--text-primary);
 }
 
+/* A–Z index bar */
+.az-index {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 24px;
+}
+
+.az-btn {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 6px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.az-btn:hover {
+  border-color: var(--accent-border);
+  color: var(--text-primary);
+}
+
+.az-btn-active {
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+  color: var(--accent);
+}
+
 /* ---- Artist detail page ---- */
 
 .artist-page-hero {

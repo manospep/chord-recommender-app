@@ -221,11 +221,17 @@ def suggest(song_ids: str = "", limit: int = 6):
 
 
 @app.get("/artists")
-def artists(q: str = "", limit: int = 48, offset: int = 0):
+def artists(q: str = "", letter: str = "", limit: int = 200, offset: int = 0):
     df = get_rec().df
     counts = df.groupby("artist_name").size().reset_index(name="song_count")
     if q:
         counts = counts[counts["artist_name"].str.contains(q, case=False, na=False, regex=False)]
+    elif letter:
+        upper = counts["artist_name"].str.upper()
+        if letter == "#":
+            counts = counts[~upper.str[:1].str.match(r"[A-Z]")]
+        else:
+            counts = counts[upper.str.startswith(letter.upper())]
     counts = counts.sort_values("artist_name", key=lambda s: s.str.lower())
     page = counts.iloc[offset: offset + limit]
     return page.rename(columns={"artist_name": "name"}).to_dict(orient="records")

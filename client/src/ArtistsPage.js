@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import "./App.css";
 
+const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ#".split("");
+
 // Module-level cache so re-renders never re-fetch the same artist
 const _imgCache = new Map();
 
@@ -32,12 +34,12 @@ async function fetchArtistWikiImage(name) {
 }
 
 function ArtistCard({ artist }) {
-  const cardRef    = useRef(null);
-  const cached     = _imgCache.get(artist.name);
+  const cardRef = useRef(null);
+  const cached  = _imgCache.get(artist.name);
   const [imgUrl, setImgUrl] = useState(cached !== undefined ? cached : null);
 
   useEffect(() => {
-    if (imgUrl !== null) return; // already fetched or in-flight
+    if (imgUrl !== null) return;
     const obs = new IntersectionObserver(([entry]) => {
       if (!entry.isIntersecting) return;
       obs.disconnect();
@@ -46,28 +48,20 @@ function ArtistCard({ artist }) {
         setImgUrl(url);
       });
     }, { threshold: 0.05 });
-
     if (cardRef.current) obs.observe(cardRef.current);
     return () => obs.disconnect();
   }, [artist.name, imgUrl]);
 
   const initials = artist.name
-    .split(/\s+/)
-    .map(w => w[0] || "")
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-
-  const slug = encodeURIComponent(artist.name);
+    .split(/\s+/).map(w => w[0] || "").join("").slice(0, 2).toUpperCase();
 
   return (
-    <Link ref={cardRef} to={`/artist/${slug}`} className="artist-card">
+    <Link ref={cardRef} to={`/artist/${encodeURIComponent(artist.name)}`} className="artist-card">
       <div className="artist-avatar">
-        {imgUrl ? (
-          <img src={imgUrl} alt={artist.name} className="artist-img" loading="lazy" />
-        ) : (
-          <span className="artist-initials">{initials}</span>
-        )}
+        {imgUrl
+          ? <img src={imgUrl} alt={artist.name} className="artist-img" loading="lazy" />
+          : <span className="artist-initials">{initials}</span>
+        }
       </div>
       <span className="artist-name">{artist.name}</span>
       <span className="artist-song-count">{artist.song_count} songs</span>
@@ -75,43 +69,35 @@ function ArtistCard({ artist }) {
   );
 }
 
-const LIMIT = 48;
-
 export default function ArtistsPage() {
-  const [artists, setArtists]   = useState([]);
-  const [q, setQ]               = useState("");
-  const [offset, setOffset]     = useState(0);
-  const [loading, setLoading]   = useState(true);
-  const [hasMore, setHasMore]   = useState(true);
+  const [artists, setArtists]         = useState([]);
+  const [q, setQ]                     = useState("");
+  const [activeLetter, setActiveLetter] = useState("A");
+  const [loading, setLoading]         = useState(true);
 
-  const load = useCallback((query, off, replace) => {
+  const load = useCallback((query, letter) => {
     setLoading(true);
-    fetch(
-      `${process.env.REACT_APP_API_URL}/artists?q=${encodeURIComponent(query)}&limit=${LIMIT}&offset=${off}`
-    )
+    const params = query
+      ? `q=${encodeURIComponent(query)}&limit=200`
+      : `letter=${encodeURIComponent(letter)}&limit=200`;
+    fetch(`${process.env.REACT_APP_API_URL}/artists?${params}`)
       .then(r => r.ok ? r.json() : [])
-      .then(data => {
-        setArtists(prev => replace ? data : [...prev, ...data]);
-        setHasMore(data.length === LIMIT);
-        setLoading(false);
-      })
+      .then(data => { setArtists(data); setLoading(false); })
       .catch(() => { setArtists([]); setLoading(false); });
   }, []);
 
   useEffect(() => {
-    setOffset(0);
-    load(q, 0, true);
-  }, [q]); // eslint-disable-line
+    load(q, activeLetter);
+  }, [q, activeLetter]); // eslint-disable-line
 
   const handleSearch = useCallback(e => {
     setQ(e.target.value);
   }, []);
 
-  const handleMore = useCallback(() => {
-    const next = offset + LIMIT;
-    setOffset(next);
-    load(q, next, false);
-  }, [offset, q, load]);
+  const handleLetter = useCallback(l => {
+    setQ("");
+    setActiveLetter(l);
+  }, []);
 
   return (
     <div className="page">
@@ -132,24 +118,29 @@ export default function ArtistsPage() {
           />
         </div>
 
-        {loading && artists.length === 0 ? (
-          <div className="loader" style={{ marginTop: "60px" }}>Loading…</div>
+        {/* A–Z index bar */}
+        <div className="az-index">
+          {LETTERS.map(l => (
+            <button
+              key={l}
+              className={`az-btn${!q && activeLetter === l ? " az-btn-active" : ""}`}
+              onClick={() => handleLetter(l)}
+            >
+              {l}
+            </button>
+          ))}
+        </div>
+
+        {loading ? (
+          <div className="loader" style={{ marginTop: "48px" }}>Loading…</div>
         ) : artists.length === 0 ? (
-          <p className="profile-hint" style={{ marginTop: "32px" }}>No artists found for "{q}".</p>
+          <p className="profile-hint" style={{ marginTop: "32px" }}>
+            {q ? `No artists found for "${q}".` : `No artists under ${activeLetter}.`}
+          </p>
         ) : (
-          <>
-            <div className="artists-grid">
-              {artists.map(a => <ArtistCard key={a.name} artist={a} />)}
-            </div>
-            {hasMore && !loading && (
-              <button className="load-more-btn" onClick={handleMore}>
-                Load more
-              </button>
-            )}
-            {loading && artists.length > 0 && (
-              <div className="loader" style={{ margin: "24px auto" }}>Loading…</div>
-            )}
-          </>
+          <div className="artists-grid">
+            {artists.map(a => <ArtistCard key={a.name} artist={a} />)}
+          </div>
         )}
       </div>
     </div>
