@@ -446,16 +446,18 @@ function SkeletonCard({ delay }) {
   );
 }
 
-// ---- Suggested songs (ML recommender based on learned list) ----
+// ---- Suggested songs (ML recommender based on learned / to-learn list) ----
 function SuggestedSongs() {
   const { user, getList } = useAuth();
   const [songs, setSongs] = useState(null);
 
   useEffect(() => {
     if (!user) return;
-    getList("learned").then(learned => {
-      if (!learned.length) { setSongs([]); return; }
-      const ids = learned.map(s => s.song_id).join(",");
+    Promise.all([getList("learned"), getList("to_learn")]).then(([learned, toLearn]) => {
+      // Prefer learned songs; fall back to to_learn if learned is empty
+      const source = learned.length ? learned : toLearn;
+      if (!source.length) { setSongs([]); return; }
+      const ids = source.map(s => s.song_id).join(",");
       fetch(`${process.env.REACT_APP_API_URL}/suggest?song_ids=${ids}&limit=5`)
         .then(r => r.ok ? r.json() : [])
         .then(setSongs)

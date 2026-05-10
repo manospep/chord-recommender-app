@@ -4,17 +4,16 @@ import { useAuth } from "./context/AuthContext";
 import { useToast } from "./context/ToastContext";
 
 export default function ProfilePage() {
-  const { user, profile, updateProfile, signOut, getFavorites, removeFavorite, loadChords, syncChords, getList, removeFromList } = useAuth();
+  const { user, profile, updateProfile, signOut, getFavorites, removeFavorite, getList, removeFromList } = useAuth();
   const navigate = useNavigate();
   const toast    = useToast();
 
-  const [displayName, setDisplayName]     = useState("");
-  const [favorites, setFavorites]         = useState([]);
-  const [toLearnList, setToLearnList]     = useState([]);
-  const [learnedList, setLearnedList]     = useState([]);
-  const [chords, setChords]               = useState([]);
+  const [displayName, setDisplayName] = useState("");
+  const [favorites, setFavorites]     = useState([]);
+  const [toLearnList, setToLearnList] = useState([]);
+  const [learnedList, setLearnedList] = useState([]);
   const [savingProfile, setSavingProfile] = useState(false);
-  const [activeTab, setActiveTab]         = useState("account");
+  const [activeTab, setActiveTab]     = useState("account");
 
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
@@ -22,13 +21,6 @@ export default function ProfilePage() {
     getFavorites().then(setFavorites);
     getList("to_learn").then(setToLearnList);
     getList("learned").then(setLearnedList);
-    loadChords().then(loaded => {
-      if (loaded.length > 0) setChords(loaded);
-      else {
-        const local = (localStorage.getItem("userChords") || "").split(",").filter(Boolean);
-        setChords(local);
-      }
-    });
   }, [user, profile]); // eslint-disable-line
 
   const handleSaveProfile = useCallback(async (e) => {
@@ -38,12 +30,6 @@ export default function ProfilePage() {
     toast(error ? error.message : "Profile saved!", error ? "error" : "success");
     setSavingProfile(false);
   }, [displayName, updateProfile, toast]);
-
-  const handleSaveChords = useCallback(async () => {
-    await syncChords(chords);
-    localStorage.setItem("userChords", chords.join(","));
-    toast("Chords synced across devices!", "success");
-  }, [chords, syncChords, toast]);
 
   const handleUnfavorite = useCallback(async (songId) => {
     await removeFavorite(songId);
@@ -72,14 +58,13 @@ export default function ProfilePage() {
         </div>
 
         <div className="profile-tabs">
-          {["account", "chords", "favorites", "to_learn", "learned"].map(t => (
+          {["account", "favorites", "to_learn", "learned"].map(t => (
             <button
               key={t}
               className={`profile-tab ${activeTab === t ? "profile-tab-active" : ""}`}
               onClick={() => setActiveTab(t)}
             >
-              {t === "account"   ? "Account"
-               : t === "chords"   ? `My Chords (${chords.length})`
+              {t === "account"    ? "Account"
                : t === "favorites" ? `Favorites (${favorites.length})`
                : t === "to_learn"  ? `To Learn (${toLearnList.length})`
                :                     `Learned (${learnedList.length})`}
@@ -111,27 +96,6 @@ export default function ProfilePage() {
 
             <h3 className="profile-section-title" style={{ marginTop: "32px", color: "var(--color-red)" }}>Danger zone</h3>
             <button className="danger-btn" onClick={handleSignOut}>Sign out of all devices</button>
-          </div>
-        )}
-
-        {activeTab === "chords" && (
-          <div className="profile-section">
-            <h3 className="profile-section-title">Your chord list</h3>
-            <p className="profile-hint">These sync across all your devices when you're signed in.</p>
-            <div className="profile-chords">
-              {chords.map((ch, i) => (
-                <span key={i} className="tag-chip">
-                  {ch}
-                  <button className="tag-remove" onClick={() => setChords(chords.filter((_, j) => j !== i))}>×</button>
-                </span>
-              ))}
-              {chords.length === 0 && (
-                <p className="profile-hint">No chords saved yet. Search for songs on the home page and they'll appear here.</p>
-              )}
-            </div>
-            <button className="auth-submit" style={{ marginTop: "16px", maxWidth: "200px" }} onClick={handleSaveChords}>
-              Sync chords
-            </button>
           </div>
         )}
 
