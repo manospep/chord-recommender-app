@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import "./App.css";
 
@@ -7,7 +7,6 @@ import "./App.css";
 const _imgCache = new Map();
 
 function ArtistCard({ artist }) {
-  const navigate   = useNavigate();
   const cardRef    = useRef(null);
   const cached     = _imgCache.get(artist.name);
   const [imgUrl, setImgUrl] = useState(cached !== undefined ? cached : null);
