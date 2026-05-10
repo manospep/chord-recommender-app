@@ -151,7 +151,7 @@ export function AuthProvider({ children }) {
       artist_name: song.artist_name,
       genre:       song.genre || null,
       chord_list:  (song.chord_list || []).join("|"),
-    });
+    }, { onConflict: "user_id,song_id,list_type" });
   }
 
   async function removeFromList(songId, listType) {
@@ -166,15 +166,14 @@ export function AuthProvider({ children }) {
       .from("user_song_lists")
       .select("*")
       .eq("user_id", user.id)
-      .eq("list_type", listType)
-      .order("created_at", { ascending: false });
+      .eq("list_type", listType);
     return data || [];
   }
 
   async function isInList(songId, listType) {
     const { data } = await supabase
       .from("user_song_lists")
-      .select("id")
+      .select("song_id")
       .eq("user_id", user.id)
       .eq("song_id", songId)
       .eq("list_type", listType)
