@@ -217,7 +217,11 @@ def suggest(song_ids: str = "", limit: int = 6):
     ids = [int(i) for i in song_ids.split(",") if i.strip().isdigit()]
     if not ids:
         return []
-    return get_rec().suggest(ids, limit=limit)
+    import traceback as _tb
+    try:
+        return get_rec().suggest(ids, limit=limit)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=_tb.format_exc())
 
 
 @app.get("/artists")
