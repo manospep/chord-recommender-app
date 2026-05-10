@@ -103,14 +103,13 @@ class SongRecommender:
 
         positions = [self._id_to_pos[i] for i in valid]
 
-        # User profile = mean TF-IDF vector across all learned songs
-        user_profile = self._tfidf[positions].mean(axis=0)  # (1, vocab)
+        # Mean TF-IDF vector — sparse.mean returns numpy.matrix, convert to plain ndarray
+        user_profile = np.asarray(self._tfidf[positions].mean(axis=0))  # (1, n_features)
 
-        # Cosine similarity with every song in the corpus
-        sims = cosine_similarity(user_profile, self._tfidf).flatten()  # (n_songs,)
+        # Cosine similarity; asarray + ravel guarantees a writable 1-D ndarray
+        sims = np.asarray(cosine_similarity(user_profile, self._tfidf)).ravel().copy()
 
-        # Zero out songs the user already knows
-        learned_set = set(valid)
+        # Zero out songs the user already has
         for p in positions:
             sims[p] = 0.0
 
@@ -118,19 +117,19 @@ class SongRecommender:
         known = frozenset().union(*[self.df.iloc[p]["chord_set"] for p in positions])
 
         # Take top-100 by raw TF-IDF similarity, then re-rank with novelty
-        top_pos = np.argpartition(sims, -100)[-100:]
+        k = min(100, len(sims) - 1)
+        top_pos = np.argpartition(sims, -k)[-k:]
         top_pos = top_pos[np.argsort(-sims[top_pos])]
 
         candidates = []
         for pos in top_pos:
             row   = self.df.iloc[pos]
             new_n = len(row["chord_set"] - known)
-            # Novelty bonus: 1-3 new chords = ideal learning zone
             if   1 <= new_n <= 3: nf = 1.15
             elif new_n == 0:      nf = 0.85
             elif new_n <= 5:      nf = 1.00
             else:                 nf = max(0.55, 1.0 - (new_n - 5) * 0.09)
-            candidates.append((pos, float(sims[pos]) * nf))
+            candidates.append((int(pos), float(sims[pos]) * nf))
 
         candidates.sort(key=lambda x: -x[1])
 
