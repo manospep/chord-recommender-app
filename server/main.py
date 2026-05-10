@@ -226,7 +226,7 @@ def artists(q: str = "", limit: int = 48, offset: int = 0):
     counts = df.groupby("artist_name").size().reset_index(name="song_count")
     if q:
         counts = counts[counts["artist_name"].str.contains(q, case=False, na=False, regex=False)]
-    counts = counts.sort_values("song_count", ascending=False)
+    counts = counts.sort_values("artist_name", key=lambda s: s.str.lower())
     page = counts.iloc[offset: offset + limit]
     return page.rename(columns={"artist_name": "name"}).to_dict(orient="records")
 

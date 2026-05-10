@@ -6,6 +6,31 @@ import "./App.css";
 // Module-level cache so re-renders never re-fetch the same artist
 const _imgCache = new Map();
 
+// Search Wikipedia for the musician/band page, not an unrelated article
+async function fetchArtistWikiImage(name) {
+  const qualifiers = ["band", "musician", "singer", "rapper", "artist"];
+  for (const q of qualifiers) {
+    try {
+      const search = await fetch(
+        `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(`${name} ${q}`)}&format=json&origin=*&srlimit=1`
+      );
+      const json = await search.json();
+      const title = json?.query?.search?.[0]?.title;
+      if (!title) continue;
+      const sum = await fetch(
+        `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`,
+        { headers: { Accept: "application/json" } }
+      );
+      if (!sum.ok) continue;
+      const data = await sum.json();
+      if (data.type === "disambiguation") continue;
+      const img = data?.thumbnail?.source || "";
+      if (img) return img;
+    } catch {}
+  }
+  return "";
+}
+
 function ArtistCard({ artist }) {
   const cardRef    = useRef(null);
   const cached     = _imgCache.get(artist.name);
@@ -16,20 +41,10 @@ function ArtistCard({ artist }) {
     const obs = new IntersectionObserver(([entry]) => {
       if (!entry.isIntersecting) return;
       obs.disconnect();
-      fetch(
-        `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(artist.name)}`,
-        { headers: { Accept: "application/json" } }
-      )
-        .then(r => r.ok ? r.json() : null)
-        .then(data => {
-          const url = data?.thumbnail?.source || "";
-          _imgCache.set(artist.name, url);
-          setImgUrl(url);
-        })
-        .catch(() => {
-          _imgCache.set(artist.name, "");
-          setImgUrl("");
-        });
+      fetchArtistWikiImage(artist.name).then(url => {
+        _imgCache.set(artist.name, url);
+        setImgUrl(url);
+      });
     }, { threshold: 0.05 });
 
     if (cardRef.current) obs.observe(cardRef.current);

@@ -3,6 +3,33 @@ import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import "./App.css";
 
+// Search Wikipedia for the musician/band page, not an unrelated article
+async function fetchArtistWiki(name) {
+  const qualifiers = ["band", "musician", "singer", "rapper", "artist"];
+  for (const q of qualifiers) {
+    try {
+      const search = await fetch(
+        `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(`${name} ${q}`)}&format=json&origin=*&srlimit=1`
+      );
+      const json = await search.json();
+      const title = json?.query?.search?.[0]?.title;
+      if (!title) continue;
+      const sum = await fetch(
+        `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`,
+        { headers: { Accept: "application/json" } }
+      );
+      if (!sum.ok) continue;
+      const data = await sum.json();
+      if (data.type === "disambiguation") continue;
+      // Verify the result is music-related before accepting
+      const extract = (data.extract || "").toLowerCase();
+      const isMusic = ["band", "musician", "singer", "rapper", "album", "music", "song", "record", "vocalist", "guitarist"].some(w => extract.includes(w));
+      if (isMusic) return data;
+    } catch {}
+  }
+  return null;
+}
+
 export default function ArtistPage() {
   const { name }       = useParams();
   const decodedName    = decodeURIComponent(name);
@@ -22,19 +49,12 @@ export default function ArtistPage() {
       .then(setSongs)
       .catch(() => setSongs([]));
 
-    // Wikipedia summary for photo + short bio
-    fetch(
-      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(decodedName)}`,
-      { headers: { Accept: "application/json" } }
-    )
-      .then(r => r.ok ? r.json() : null)
-      .then(data => {
-        if (!data) return;
-        const url = data.originalimage?.source || data.thumbnail?.source || "";
-        setImgUrl(url);
-        if (data.extract) setBio(data.extract.split(". ").slice(0, 2).join(". ") + ".");
-      })
-      .catch(() => {});
+    fetchArtistWiki(decodedName).then(data => {
+      if (!data) return;
+      const url = data.originalimage?.source || data.thumbnail?.source || "";
+      setImgUrl(url);
+      if (data.extract) setBio(data.extract.split(". ").slice(0, 2).join(". ") + ".");
+    });
   }, [decodedName]);
 
   const initials = decodedName
