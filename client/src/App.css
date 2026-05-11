@@ -9,10 +9,10 @@
 
 :root {
   --bg:             #09090e;
-  --bg-card:        rgba(14, 14, 22, 0.90);
-  --bg-input:       rgba(255, 255, 255, 0.042);
-  --bg-card-hover:  rgba(20, 20, 30, 0.96);
-  --bg-lyrics:      rgba(255, 255, 255, 0.025);
+  --bg-card:        #0e0e18;
+  --bg-input:       #131320;
+  --bg-card-hover:  #141422;
+  --bg-lyrics:      #111120;
   --text-primary:   #f0f2f8;
   --text-secondary: rgba(240, 242, 248, 0.65);
   --text-muted:     rgba(240, 242, 248, 0.45);
@@ -66,9 +66,9 @@
 
 body[data-theme="light"] {
   --bg:             #f0f3fa;
-  --bg-card:        rgba(255, 255, 255, 0.98);
-  --bg-input:       #ffffff;
-  --bg-card-hover:  #ffffff;
+  --bg-card:        #ffffff;
+  --bg-input:       #f7f8fc;
+  --bg-card-hover:  #f9faff;
   --bg-lyrics:      #ffffff;
   --text-primary:   #0a0c18;
   --text-secondary: rgba(10, 12, 24, 0.72);
@@ -166,46 +166,16 @@ body[data-theme="light"] .hero-title .accent {
 body {
   margin: 0;
   background-color: var(--bg);
-  /* Fretboard grid — fret lines every 88px, string lines every 14px */
-  background-image:
-    linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px),
-    linear-gradient(0deg,  rgba(255,255,255,0.014) 1px, transparent 1px);
-  background-size: 88px 14px;
   color: var(--text-primary);
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
-  font-feature-settings: "ss01", "cv01";
+  font-feature-settings: "ss01", "cv01", "cv11";
   transition: background-color 0.3s, color 0.25s;
 }
 
-/* Ambient teal glow — top-left */
-body::before {
-  content: '';
-  position: fixed;
-  top: -15vh; left: -10vw;
-  width: 65vw; height: 70vh;
-  background: radial-gradient(ellipse, rgba(6, 182, 212, 0.05) 0%, transparent 68%);
-  pointer-events: none;
-  z-index: 0;
-}
+body::before,
+body::after { display: none; }
 
-/* Ambient purple glow — bottom-right */
-body::after {
-  content: '';
-  position: fixed;
-  bottom: -20vh; right: -15vw;
-  width: 70vw; height: 75vh;
-  background: radial-gradient(ellipse, rgba(139, 92, 246, 0.04) 0%, transparent 68%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-body[data-theme="light"] {
-  background-image:
-    linear-gradient(90deg, rgba(0,80,180,0.055) 1px, transparent 1px),
-    linear-gradient(0deg,  rgba(0,80,180,0.035) 1px, transparent 1px);
-  background-size: 88px 14px;
-}
 
 body[data-theme="light"]::before {
   background: radial-gradient(ellipse, rgba(8, 145, 178, 0.04) 0%, transparent 68%);
@@ -354,10 +324,10 @@ body[data-theme="light"]::after {
 .hero-title {
   font-size: 58px;
   font-weight: 900;
-  line-height: 1.08;
-  letter-spacing: -2px;
+  line-height: 1.06;
+  letter-spacing: -3px;
   color: var(--text-primary);
-  margin: 0 0 18px;
+  margin: 0 0 20px;
 }
 
 .hero-title .accent {
@@ -369,12 +339,12 @@ body[data-theme="light"]::after {
 }
 
 .hero-sub {
-  font-size: 18px;
-  color: var(--text-secondary);
+  font-size: 17px;
+  color: var(--text-muted);
   font-weight: 400;
   margin: 0;
-  line-height: 1.6;
-  letter-spacing: 0.01em;
+  line-height: 1.65;
+  letter-spacing: 0.015em;
 }
 
 .hero-strings {
@@ -447,8 +417,6 @@ body[data-theme="light"]::after {
 
 .search-panel {
   background: var(--bg-card);
-  backdrop-filter: blur(24px) saturate(150%);
-  -webkit-backdrop-filter: blur(24px) saturate(150%);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 20px 20px 22px;
@@ -470,9 +438,9 @@ body[data-theme="light"]::after {
 
 .search-label {
   color: var(--text-muted);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.9px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
   margin: 0 0 14px 2px;
 }
@@ -580,10 +548,8 @@ body[data-theme="light"]::after {
   right: 0;
   z-index: 200;
   background: var(--bg-card);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
   animation: toast-in 0.12s ease both;
@@ -667,29 +633,29 @@ body[data-theme="light"]::after {
 
 .search-btn {
   grid-column: 1 / -1;
-  background: var(--gradient);
-  color: #09090e;
+  background: var(--text-primary);
+  color: var(--bg);
   padding: 14px 32px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 800;
-  transition: filter 0.2s, transform 0.15s, box-shadow 0.2s;
+  font-size: 13px;
+  font-weight: 700;
+  transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+  letter-spacing: 1.2px;
+  box-shadow: none;
 }
 
 .search-btn:hover {
-  filter: brightness(1.08);
+  background: #ffffff;
   transform: translateY(-1px);
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.20);
 }
 
 .search-btn:active {
-  transform: translateY(0);
-  filter: brightness(0.96);
+  transform: translateY(0) scale(0.99);
+  background: var(--text-primary);
 }
 
 .search-btn:disabled {
@@ -769,8 +735,6 @@ body[data-theme="light"]::after {
 
 .song-card {
   background: var(--bg-card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   padding: 15px 18px;
   border-radius: 10px;
   border: 1px solid var(--border);
@@ -953,8 +917,6 @@ body[data-theme="light"]::after {
   width: 100%;
   margin: 36px auto 60px;
   background: var(--bg-card);
-  backdrop-filter: blur(28px) saturate(160%);
-  -webkit-backdrop-filter: blur(28px) saturate(160%);
   padding: 44px 56px;
   border-radius: 14px;
   border: 1px solid var(--border);
@@ -1011,12 +973,12 @@ body[data-theme="light"] .song-card:hover {
 
 .song-title {
   font-size: 40px;
-  font-weight: 800;
+  font-weight: 900;
   color: var(--text-primary);
   text-align: center;
   margin-bottom: 6px;
-  letter-spacing: -1px;
-  line-height: 1.15;
+  letter-spacing: -2px;
+  line-height: 1.1;
 }
 
 .song-artist {
@@ -1337,9 +1299,8 @@ body[data-theme="light"] .divider {
   align-items: center;
   gap: 14px;
   background: var(--bg-card);
-  backdrop-filter: blur(8px);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 10px;
   padding: 14px 18px;
   cursor: pointer;
   text-align: left;
@@ -1393,9 +1354,9 @@ body[data-theme="light"] .divider {
 
 .explore-label {
   color: var(--text-muted);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.9px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
   margin: 0 0 14px 2px;
 }
@@ -1409,7 +1370,6 @@ body[data-theme="light"] .divider {
 
 .genre-tile {
   background: var(--bg-card);
-  backdrop-filter: blur(8px);
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 18px 10px 14px;
@@ -1441,9 +1401,8 @@ body[data-theme="light"] .divider {
 
 .prog-item {
   background: var(--bg-card);
-  backdrop-filter: blur(8px);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 10px;
   padding: 13px 16px;
   display: flex;
   align-items: center;
@@ -1565,8 +1524,8 @@ body[data-theme="light"] .divider {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: var(--gradient);
-  color: #09090e;
+  background: var(--accent);
+  color: var(--bg);
   font-size: 14px;
   font-weight: 700;
   text-decoration: none;
@@ -1675,10 +1634,8 @@ body[data-theme="light"] .divider {
   max-width: 420px;
   margin: 60px auto 80px;
   background: var(--bg-card);
-  backdrop-filter: blur(24px) saturate(150%);
-  -webkit-backdrop-filter: blur(24px) saturate(150%);
   border: 1px solid var(--border);
-  border-radius: 20px;
+  border-radius: 12px;
   padding: 36px 32px 40px;
   box-shadow: 0 16px 64px var(--shadow);
   position: relative;
@@ -1768,9 +1725,9 @@ body[data-theme="light"] .divider {
 
 .auth-submit {
   margin-top: 16px;
-  background: var(--gradient);
+  background: var(--accent);
   border: none;
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 13px;
   font-size: 15px;
   font-weight: 700;
@@ -1853,9 +1810,8 @@ body[data-theme="light"] .divider {
   max-width: 400px;
   margin: 80px auto;
   background: var(--bg-card);
-  backdrop-filter: blur(24px);
   border: 1px solid var(--border);
-  border-radius: 24px;
+  border-radius: 12px;
   padding: 48px 32px;
   text-align: center;
   box-shadow: 0 16px 64px var(--shadow);
@@ -1931,8 +1887,8 @@ body[data-theme="light"] .divider {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: var(--gradient);
-  color: #09090e;
+  background: var(--accent);
+  color: var(--bg);
   font-size: 22px;
   font-weight: 700;
   display: flex;
@@ -2007,10 +1963,8 @@ body[data-theme="light"] .divider {
 
 .profile-section {
   background: var(--bg-card);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 12px;
   padding: 24px;
 }
 
@@ -2184,9 +2138,8 @@ body[data-theme="light"] .divider {
   align-items: center;
   gap: 12px;
   background: var(--bg-card);
-  backdrop-filter: blur(8px);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 11px 16px;
   text-decoration: none;
   transition: background 0.15s, border-color 0.15s, transform 0.15s;
@@ -2418,10 +2371,8 @@ body[data-theme="light"] .divider {
   position: fixed;
   z-index: 500;
   background: var(--bg-card);
-  backdrop-filter: blur(28px) saturate(160%);
-  -webkit-backdrop-filter: blur(28px) saturate(160%);
   border: 1px solid var(--accent-border);
-  border-radius: 16px;
+  border-radius: 10px;
   padding: 10px 12px 12px;
   box-shadow: 0 16px 56px rgba(0, 0, 0, 0.60);
   animation: toast-in 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) both;
@@ -2611,8 +2562,6 @@ a.navbar-signin-btn:focus-visible {
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   box-shadow: 0 8px 32px var(--shadow);
   animation: toast-in 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   white-space: nowrap;
@@ -2923,6 +2872,20 @@ a.navbar-signin-btn:focus-visible {
 .navbar-artists-link:hover {
   color: var(--text-primary);
   border-color: var(--border);
+}
+
+/* Light-mode search button: dark text on near-black bg (inverted) */
+body[data-theme="light"] .search-btn {
+  background: var(--text-primary);
+  color: var(--bg);
+}
+body[data-theme="light"] .search-btn:hover {
+  background: #0a0c18;
+}
+
+/* Light-mode auth button */
+body[data-theme="light"] .auth-submit {
+  color: #ffffff;
 }
 
 /* Light-mode chord sheet: white background like a real tab page */
