@@ -1555,6 +1555,47 @@ body[data-theme="light"] .divider {
 }
 
 /* ============================================================
+   SONG PAGE — HEAR ON YOUTUBE / SPOTIFY
+   ============================================================ */
+
+.hear-song-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 2px;
+  flex-wrap: wrap;
+}
+
+.hear-song-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.hear-song-link {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 20px;
+  text-decoration: none;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.hear-song-yt:hover {
+  border-color: rgba(255, 60, 60, 0.35);
+  color: #ff4444;
+  background: rgba(255, 60, 60, 0.06);
+}
+
+.hear-song-sp:hover {
+  border-color: rgba(29, 185, 84, 0.35);
+  color: #1db954;
+  background: rgba(29, 185, 84, 0.06);
+}
+
+/* ============================================================
    SONG PAGE — TITLE ROW + FAVORITE BUTTON
    ============================================================ */
 
@@ -2956,6 +2997,9 @@ body[data-theme="light"] .lyrics-pre {
   .glass-card { padding: 28px 24px; margin: 20px auto 40px; }
   .song-title { font-size: 28px; }
   .song-artist { font-size: 16px; }
+  /* Song page: un-absolute the action buttons so they don't overlap the title */
+  .song-title-row { justify-content: space-between; align-items: flex-start; }
+  .song-title-actions { position: static; flex-shrink: 0; }
   .lyrics-pre { overflow-x: auto; padding: 14px; font-size: 13px; }
   .prog-label { display: none; }
   .oca-samples { display: none; }
@@ -2969,8 +3013,10 @@ body[data-theme="light"] .lyrics-pre {
 
 @media (max-width: 480px) {
   .navbar { padding: 0 12px; }
+  /* On phones: hide redundant nav items — guitar icon + brand text is the home link */
+  .navbar-home-link { display: none; }
+  .navbar-cq        { display: none; }
   .brand-name { font-size: 17px; }
-  .navbar-cq  { font-size: 16px; }
   .page { padding-left: 8px; padding-right: 8px; }
   .container { padding: 12px 0 50px; }
   .hero { padding: 24px 0 24px; flex-direction: column; align-items: flex-start; gap: 0; }
@@ -2986,8 +3032,11 @@ body[data-theme="light"] .lyrics-pre {
   .artist-page-avatar { width: 96px; height: 96px; font-size: 30px; }
   .input-grid .autocomplete-wrapper { grid-column: 1 / -1; }
   .glass-card { padding: 20px 14px; margin: 12px auto 30px; border-radius: 16px; }
+  /* Song page: stack title + actions vertically on phones */
+  .song-title-row { flex-direction: column; gap: 10px; }
+  .song-title-actions { position: static; align-self: flex-start; }
   .song-title { font-size: 22px; }
-  .song-artist { font-size: 15px; margin-bottom: 16px; }
+  .song-artist { font-size: 15px; margin-bottom: 4px; }
   .star { font-size: 26px; }
   .lyrics-pre { padding: 12px 10px; font-size: 12px; line-height: 1.55; border-radius: 10px; }
   .prog-item  { flex-wrap: wrap; gap: 10px; padding: 12px 14px; }
@@ -3003,4 +3052,8 @@ body[data-theme="light"] .lyrics-pre {
   .genre-tile-name { font-size: 11px; }
   .back-btn { font-size: 12px; margin-bottom: 16px; }
   .search-btn { font-size: 14px; padding: 13px 24px; }
+  /* Suggested rows: hide meta badges on tiny screens to save space */
+  .suggested-meta .genre-badge { display: none; }
+  /* Rating: wrap label and average onto separate lines */
+  .rating-meta { flex-wrap: wrap; gap: 2px; }
 }

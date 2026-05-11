@@ -215,6 +215,32 @@ function StarRating({ songId, initialAverage, initialCount }) {
   );
 }
 
+// ─── Hear on YouTube / Spotify ───────────────────────────────────────────────
+function HearSong({ song }) {
+  const q = encodeURIComponent(`${song.artist_name} ${song.song_name}`);
+  return (
+    <div className="hear-song-row">
+      <span className="hear-song-label">Listen on</span>
+      <a
+        href={`https://www.youtube.com/results?search_query=${q}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="hear-song-link hear-song-yt"
+      >
+        YouTube
+      </a>
+      <a
+        href={`https://open.spotify.com/search/${q}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="hear-song-link hear-song-sp"
+      >
+        Spotify
+      </a>
+    </div>
+  );
+}
+
 // ─── Share button ─────────────────────────────────────────────────────────────
 function ShareButton({ song }) {
   const toast = useToast();
@@ -459,6 +485,7 @@ export default function SongPage() {
         />
 
         <ListButton song={song} />
+        <HearSong song={song} />
 
         <hr className="divider" />
 

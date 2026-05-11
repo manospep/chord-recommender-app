@@ -793,7 +793,7 @@ function Home() {
             />
             <AutocompleteInput
               className="artist-input"
-              placeholder="Filter by artist"
+              placeholder="Artist name"
               value={state.artist}
               onChange={e => setField("artist", e.target.value)}
               onKeyDown={handleEnter}
@@ -802,7 +802,7 @@ function Home() {
             />
             <AutocompleteInput
               className="song-input"
-              placeholder="Filter by song"
+              placeholder="Song title"
               value={state.title}
               onChange={e => setField("title", e.target.value)}
               onKeyDown={handleEnter}
