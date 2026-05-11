@@ -234,10 +234,10 @@ function Navbar({ theme, onToggleTheme }) {
           <span className="brand-chord">Chord</span><span className="brand-quest">Quest</span>
         </span>
       </a>
+      <Link to="/" className="navbar-home-link" onClick={resetHome}>Home</Link>
       <a href="/" className="navbar-cq" onClick={resetHome}>
         <span className="brand-chord">C</span><span className="brand-quest">Q</span>
       </a>
-      <Link to="/" className="navbar-home-link" onClick={resetHome}>Home</Link>
       <div className="navbar-right">
         <Link to="/artists" className="navbar-artists-link">Artists</Link>
         {user ? (
