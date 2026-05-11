@@ -3024,13 +3024,13 @@ body[data-theme="light"] .lyrics-pre {
   .hero-title { font-size: 27px; letter-spacing: -0.8px; }
   .hero-sub   { font-size: 14px; }
   .search-panel { padding: 12px 10px 14px; border-radius: 14px; }
-  .input-grid { grid-template-columns: 1fr; }
-  .artist-input, .song-input { grid-column: 1 / -1; }
+  .input-grid { grid-template-columns: 1fr 1fr; }
+  .input-grid .autocomplete-wrapper:has(.artist-input),
+  .input-grid .autocomplete-wrapper:has(.song-input) { grid-column: span 1; }
   .artists-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; }
   .artist-card  { padding: 14px 10px 12px; }
   .artist-avatar { width: 72px; height: 72px; font-size: 24px; }
   .artist-page-avatar { width: 96px; height: 96px; font-size: 30px; }
-  .input-grid .autocomplete-wrapper { grid-column: 1 / -1; }
   .glass-card { padding: 20px 14px; margin: 12px auto 30px; border-radius: 16px; }
   /* Song page: stack title + actions vertically on phones */
   .song-title-row { flex-direction: column; gap: 10px; }
