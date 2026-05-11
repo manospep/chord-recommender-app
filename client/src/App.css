@@ -633,7 +633,7 @@ body[data-theme="light"]::after {
 
 .search-btn {
   grid-column: 1 / -1;
-  background: var(--text-primary);
+  background: var(--gradient);
   color: var(--bg);
   padding: 14px 32px;
   border: none;
@@ -641,21 +641,21 @@ body[data-theme="light"]::after {
   cursor: pointer;
   font-size: 13px;
   font-weight: 700;
-  transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+  transition: filter 0.15s, transform 0.15s, box-shadow 0.15s;
   text-transform: uppercase;
   letter-spacing: 1.2px;
-  box-shadow: none;
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.22);
 }
 
 .search-btn:hover {
-  background: #ffffff;
+  filter: brightness(1.08);
   transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.20);
+  box-shadow: 0 5px 22px rgba(0, 0, 0, 0.30);
 }
 
 .search-btn:active {
   transform: translateY(0) scale(0.99);
-  background: var(--text-primary);
+  filter: brightness(0.97);
 }
 
 .search-btn:disabled {
@@ -1725,7 +1725,7 @@ body[data-theme="light"] .divider {
 
 .auth-submit {
   margin-top: 16px;
-  background: var(--accent);
+  background: var(--gradient);
   border: none;
   border-radius: 8px;
   padding: 13px;
