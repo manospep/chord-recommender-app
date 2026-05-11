@@ -2348,10 +2348,36 @@ body[data-theme="light"] .divider {
   padding-left: 4px;
 }
 
-.suggested-item {
-  flex-direction: row;
+.suggested-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.suggested-row {
+  display: flex;
   align-items: center;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2px 8px 2px 0;
+  transition: border-color 0.18s;
+}
+
+.suggested-row:hover {
+  border-color: var(--accent-border);
+}
+
+.suggested-link {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 10px;
+  padding: 10px 4px 10px 12px;
+  text-decoration: none;
+  min-width: 0;
 }
 
 .suggested-meta {
@@ -2382,6 +2408,35 @@ body[data-theme="light"] .divider {
   border-radius: 8px;
   padding: 2px 7px;
   white-space: nowrap;
+}
+
+.suggestion-thumbs {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+  padding-right: 4px;
+}
+
+.thumb-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  padding: 4px 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  opacity: 0.45;
+  transition: opacity 0.15s, background 0.15s;
+  line-height: 1;
+}
+
+.thumb-btn:hover {
+  opacity: 1;
+  background: var(--bg-input);
+}
+
+.thumb-btn:disabled {
+  opacity: 0.2;
+  cursor: default;
 }
 
 /* ============================================================
@@ -2880,7 +2935,8 @@ a.navbar-signin-btn:focus-visible {
   text-overflow: ellipsis;
 }
 
-/* Navbar artists link */
+/* Navbar home / artists links */
+.navbar-home-link,
 .navbar-artists-link {
   font-size: 13px;
   font-weight: 500;
@@ -2892,6 +2948,7 @@ a.navbar-signin-btn:focus-visible {
   transition: color 0.18s, border-color 0.18s;
 }
 
+.navbar-home-link:hover,
 .navbar-artists-link:hover {
   color: var(--text-primary);
   border-color: var(--border);

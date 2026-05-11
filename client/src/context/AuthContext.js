@@ -181,6 +181,23 @@ export function AuthProvider({ children }) {
     return !!data;
   }
 
+  // Suggestion feedback (thumbs up / down)
+  async function addSuggestionFeedback(songId, feedback) {
+    return supabase.from("suggestion_feedback").upsert({
+      user_id:  user.id,
+      song_id:  songId,
+      feedback,
+    }, { onConflict: "user_id,song_id" });
+  }
+
+  async function getSuggestionFeedback() {
+    const { data } = await supabase
+      .from("suggestion_feedback")
+      .select("song_id,feedback")
+      .eq("user_id", user.id);
+    return data || [];
+  }
+
   // Chord sync
   async function syncChords(chords) {
     return supabase.from("user_chords").upsert({
@@ -207,6 +224,7 @@ export function AuthProvider({ children }) {
       addFavorite, removeFavorite, getFavorites, isFavorited,
       ratesSong, getUserRating,
       addToList, removeFromList, getList, isInList,
+      addSuggestionFeedback, getSuggestionFeedback,
       syncChords, loadChords, deleteAccount,
     }}>
       {children}

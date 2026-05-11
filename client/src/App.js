@@ -237,6 +237,7 @@ function Navbar({ theme, onToggleTheme }) {
       <a href="/" className="navbar-cq" onClick={resetHome}>
         <span className="brand-chord">C</span><span className="brand-quest">Q</span>
       </a>
+      <Link to="/" className="navbar-home-link" onClick={resetHome}>Home</Link>
       <div className="navbar-right">
         <Link to="/artists" className="navbar-artists-link">Artists</Link>
         {user ? (
@@ -446,24 +447,60 @@ function SkeletonCard({ delay }) {
   );
 }
 
-// ---- Suggested songs (ML recommender based on learned / to-learn list) ----
+// ---- Suggested songs (TF-IDF + Rocchio feedback) ----
 function SuggestedSongs() {
-  const { user, getList } = useAuth();
-  const [songs, setSongs] = useState(null);
+  const { user, getList, addSuggestionFeedback, getSuggestionFeedback } = useAuth();
+  const [songs, setSongs]         = useState(null);
+  const [sourceIds, setSourceIds] = useState([]);
+  const [likedIds, setLikedIds]   = useState([]);
+  const [dislikedIds, setDislikedIds] = useState([]);
+  const [busy, setBusy]           = useState(null);
+
+  const fetchSuggestions = useCallback((srcIds, liked, disliked) => {
+    if (!srcIds.length && !liked.length) { setSongs([]); return; }
+    const p = new URLSearchParams({ limit: 6 });
+    if (srcIds.length)  p.set("song_ids",    srcIds.join(","));
+    if (liked.length)   p.set("liked_ids",   liked.join(","));
+    if (disliked.length) p.set("disliked_ids", disliked.join(","));
+    fetch(`${process.env.REACT_APP_API_URL}/suggest?${p}`)
+      .then(r => r.ok ? r.json() : [])
+      .then(data => Array.isArray(data) ? setSongs(data) : setSongs([]))
+      .catch(() => setSongs([]));
+  }, []);
 
   useEffect(() => {
     if (!user) return;
-    Promise.all([getList("learned"), getList("to_learn")]).then(([learned, toLearn]) => {
-      // Prefer learned songs; fall back to to_learn if learned is empty
-      const source = learned.length ? learned : toLearn;
-      if (!source.length) { setSongs([]); return; }
-      const ids = source.map(s => s.song_id).join(",");
-      fetch(`${process.env.REACT_APP_API_URL}/suggest?song_ids=${ids}&limit=5`)
-        .then(r => r.ok ? r.json() : [])
-        .then(setSongs)
-        .catch(() => setSongs([]));
-    });
+    Promise.all([getList("learned"), getList("to_learn"), getSuggestionFeedback()])
+      .then(([learned, toLearn, feedback]) => {
+        const source = learned.length ? learned : toLearn;
+        const srcIds = source.map(s => s.song_id);
+        const liked    = feedback.filter(f => f.feedback === "up").map(f => f.song_id);
+        const disliked = feedback.filter(f => f.feedback === "down").map(f => f.song_id);
+        setSourceIds(srcIds);
+        setLikedIds(liked);
+        setDislikedIds(disliked);
+        fetchSuggestions(srcIds, liked, disliked);
+      });
   }, [user]); // eslint-disable-line
+
+  const handleFeedback = useCallback(async (song, vote) => {
+    if (busy !== null) return;
+    setBusy(song.song_id);
+    await addSuggestionFeedback(song.song_id, vote);
+
+    const newLiked    = vote === "up"
+      ? [...likedIds.filter(id => id !== song.song_id),    song.song_id]
+      : likedIds.filter(id => id !== song.song_id);
+    const newDisliked = vote === "down"
+      ? [...dislikedIds.filter(id => id !== song.song_id), song.song_id]
+      : dislikedIds.filter(id => id !== song.song_id);
+
+    setLikedIds(newLiked);
+    setDislikedIds(newDisliked);
+    setSongs(prev => (prev || []).filter(s => s.song_id !== song.song_id));
+    fetchSuggestions(sourceIds, newLiked, newDisliked);
+    setBusy(null);
+  }, [busy, likedIds, dislikedIds, sourceIds, addSuggestionFeedback, fetchSuggestions]); // eslint-disable-line
 
   if (!user || songs === null) return null;
   if (songs.length === 0) return null;
@@ -471,25 +508,41 @@ function SuggestedSongs() {
   return (
     <div className="recent-section suggested-section">
       <p className="explore-label">Suggested for you</p>
-      <div className="recent-list">
+      <div className="suggested-list">
         {songs.map(song => (
-          <Link key={song.song_id} to={`/song/${song.song_id}`} className="recent-item suggested-item">
-            <div className="recent-item-info">
-              <span className="recent-item-name">{song.song_name}</span>
-              <span className="recent-item-artist">{song.artist_name}</span>
+          <div key={song.song_id} className="suggested-row">
+            <Link to={`/song/${song.song_id}`} className="suggested-link">
+              <div className="recent-item-info">
+                <span className="recent-item-name">{song.song_name}</span>
+                <span className="recent-item-artist">{song.artist_name}</span>
+              </div>
+              <div className="suggested-meta">
+                {song.genre && song.genre !== "Other" && (
+                  <span className="genre-badge">{song.genre}</span>
+                )}
+                {song.new_chords && song.new_chords.length > 0 && (
+                  <span className="suggested-new-chords">
+                    +{song.new_chords.slice(0, 3).join(", ")}
+                  </span>
+                )}
+                <span className="suggested-match">{song.match_pct}% match</span>
+              </div>
+            </Link>
+            <div className="suggestion-thumbs">
+              <button
+                className="thumb-btn thumb-up"
+                onClick={() => handleFeedback(song, "up")}
+                disabled={busy === song.song_id}
+                title="More like this"
+              >👍</button>
+              <button
+                className="thumb-btn thumb-down"
+                onClick={() => handleFeedback(song, "down")}
+                disabled={busy === song.song_id}
+                title="Not interested"
+              >👎</button>
             </div>
-            <div className="suggested-meta">
-              {song.genre && song.genre !== "Other" && (
-                <span className="genre-badge">{song.genre}</span>
-              )}
-              {song.new_chords.length > 0 && (
-                <span className="suggested-new-chords">
-                  +{song.new_chords.slice(0, 3).join(", ")}
-                </span>
-              )}
-              <span className="suggested-match">{song.match_pct}% match</span>
-            </div>
-          </Link>
+          </div>
         ))}
       </div>
     </div>

@@ -96,27 +96,43 @@ class SongRecommender:
 
         print(f"Ready. {len(self.df)} songs loaded, TF-IDF matrix {self._tfidf.shape}.")
 
-    def suggest(self, learned_ids: list, limit: int = 6) -> list:
-        valid = [i for i in learned_ids if i in self._id_to_pos]
-        if not valid:
+    def suggest(self, learned_ids: list, liked_ids: list = None,
+                disliked_ids: list = None, limit: int = 6) -> list:
+        liked_ids    = liked_ids    or []
+        disliked_ids = disliked_ids or []
+
+        valid          = [i for i in learned_ids  if i in self._id_to_pos]
+        liked_valid    = [i for i in liked_ids    if i in self._id_to_pos]
+        disliked_valid = [i for i in disliked_ids if i in self._id_to_pos]
+
+        all_source = valid + liked_valid
+        if not all_source:
             return []
 
-        positions = [self._id_to_pos[i] for i in valid]
+        src_positions = [self._id_to_pos[i] for i in all_source]
 
-        # Mean TF-IDF vector — sparse.mean returns numpy.matrix, convert to plain ndarray
-        user_profile = np.asarray(self._tfidf[positions].mean(axis=0))  # (1, n_features)
+        # User profile = mean TF-IDF of (learned + liked) songs
+        user_profile = np.asarray(self._tfidf[src_positions].mean(axis=0))
 
-        # Cosine similarity; asarray + ravel guarantees a writable 1-D ndarray
+        # Rocchio relevance feedback:
+        #   profile += 0.8 * liked_direction  (already included via mean above)
+        #   profile -= 0.3 * disliked_direction
+        if disliked_valid:
+            dis_pos     = [self._id_to_pos[i] for i in disliked_valid]
+            dis_profile = np.asarray(self._tfidf[dis_pos].mean(axis=0))
+            user_profile = user_profile - 0.3 * dis_profile
+
         sims = np.asarray(cosine_similarity(user_profile, self._tfidf)).ravel().copy()
 
-        # Zero out songs the user already has
-        for p in positions:
-            sims[p] = 0.0
+        # Exclude everything the user has already seen / rejected
+        for i in set(all_source + disliked_valid):
+            sims[self._id_to_pos[i]] = 0.0
 
-        # Known chord pool
-        known = frozenset().union(*[self.df.iloc[p]["chord_set"] for p in positions])
+        # Known chord pool (learned songs only — liked are suggestions, not mastered)
+        known = (frozenset().union(*[self.df.iloc[self._id_to_pos[i]]["chord_set"]
+                                     for i in valid])
+                 if valid else frozenset())
 
-        # Take top-100 by raw TF-IDF similarity, then re-rank with novelty
         k = min(100, len(sims) - 1)
         top_pos = np.argpartition(sims, -k)[-k:]
         top_pos = top_pos[np.argsort(-sims[top_pos])]

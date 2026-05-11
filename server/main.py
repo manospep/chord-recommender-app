@@ -211,13 +211,14 @@ def get_song(song_id: int):
 
 
 @app.get("/suggest")
-def suggest(song_ids: str = "", limit: int = 6):
-    if not song_ids:
+def suggest(song_ids: str = "", liked_ids: str = "", disliked_ids: str = "", limit: int = 6):
+    def parse(s): return [int(i) for i in s.split(",") if i.strip().isdigit()]
+    ids      = parse(song_ids)
+    liked    = parse(liked_ids)    if liked_ids    else []
+    disliked = parse(disliked_ids) if disliked_ids else []
+    if not ids and not liked:
         return []
-    ids = [int(i) for i in song_ids.split(",") if i.strip().isdigit()]
-    if not ids:
-        return []
-    return get_rec().suggest(ids, limit=limit)
+    return get_rec().suggest(ids, liked_ids=liked, disliked_ids=disliked, limit=limit)
 
 
 @app.get("/artists")
