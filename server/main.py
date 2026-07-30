@@ -61,26 +61,33 @@ def fetch_rating(song_id: int) -> dict:
     sb = get_supabase()
     if not sb:
         return {"average": None, "count": 0}
-    res = sb.table("song_ratings").select("rating").eq("song_id", song_id).execute()
-    rows = res.data
-    if not rows:
+    try:
+        res = sb.table("song_ratings").select("rating").eq("song_id", song_id).execute()
+        rows = res.data
+        if not rows:
+            return {"average": None, "count": 0}
+        ratings = [r["rating"] for r in rows]
+        return {"average": round(sum(ratings) / len(ratings), 1), "count": len(ratings)}
+    except Exception as e:
+        print(f"[supabase] fetch_rating error: {e}")
         return {"average": None, "count": 0}
-    ratings = [r["rating"] for r in rows]
-    return {"average": round(sum(ratings) / len(ratings), 1), "count": len(ratings)}
 
 def fetch_ratings_bulk(song_ids: list) -> dict:
-    """Returns {song_id: {average, count}} for a list of song_ids in one query."""
     sb = get_supabase()
     if not sb or not song_ids:
         return {}
-    res = sb.table("song_ratings").select("song_id,rating").in_("song_id", song_ids).execute()
-    stats: dict = defaultdict(list)
-    for r in res.data:
-        stats[r["song_id"]].append(r["rating"])
-    return {
-        sid: {"average": round(sum(rs) / len(rs), 1), "count": len(rs)}
-        for sid, rs in stats.items()
-    }
+    try:
+        res = sb.table("song_ratings").select("song_id,rating").in_("song_id", song_ids).execute()
+        stats: dict = defaultdict(list)
+        for r in res.data:
+            stats[r["song_id"]].append(r["rating"])
+        return {
+            sid: {"average": round(sum(rs) / len(rs), 1), "count": len(rs)}
+            for sid, rs in stats.items()
+        }
+    except Exception as e:
+        print(f"[supabase] fetch_ratings_bulk error: {e}")
+        return {}
 
 def get_rec() -> SongRecommender:
     if _rec_error:
@@ -143,7 +150,11 @@ def top_songs(limit: int = 5):
     sb = get_supabase()
     if not sb:
         return []
-    res = sb.table("song_ratings").select("song_id,rating").execute()
+    try:
+        res = sb.table("song_ratings").select("song_id,rating").execute()
+    except Exception as e:
+        print(f"[supabase] top_songs error: {e}")
+        return []
     if not res.data:
         return []
 
