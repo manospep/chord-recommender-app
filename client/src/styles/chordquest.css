@@ -1,0 +1,912 @@
+/* ============================================================================
+   ChordQuest — "Direct discovery" design system
+   Mint-on-dark, Sora headings / Manrope body. Built for beginner guitarists.
+   All colors come from the tokens defined in src/styles.css.
+   ========================================================================= */
+
+/* ---------------------------------------------------------------- shell -- */
+
+.home-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(90rem 45rem at 50% -18rem, color-mix(in oklab, var(--color-primary) 16%, transparent), transparent 70%),
+    var(--color-background);
+  color: var(--color-foreground);
+}
+
+.page-shell {
+  width: 100%;
+  max-width: 76rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.main-content {
+  width: 100%;
+  max-width: 76rem;
+  margin: 0 auto;
+  padding: 0 1.5rem 6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4.5rem;
+  flex: 1;
+}
+
+/* --------------------------------------------------------------- navbar -- */
+
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1.5rem;
+  background: color-mix(in oklab, var(--color-background) 82%, transparent);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.navbar-brand {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.navbar-logo {
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+}
+
+.navbar-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.navbar-link {
+  padding: 0.45rem 0.85rem;
+  border-radius: 0.6rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-muted-foreground);
+  text-decoration: none;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.navbar-link:hover {
+  color: var(--color-foreground);
+  background: var(--color-card);
+}
+
+.navbar-link.active {
+  color: var(--color-primary);
+  background: color-mix(in oklab, var(--color-primary) 12%, transparent);
+}
+
+.navbar-cta,
+.navbar-cta:hover {
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+  font-weight: 700;
+}
+
+.navbar-cta:hover {
+  background: var(--color-accent);
+}
+
+/* ----------------------------------------------------------------- hero -- */
+
+.hero {
+  width: 100%;
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 4.5rem 1.5rem 3rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--color-primary) 32%, transparent);
+  background: color-mix(in oklab, var(--color-primary) 10%, transparent);
+  color: var(--color-accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 3.75rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  margin: 0;
+}
+
+.hero-title em {
+  font-style: normal;
+  color: var(--color-primary);
+}
+
+.hero-subtitle {
+  margin: 0.9rem auto 0;
+  max-width: 34rem;
+  font-size: 1.075rem;
+  line-height: 1.6;
+  color: var(--color-muted-foreground);
+}
+
+.hero-illustration {
+  display: none;
+}
+
+/* --------------------------------------------------------- search panel -- */
+
+.search-box {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 1.25rem;
+  background: var(--color-card);
+  border: 1px solid color-mix(in oklab, var(--color-primary) 22%, transparent);
+  box-shadow: 0 24px 60px -30px rgb(0 0 0 / 0.85);
+  text-align: left;
+}
+
+@media (min-width: 800px) {
+  .search-box {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.chord-tag-input {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.chord-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.75rem;
+}
+
+.chord-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.35rem 0.3rem 0.7rem;
+  border-radius: 0.6rem;
+  background: color-mix(in oklab, var(--color-primary) 18%, transparent);
+  border: 1px solid color-mix(in oklab, var(--color-primary) 45%, transparent);
+  color: var(--color-accent);
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1;
+  animation: chip-in 0.16s ease-out;
+}
+
+.chord-tag button {
+  display: grid;
+  place-items: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  border: 0;
+  border-radius: 0.35rem;
+  background: transparent;
+  color: color-mix(in oklab, var(--color-accent) 70%, transparent);
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.chord-tag button:hover {
+  background: color-mix(in oklab, var(--color-primary) 30%, transparent);
+  color: var(--color-foreground);
+}
+
+.chord-tag-limit {
+  font-size: 0.72rem;
+  color: var(--color-muted-foreground);
+}
+
+@keyframes chip-in {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.autocomplete {
+  position: relative;
+  flex: 1;
+  min-width: 9rem;
+}
+
+.autocomplete-input {
+  width: 100%;
+  padding: 0.6rem 0.25rem;
+  border: 0;
+  background: transparent;
+  color: var(--color-foreground);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  outline: none;
+}
+
+.autocomplete-input::placeholder {
+  color: color-mix(in oklab, var(--color-muted-foreground) 80%, transparent);
+}
+
+.autocomplete-list {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 0.4rem);
+  left: 0;
+  min-width: 11rem;
+  margin: 0;
+  padding: 0.3rem;
+  list-style: none;
+  border-radius: 0.85rem;
+  background: var(--color-popover);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 22px 50px -22px rgb(0 0 0 / 0.9);
+  max-height: 16rem;
+  overflow-y: auto;
+}
+
+.autocomplete-item {
+  padding: 0.45rem 0.7rem;
+  border-radius: 0.55rem;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-foreground);
+  cursor: pointer;
+}
+
+.autocomplete-item.active,
+.autocomplete-item:hover {
+  background: color-mix(in oklab, var(--color-primary) 20%, transparent);
+  color: var(--color-accent);
+}
+
+.search-divider {
+  display: none;
+}
+
+@media (min-width: 800px) {
+  .search-divider {
+    display: block;
+    align-self: center;
+    width: 1px;
+    height: 2.25rem;
+    background: color-mix(in oklab, var(--color-primary) 25%, transparent);
+  }
+}
+
+.search-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.genre-select {
+  appearance: none;
+  padding: 0.75rem 2rem 0.75rem 1rem;
+  border-radius: 0.85rem;
+  border: 1px solid var(--color-border);
+  background-color: color-mix(in oklab, var(--color-background) 70%, transparent);
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: right 1.05rem center, right 0.75rem center;
+  background-size: 0.3rem 0.3rem, 0.3rem 0.3rem;
+  background-repeat: no-repeat;
+  color: var(--color-foreground);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.genre-select:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.search-button {
+  padding: 0.8rem 1.9rem;
+  border: 0;
+  border-radius: 0.85rem;
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
+}
+
+.search-button:hover:not(:disabled) {
+  background: var(--color-accent);
+  box-shadow: 0 0 26px -6px color-mix(in oklab, var(--color-primary) 70%, transparent);
+}
+
+.search-button:active:not(:disabled) { transform: scale(0.97); }
+
+.search-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.clear-button {
+  padding: 0.8rem 1.1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.85rem;
+  background: transparent;
+  color: var(--color-muted-foreground);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.clear-button:hover {
+  color: var(--color-foreground);
+  border-color: color-mix(in oklab, var(--color-primary) 40%, transparent);
+}
+
+/* ------------------------------------------------------- chip clusters -- */
+
+.progressions,
+.recent-chords {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.progressions-label,
+.recent-chords-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-muted-foreground);
+}
+
+.progression-chip,
+.recent-chord-chip {
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--color-primary) 30%, transparent);
+  background: var(--color-card);
+  color: var(--color-foreground);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, transform 0.12s ease;
+}
+
+.progression-chip:hover,
+.recent-chord-chip:hover {
+  border-color: var(--color-primary);
+  color: var(--color-accent);
+}
+
+.progression-chip:active,
+.recent-chord-chip:active { transform: scale(0.96); }
+
+.progression-chip small {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--color-muted-foreground);
+}
+
+/* ------------------------------------------------------------- sections -- */
+
+.section-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1.75rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.section-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 1.95rem);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--color-foreground);
+}
+
+.section-title.accent { color: var(--color-accent); }
+
+.section-subtitle {
+  margin: 0.4rem 0 0;
+  font-size: 0.95rem;
+  color: var(--color-muted-foreground);
+}
+
+.section-link {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.section-link:hover { text-decoration: underline; }
+
+/* ----------------------------------------------------------- song cards -- */
+
+.song-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+  gap: 1.25rem;
+}
+
+.song-grid.compact {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+  gap: 0.85rem;
+}
+
+.song-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.4rem;
+  border-radius: 1.1rem;
+  background: var(--color-card);
+  border: 1px solid transparent;
+  color: inherit;
+  text-decoration: none;
+  box-shadow: 0 12px 30px -22px rgb(0 0 0 / 0.9);
+  transition: border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+  animation: card-in 0.28s ease-out both;
+}
+
+.song-card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in oklab, var(--color-primary) 50%, transparent);
+  box-shadow: 0 22px 44px -26px color-mix(in oklab, var(--color-primary) 60%, transparent);
+}
+
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.song-card-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.75rem;
+}
+
+.song-card-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--color-foreground);
+}
+
+.song-card.compact .song-card-title { font-size: 0.95rem; }
+
+.song-card-artist {
+  margin-top: 0.15rem;
+  font-size: 0.85rem;
+  color: var(--color-muted-foreground);
+}
+
+.song-card-genre {
+  flex-shrink: 0;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.4rem;
+  background: var(--color-background);
+  border: 1px solid color-mix(in oklab, var(--color-accent) 30%, transparent);
+  color: var(--color-accent);
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.song-card-chords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.song-card-chord {
+  display: grid;
+  place-items: center;
+  min-width: 2.4rem;
+  height: 2.4rem;
+  padding: 0 0.45rem;
+  border-radius: 0.6rem;
+  background: var(--color-background);
+  border: 1px solid color-mix(in oklab, var(--color-primary) 20%, transparent);
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-foreground);
+}
+
+.song-card-chord.matched {
+  border-color: var(--color-primary);
+  background: color-mix(in oklab, var(--color-primary) 20%, transparent);
+  color: var(--color-accent);
+}
+
+.song-card-foot {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: auto;
+}
+
+.difficulty {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.difficulty-bar {
+  width: 0.28rem;
+  height: 0.8rem;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--color-muted-foreground) 45%, transparent);
+}
+
+.difficulty-bar.on { background: var(--color-primary); }
+
+.difficulty-label {
+  margin-left: 0.4rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted-foreground);
+}
+
+.song-card-cta {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.song-card:hover .song-card-cta { opacity: 1; }
+
+.song-card-match,
+.song-card-missing {
+  font-size: 0.78rem;
+  color: var(--color-muted-foreground);
+}
+
+.song-card-missing strong {
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+/* ------------------------------------------------------------- mini row -- */
+
+.mini-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+  gap: 0.85rem;
+}
+
+.mini-card {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.85rem;
+  border-radius: 0.9rem;
+  background: color-mix(in oklab, var(--color-card) 60%, transparent);
+  color: inherit;
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+
+.mini-card:hover { background: var(--color-card); }
+
+.mini-rank {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+  border-radius: 0.7rem;
+  background: var(--color-background);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--color-primary);
+}
+
+.mini-body { min-width: 0; flex: 1; }
+
+.mini-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mini-artist {
+  font-size: 0.75rem;
+  color: var(--color-muted-foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mini-cta {
+  flex-shrink: 0;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--color-accent);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.mini-card:hover .mini-cta { opacity: 1; }
+
+/* ------------------------------------------------------------- feedback -- */
+
+.skeleton-card {
+  height: 10.5rem;
+  border-radius: 1.1rem;
+  background: linear-gradient(
+    100deg,
+    var(--color-card) 30%,
+    color-mix(in oklab, var(--color-primary) 12%, var(--color-card)) 50%,
+    var(--color-card) 70%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  from { background-position: 140% 0; }
+  to   { background-position: -40% 0; }
+}
+
+.empty-state {
+  padding: 2.5rem 1.5rem;
+  border-radius: 1.1rem;
+  border: 1px dashed var(--color-border);
+  text-align: center;
+  color: var(--color-muted-foreground);
+}
+
+.error-banner {
+  padding: 0.9rem 1.1rem;
+  border-radius: 0.85rem;
+  background: color-mix(in oklab, var(--color-destructive) 18%, transparent);
+  border: 1px solid color-mix(in oklab, var(--color-destructive) 45%, transparent);
+  color: var(--color-foreground);
+  font-size: 0.9rem;
+}
+
+.load-more {
+  align-self: center;
+  margin-top: 1.5rem;
+  padding: 0.7rem 1.6rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--color-primary) 40%, transparent);
+  background: transparent;
+  color: var(--color-accent);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.load-more:hover { background: color-mix(in oklab, var(--color-primary) 14%, transparent); }
+
+/* ---------------------------------------------------------------- forms -- */
+
+.form-card {
+  width: 100%;
+  max-width: 26rem;
+  margin: 0 auto;
+  padding: 2rem;
+  border-radius: 1.25rem;
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-muted-foreground);
+}
+
+.text-input {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+.text-input:focus-visible {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-primary) 22%, transparent);
+}
+
+/* ------------------------------------------------------- chord diagrams -- */
+
+.chord-diagram {
+  width: 100%;
+  height: auto;
+}
+
+.chord-diagram-grid { stroke: color-mix(in oklab, var(--color-muted-foreground) 55%, transparent); stroke-width: 1; }
+.chord-diagram-nut  { stroke: var(--color-foreground); stroke-width: 3; }
+.chord-diagram-dot  { fill: var(--color-primary); }
+.chord-diagram-mark { fill: var(--color-muted-foreground); font-size: 7px; font-weight: 700; }
+
+.diagram-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.9rem 0.6rem;
+  border-radius: 0.9rem;
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+}
+
+.diagram-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--color-accent);
+}
+
+/* ------------------------------------------------------- hero guitar svg -- */
+
+.hero-guitar-body      { fill: color-mix(in oklab, var(--color-primary) 16%, transparent); stroke: var(--color-primary); stroke-width: 4; }
+.hero-guitar-soundhole { fill: var(--color-background); stroke: color-mix(in oklab, var(--color-accent) 60%, transparent); stroke-width: 3; }
+.hero-guitar-neck      { fill: color-mix(in oklab, var(--color-primary) 35%, transparent); }
+.hero-guitar-headstock { fill: var(--color-accent); }
+.hero-guitar-string    { stroke: color-mix(in oklab, var(--color-accent) 70%, transparent); stroke-width: 1.5; }
+.hero-guitar-dot       { fill: var(--color-accent); }
+
+/* --------------------------------------------------------------- footer -- */
+
+.footer {
+  margin-top: auto;
+  padding: 2.5rem 1.5rem;
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--color-muted-foreground);
+}
+
+/* ------------------------------------------------------------- utility -- */
+
+.stack { display: flex; flex-direction: column; }
+.tip-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: 1rem;
+}
+
+.tip-card {
+  padding: 1.35rem;
+  border-radius: 1.1rem;
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+}
+
+.tip-step {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  margin-bottom: 0.75rem;
+  border-radius: 0.6rem;
+  background: color-mix(in oklab, var(--color-primary) 18%, transparent);
+  color: var(--color-accent);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.tip-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 0.35rem;
+}
+
+.tip-body {
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--color-muted-foreground);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* mini card text spacing */
+.mini-song-card .mini-title { margin-right: 0.4rem; }
+.mini-song-card .mini-artist { margin-left: 0.15rem; }
+
+/* page-level spacing refinements */
+.main-content > section + section { margin-top: -1rem; }
+.auth-page .main-content { gap: 2rem; max-width: 30rem; }
+.library-page .main-content { gap: 2rem; }
+.form-card {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1.75rem;
+  border-radius: 1.25rem;
+  background: color-mix(in oklab, var(--card) 92%, transparent);
+  border: 1px solid var(--border);
+  box-shadow: 0 24px 60px -30px rgb(0 0 0 / 0.7);
+}
