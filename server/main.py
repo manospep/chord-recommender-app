@@ -2,8 +2,8 @@ import os
 import threading
 from collections import defaultdict
 from contextlib import asynccontextmanager
-from typing import Optional
-from fastapi import FastAPI, HTTPException
+from typing import List, Optional
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from supabase import create_client, Client
 from recommender import SongRecommender
@@ -89,6 +89,17 @@ def fetch_ratings_bulk(song_ids: list) -> dict:
         print(f"[supabase] fetch_ratings_bulk error: {e}")
         return {}
 
+def _map_song(s: dict, rating: Optional[dict] = None) -> dict:
+    r = rating or {"average": None}
+    return {
+        "id":         str(s["song_id"]),
+        "name":       s.get("song_name", ""),
+        "artist":     s.get("artist_name", ""),
+        "genre":      s.get("genre", "Other"),
+        "chord_list": s.get("chord_list", []),
+        "rating":     r.get("average"),
+    }
+
 def get_rec() -> SongRecommender:
     if _rec_error:
         raise HTTPException(status_code=503, detail=f"Recommender failed to load: {_rec_error}")
@@ -110,12 +121,11 @@ def genres():
 
 
 @app.get("/one-chord-away")
-def one_chord_away(chords: str = "", genre: str = ""):
-    chord_list = [c.strip() for c in chords.split(",") if c.strip()]
-    if not chord_list:
-        return []
+def one_chord_away(chords: List[str] = Query(default=[]), genre: str = ""):
+    if not chords:
+        return {"songs": [], "total": 0}
 
-    user_set = frozenset(chord_list)
+    user_set = frozenset(chords)
     df = get_rec().df
 
     if genre:
@@ -126,37 +136,33 @@ def one_chord_away(chords: str = "", genre: str = ""):
     one_away = df[one_away_mask].copy()
     one_away["missing_chord"] = missing[one_away_mask].apply(lambda s: next(iter(s)))
 
-    grouped = one_away.groupby("missing_chord")
-    result = []
-    for chord, group in sorted(grouped, key=lambda x: -len(x[1])):
-        sample = (
-            group.sort_values("missing_chord")
-            .head(3)[["song_id", "artist_name", "song_name", "genre"]]
-            .to_dict(orient="records")
-        )
-        for s in sample:
-            s["song_id"] = int(s["song_id"])
-        result.append({
-            "chord":        chord,
-            "unlocks":      len(group),
-            "sample_songs": sample,
+    songs = []
+    for song_id, row in one_away.iterrows():
+        songs.append({
+            "id":           str(int(song_id)),
+            "name":         row.get("song_name", ""),
+            "artist":       row.get("artist_name", ""),
+            "genre":        row.get("genre", "Other"),
+            "chord_list":   [c for c in str(row.get("chord_list", "")).split("|") if c],
+            "missing_chord": row["missing_chord"],
         })
 
-    return result[:8]
+    songs.sort(key=lambda x: x["missing_chord"])
+    return {"songs": songs[:24], "total": len(songs)}
 
 
 @app.get("/top-songs")
-def top_songs(limit: int = 5):
+def top_songs(limit: int = 8):
     sb = get_supabase()
     if not sb:
-        return []
+        return {"songs": [], "total": 0}
     try:
         res = sb.table("song_ratings").select("song_id,rating").execute()
     except Exception as e:
         print(f"[supabase] top_songs error: {e}")
-        return []
+        return {"songs": [], "total": 0}
     if not res.data:
-        return []
+        return {"songs": [], "total": 0}
 
     stats: dict = defaultdict(list)
     for r in res.data:
@@ -168,36 +174,57 @@ def top_songs(limit: int = 5):
     )[:limit]
 
     df = get_rec().df
-    result = []
-    for sid, avg, cnt in ranked:
+    songs = []
+    for sid, avg, _ in ranked:
         if sid not in df.index:
             continue
-        sr = df.loc[sid]
-        result.append({
-            "song_id":        int(sid),
-            "artist_name":    sr.get("artist_name", ""),
-            "song_name":      sr.get("song_name", ""),
-            "genre":          sr.get("genre", "Other"),
-            "rating_average": avg,
-            "rating_count":   cnt,
+        row = df.loc[sid]
+        songs.append({
+            "id":         str(int(sid)),
+            "name":       row.get("song_name", ""),
+            "artist":     row.get("artist_name", ""),
+            "genre":      row.get("genre", "Other"),
+            "chord_list": [c for c in str(row.get("chord_list", "")).split("|") if c],
+            "rating":     avg,
         })
-    return result
+    return {"songs": songs, "total": len(songs)}
+
+
+@app.get("/recent-songs")
+def recent_songs(limit: int = 8):
+    df = get_rec().df
+    recent = df.sort_index(ascending=False).head(limit)
+    songs = []
+    for song_id, row in recent.iterrows():
+        songs.append({
+            "id":         str(int(song_id)),
+            "name":       row.get("song_name", ""),
+            "artist":     row.get("artist_name", ""),
+            "genre":      row.get("genre", "Other"),
+            "chord_list": [c for c in str(row.get("chord_list", "")).split("|") if c],
+        })
+    return {"songs": songs, "total": len(songs)}
 
 
 @app.get("/recommend")
-def recommend(chords: str = "", artist: str = "", title: str = "", genre: str = ""):
-    chord_list = [c.strip() for c in chords.split(",") if c.strip()]
-    results = get_rec().recommend(chord_list, artist_filter=artist, title_filter=title, genre_filter=genre)
+def recommend(
+    chords: List[str] = Query(default=[]),
+    artist: str = "",
+    title: str = "",
+    q: str = "",
+    genre: str = "",
+    page: int = 1,
+    limit: int = 20,
+):
+    results = get_rec().recommend(chords, artist_filter=artist, title_filter=title, genre_filter=genre, q=q)
+    total = len(results)
+    start = max(0, (page - 1) * limit)
+    page_results = results[start:start + limit]
 
-    song_ids = [int(s["song_id"]) for s in results]
+    song_ids = [int(s["song_id"]) for s in page_results]
     ratings  = fetch_ratings_bulk(song_ids)
-    for song in results:
-        song["song_id"] = int(song["song_id"])
-        r = ratings.get(song["song_id"], {"average": None, "count": 0})
-        song["rating_average"] = r["average"]
-        song["rating_count"]   = r["count"]
-
-    return results
+    songs = [_map_song(s, ratings.get(int(s["song_id"]))) for s in page_results]
+    return {"songs": songs, "total": total}
 
 
 @app.get("/song/{song_id}")
@@ -211,13 +238,13 @@ def get_song(song_id: int):
     rating = fetch_rating(song_id)
 
     return {
-        "song_id":           int(song_id),
-        "artist_name":       row.get("artist_name", ""),
-        "song_name":         row.get("song_name", ""),
-        "chords_and_lyrics": row.get("chords&lyrics", ""),
+        "id":                str(song_id),
+        "name":              row.get("song_name", ""),
+        "artist":            row.get("artist_name", ""),
+        "genre":             row.get("genre", "Other"),
         "chord_list":        [c for c in str(row.get("chord_list", "")).split("|") if c],
-        "rating_average":    rating["average"],
-        "rating_count":      rating["count"],
+        "rating":            rating["average"],
+        "chords_and_lyrics": row.get("chords&lyrics", ""),
     }
 
 

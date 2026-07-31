@@ -164,26 +164,34 @@ class SongRecommender:
             })
         return result
 
-    def recommend(self, user_chords, artist_filter="", title_filter="", genre_filter=""):
+    def recommend(self, user_chords, artist_filter="", title_filter="", genre_filter="", q=""):
         user_set = frozenset(ch.strip() for ch in user_chords if ch.strip())
 
         df = self.df
-        if artist_filter:
-            exact = df[df["artist_name"].str.contains(artist_filter, case=False, na=False, regex=False)]
-            if len(exact) == 0:
-                words = [w for w in re.split(r"\s+", artist_filter) if len(w) > 2]
-                if words:
-                    pattern = "|".join(re.escape(w) for w in words)
-                    exact = df[df["artist_name"].str.contains(pattern, case=False, na=False)]
-            df = exact
-        if title_filter:
-            exact = df[df["song_name"].str.contains(title_filter, case=False, na=False, regex=False)]
-            if len(exact) == 0:
-                words = [w for w in re.split(r"\s+", title_filter) if len(w) > 2]
-                if words:
-                    pattern = "|".join(re.escape(w) for w in words)
-                    exact = df[df["song_name"].str.contains(pattern, case=False, na=False)]
-            df = exact
+        if q and not artist_filter and not title_filter:
+            # Unified OR search: match artist name OR song name
+            mask = (
+                df["artist_name"].str.contains(q, case=False, na=False, regex=False) |
+                df["song_name"].str.contains(q, case=False, na=False, regex=False)
+            )
+            df = df[mask]
+        else:
+            if artist_filter:
+                exact = df[df["artist_name"].str.contains(artist_filter, case=False, na=False, regex=False)]
+                if len(exact) == 0:
+                    words = [w for w in re.split(r"\s+", artist_filter) if len(w) > 2]
+                    if words:
+                        pattern = "|".join(re.escape(w) for w in words)
+                        exact = df[df["artist_name"].str.contains(pattern, case=False, na=False)]
+                df = exact
+            if title_filter:
+                exact = df[df["song_name"].str.contains(title_filter, case=False, na=False, regex=False)]
+                if len(exact) == 0:
+                    words = [w for w in re.split(r"\s+", title_filter) if len(w) > 2]
+                    if words:
+                        pattern = "|".join(re.escape(w) for w in words)
+                        exact = df[df["song_name"].str.contains(pattern, case=False, na=False)]
+                df = exact
         if genre_filter:
             df = df[df["genre"] == genre_filter]
 
