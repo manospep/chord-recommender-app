@@ -7,8 +7,7 @@ import type { Song, SongListResponse, SearchInput } from "./chord-types";
  * always has something to render.
  */
 function apiBase(): string | null {
-  const url = process.env.CHORD_API_URL?.trim();
-  return url ? url.replace(/\/$/, "") : null;
+  return "https://chordrecommender-app-production.up.railway.app";
 }
 
 async function remote<T>(path: string, params?: URLSearchParams): Promise<T | null> {
