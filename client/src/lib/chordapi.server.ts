@@ -6,9 +6,12 @@ import type { Song, SongListResponse, SearchInput } from "./chord-types";
  * When unset/unreachable we fall back to the built-in catalog below so the UI
  * always has something to render.
  */
+// Railway backend — hardcoded because Lovable has no env-var UI.
+// Update this string when the Railway URL changes.
+const RAILWAY_BACKEND_URL = "https://chordrecommender-app-production.up.railway.app";
+
 function apiBase(): string | null {
-  const url = process.env.CHORD_API_URL?.trim();
-  return url ? url.replace(/\/$/, "") : null;
+  return RAILWAY_BACKEND_URL;
 }
 
 async function remote<T>(path: string, params?: URLSearchParams): Promise<T | null> {
