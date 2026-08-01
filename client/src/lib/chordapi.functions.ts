@@ -7,6 +7,8 @@ import {
   recentSongsImpl,
   getSongImpl,
   browseImpl,
+  getArtistsImpl,
+  getArtistSongsImpl,
 } from "./chordapi.server";
 
 const validateSearch = (input: SearchInput): SearchInput => ({
@@ -40,3 +42,11 @@ export const recentSongs = createServerFn({ method: "POST" })
 export const getSong = createServerFn({ method: "POST" })
   .inputValidator((input: { id: string }) => ({ id: String(input?.id ?? "").slice(0, 64) }))
   .handler(async ({ data }) => getSongImpl(data.id));
+
+export const getArtists = createServerFn({ method: "POST" })
+  .inputValidator((input: { q?: string }) => ({ q: typeof input?.q === "string" ? input.q.slice(0, 100) : undefined }))
+  .handler(async ({ data }) => getArtistsImpl(data.q));
+
+export const getArtistSongs = createServerFn({ method: "POST" })
+  .inputValidator((input: { name: string }) => ({ name: String(input?.name ?? "").slice(0, 200) }))
+  .handler(async ({ data }) => getArtistSongsImpl(data.name));

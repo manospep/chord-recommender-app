@@ -229,4 +229,24 @@ export async function browseImpl(input: SearchInput): Promise<SongListResponse &
   return { ...res, genres: genres ?? localGenres() };
 }
 
+export interface Artist {
+  name: string;
+  song_count: number;
+}
+
+export async function getArtistsImpl(q?: string): Promise<Artist[]> {
+  const p = new URLSearchParams({ limit: "1000" });
+  if (q) p.set("q", q);
+  const data = await remote<unknown>("/artists", p);
+  if (!Array.isArray(data)) return [];
+  return (data as any[]).filter(a => a?.name).map(a => ({ name: String(a.name), song_count: Number(a.song_count ?? 0) }));
+}
+
+export async function getArtistSongsImpl(name: string): Promise<SongListResponse> {
+  const data = await remote<unknown[]>(`/artist/${encodeURIComponent(name)}/songs`);
+  if (!Array.isArray(data)) return { songs: [], total: 0, live: false };
+  const songs = (data as any[]).map(r => normalizeSong({ ...r, artist: r.artist ?? r.artist_name ?? name })).filter(Boolean) as Song[];
+  return { songs, total: songs.length, live: true };
+}
+
 

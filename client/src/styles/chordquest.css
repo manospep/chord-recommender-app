@@ -948,3 +948,24 @@
   letter-spacing: 0.12em;
 }
 .chord-sheet-lyrics { color: color-mix(in oklab, var(--foreground) 88%, transparent); }
+
+/* Artist browser */
+.artist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.75rem;
+}
+.artist-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.875rem 1rem;
+  border-radius: 10px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  text-decoration: none;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.artist-card:hover { border-color: var(--primary); transform: translateY(-1px); }
+.artist-name { font-size: 0.9rem; font-weight: 600; color: var(--foreground); }
+.artist-count { font-size: 0.75rem; color: var(--muted-foreground); }
