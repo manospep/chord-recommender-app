@@ -910,3 +910,41 @@
   border: 1px solid var(--border);
   box-shadow: 0 24px 60px -30px rgb(0 0 0 / 0.7);
 }
+
+/* ── Chord-over-lyrics sheet ───────────────────────────────────────────── */
+.chord-sheet-wrap {
+  border-radius: 1.25rem;
+  border: 1px solid var(--border);
+  background: color-mix(in oklab, var(--card) 92%, transparent);
+  box-shadow: 0 24px 60px -30px rgb(0 0 0 / 0.7);
+  overflow: hidden;
+}
+.chord-sheet-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+.chord-sheet-toolbar button { cursor: pointer; border: 1px solid var(--border); background: transparent; }
+.chord-sheet-toolbar button:hover { border-color: var(--primary); color: var(--primary); }
+.chord-sheet {
+  margin: 0;
+  padding: 1.5rem 1.25rem 2rem;
+  overflow-x: auto;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  line-height: 1.5;
+  white-space: pre;
+  tab-size: 4;
+  color: var(--foreground);
+}
+.chord-sheet-chords { color: var(--primary); font-weight: 700; letter-spacing: 0.02em; }
+.chord-sheet-section {
+  display: block;
+  margin-top: 0.75rem;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  font-size: 0.8em;
+  letter-spacing: 0.12em;
+}
+.chord-sheet-lyrics { color: color-mix(in oklab, var(--foreground) 88%, transparent); }

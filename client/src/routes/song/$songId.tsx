@@ -6,6 +6,7 @@ import { useToast } from "@/context/ToastContext";
 import { getSong } from "@/lib/chordapi.functions";
 import { CHORD_SHAPES, chordDifficulty } from "@/lib/chordquest";
 import { ChordDiagram } from "@/components/ChordDiagram";
+import { ChordSheet } from "@/components/ChordSheet";
 import type { Song } from "@/lib/chord-types";
 
 function SongDetail() {
@@ -96,6 +97,21 @@ function SongDetail() {
             </div>
           )}
         </section>
+
+        <section>
+          <div className="section-head">
+            <div>
+              <h2 className="section-title">Chords &amp; lyrics</h2>
+              <p className="section-subtitle">Chord names sit directly above the word where you change.</p>
+            </div>
+          </div>
+          {song.chords_and_lyrics?.trim() ? (
+            <ChordSheet text={song.chords_and_lyrics} />
+          ) : (
+            <p className="empty-state">No lyric sheet available for this song yet.</p>
+          )}
+        </section>
+
 
         <section>
           <div className="section-head">

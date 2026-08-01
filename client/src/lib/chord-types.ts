@@ -4,6 +4,9 @@ export interface Song {
   artist: string;
   genre?: string;
   chord_list?: string[];
+  /** Raw chord-over-lyrics sheet text from the backend. */
+  chords_and_lyrics?: string;
+  rating_count?: number;
   match_count?: number;
   matched_chords?: string[];
   missing_chord?: string;

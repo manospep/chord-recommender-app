@@ -7,7 +7,8 @@ import type { Song, SongListResponse, SearchInput } from "./chord-types";
  * always has something to render.
  */
 function apiBase(): string | null {
-  return "https://chordrecommender-app-production.up.railway.app";
+  const url = process.env.CHORD_API_URL?.trim();
+  return url ? url.replace(/\/$/, "") : null;
 }
 
 async function remote<T>(path: string, params?: URLSearchParams): Promise<T | null> {
@@ -126,7 +127,8 @@ export function localGenres(): string[] {
 // ─────────────────────────────────────────────────────────────────────────────
 function toParams(input: SearchInput): URLSearchParams {
   const p = new URLSearchParams();
-  (input.chords ?? []).forEach(c => p.append("chords", c));
+  // FastAPI declares `chords` as an array query param → repeat the key.
+  for (const c of (input.chords ?? []).map(c => c.trim()).filter(Boolean)) p.append("chords", c);
   if (input.genre && input.genre !== "All Genres") p.set("genre", input.genre);
   if (input.q?.trim()) p.set("q", input.q.trim());
   p.set("page", String(input.page ?? 1));
@@ -134,21 +136,64 @@ function toParams(input: SearchInput): URLSearchParams {
   return p;
 }
 
+
+/** The FastAPI backend uses song_id / song_name / artist_name; map to our Song shape. */
+function normalizeSong(raw: any): Song | null {
+  if (!raw || typeof raw !== "object") return null;
+  const id = raw.id ?? raw.song_id;
+  if (id === undefined || id === null) return null;
+  return {
+    id: String(id),
+    name: raw.name ?? raw.song_name ?? "Untitled",
+    artist: raw.artist ?? raw.artist_name ?? "Unknown artist",
+    genre: raw.genre ?? undefined,
+    chord_list: Array.isArray(raw.chord_list) ? raw.chord_list : undefined,
+    chords_and_lyrics: raw.chords_and_lyrics ?? raw.chords_lyrics ?? undefined,
+    match_count: raw.match_count,
+    matched_chords: raw.matched_chords,
+    missing_chord: raw.missing_chord,
+    rating: raw.rating ?? raw.rating_average ?? undefined,
+    rating_count: raw.rating_count ?? undefined,
+    youtube_id: raw.youtube_id,
+    year: raw.year,
+  };
+}
+
 function shape(data: unknown, fallbackTotal: number): SongListResponse | null {
   if (!data || typeof data !== "object") return null;
-  const raw = data as { songs?: Song[]; total?: number };
-  if (!Array.isArray(raw.songs)) return null;
-  return { songs: raw.songs, total: raw.total ?? raw.songs.length ?? fallbackTotal, live: true };
+  const raw = data as { songs?: unknown[]; total?: number };
+  const list = Array.isArray(data) ? (data as unknown[]) : Array.isArray(raw.songs) ? raw.songs : null;
+  if (!list) return null;
+  const songs = list.map(normalizeSong).filter(Boolean) as Song[];
+  if (!songs.length) return null;
+  return { songs, total: raw.total ?? songs.length ?? fallbackTotal, live: true };
 }
 
 export async function searchSongsImpl(input: SearchInput): Promise<SongListResponse> {
   const data = await remote<unknown>("/recommend", toParams(input));
+  // The backend already applies page/limit — never re-slice here.
   return shape(data, 0) ?? localSearch(input);
 }
 
 export async function oneChordAwayImpl(input: SearchInput): Promise<SongListResponse> {
   const data = await remote<unknown>("/one-chord-away", toParams(input));
-  return shape(data, 0) ?? localOneChordAway(input);
+
+  // Newer backend: { songs: [{ ..., missing_chord }] }
+  const flat = shape(data, 0);
+  if (flat) return { ...flat, songs: flat.songs.slice(0, 12) };
+
+  // Older backend: grouped as [{ chord, sample_songs: [...] }]
+  if (Array.isArray(data)) {
+    const songs: Song[] = [];
+    for (const group of data as any[]) {
+      for (const s of group?.sample_songs ?? []) {
+        const song = normalizeSong(s);
+        if (song) songs.push({ ...song, missing_chord: group.chord });
+      }
+    }
+    if (songs.length) return { songs: songs.slice(0, 12), total: songs.length, live: true };
+  }
+  return localOneChordAway(input);
 }
 
 export async function topSongsImpl(limit: number): Promise<SongListResponse> {
@@ -162,12 +207,23 @@ export async function recentSongsImpl(limit: number): Promise<SongListResponse> 
 }
 
 export async function getSongImpl(id: string): Promise<Song | null> {
-  const data = await remote<Song>(`/song/${encodeURIComponent(id)}`);
-  if (data && typeof data === "object" && "id" in data) return data;
-  return localSong(id);
+  const data = await remote<unknown>(`/song/${encodeURIComponent(id)}`);
+  return normalizeSong(data) ?? localSong(id);
+}
+
+async function remoteGenres(): Promise<string[] | null> {
+  const data = await remote<unknown>("/genres");
+  if (!Array.isArray(data)) return null;
+  const list = data.map(String).filter(Boolean);
+  return list.length ? list : null;
 }
 
 export async function browseImpl(input: SearchInput): Promise<SongListResponse & { genres: string[] }> {
-  const res = await searchSongsImpl({ ...input, limit: input.limit ?? 50 });
-  return { ...res, genres: localGenres() };
+  const [res, genres] = await Promise.all([
+    searchSongsImpl({ ...input, limit: input.limit ?? 50 }),
+    remoteGenres(),
+  ]);
+  return { ...res, genres: genres ?? localGenres() };
 }
+
+

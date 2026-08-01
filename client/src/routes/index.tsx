@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
+import { useHydrated } from "@/hooks/useHydrated";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import { GENRES, PROGRESSIONS, STARTER_CHORDS } from "@/lib/chordquest";
@@ -233,6 +234,7 @@ function Home() {
   const toast = useToast();
   const searchRef = useRef<HTMLDivElement>(null);
   const [recentChords, setRecentChords] = useLocalStorage<string[]>("chordquest_recent_chords", []);
+  const hydrated = useHydrated();
 
   const fetchSearch = useServerFn(searchSongs);
   const fetchOneChordAway = useServerFn(oneChordAway);
@@ -376,7 +378,7 @@ function Home() {
           ))}
         </div>
 
-        {recentChords.length > 0 && (
+        {hydrated && recentChords.length > 0 && (
           <div className="recent-chords">
             <span className="recent-chords-label">Recent:</span>
             {recentChords.slice(0, 8).map(c => (
