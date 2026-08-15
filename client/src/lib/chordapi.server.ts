@@ -234,9 +234,10 @@ export interface Artist {
   song_count: number;
 }
 
-export async function getArtistsImpl(q?: string): Promise<Artist[]> {
-  const p = new URLSearchParams({ limit: "1000" });
+export async function getArtistsImpl(q?: string, letter?: string): Promise<Artist[]> {
+  const p = new URLSearchParams({ limit: "500" });
   if (q) p.set("q", q);
+  if (letter) p.set("letter", letter);
   const data = await remote<unknown>("/artists", p);
   if (!Array.isArray(data)) return [];
   return (data as any[]).filter(a => a?.name).map(a => ({ name: String(a.name), song_count: Number(a.song_count ?? 0) }));

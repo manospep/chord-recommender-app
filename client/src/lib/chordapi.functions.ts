@@ -44,8 +44,11 @@ export const getSong = createServerFn({ method: "POST" })
   .handler(async ({ data }) => getSongImpl(data.id));
 
 export const getArtists = createServerFn({ method: "POST" })
-  .inputValidator((input: { q?: string }) => ({ q: typeof input?.q === "string" ? input.q.slice(0, 100) : undefined }))
-  .handler(async ({ data }) => getArtistsImpl(data.q));
+  .inputValidator((input: { q?: string; letter?: string }) => ({
+    q: typeof input?.q === "string" ? input.q.slice(0, 100) : undefined,
+    letter: typeof input?.letter === "string" ? input.letter.slice(0, 1) : undefined,
+  }))
+  .handler(async ({ data }) => getArtistsImpl(data.q, data.letter));
 
 export const getArtistSongs = createServerFn({ method: "POST" })
   .inputValidator((input: { name: string }) => ({ name: String(input?.name ?? "").slice(0, 200) }))

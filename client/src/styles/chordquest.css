@@ -949,6 +949,29 @@
 }
 .chord-sheet-lyrics { color: color-mix(in oklab, var(--foreground) 88%, transparent); }
 
+/* Artist browser A-Z nav */
+.az-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 1.75rem;
+}
+.az-btn {
+  min-width: 2.2rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--foreground);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+  text-align: center;
+}
+.az-btn:hover { background: var(--muted); }
+.az-btn.active { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+
 /* Artist browser */
 .artist-grid {
   display: grid;
